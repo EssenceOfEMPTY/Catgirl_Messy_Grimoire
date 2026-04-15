@@ -1,0 +1,9 @@
+<Entity>
+
+	<LuaComponent
+		_enabled="1"
+		script_source_file="mods/empty_the_blackhole_catgirl/files/scripts/projectiles/nuke_ray_line.lua"
+		execute_every_n_frame="15"
+	></LuaComponent>
+
+</Entity>

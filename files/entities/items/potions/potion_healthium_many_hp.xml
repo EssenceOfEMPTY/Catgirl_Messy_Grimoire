@@ -1,0 +1,15 @@
+<Entity>
+	<Base file="data/entities/items/pickup/potion.xml" >
+
+		<DamageModelComponent
+			hp="4000"
+		></DamageModelComponent>
+
+	</Base>
+
+	<VariableStorageComponent
+		name="potion_material"
+		value_string="magic_liquid_hp_regeneration"
+	></VariableStorageComponent>
+
+</Entity>

@@ -1,0 +1,20 @@
+<Entity name="$projectile_default" tags="player_projectile" >
+
+	<LifetimeComponent
+		lifetime="300"
+	></LifetimeComponent>
+
+	<LoadEntitiesComponent
+		entity_file="mods/empty_the_blackhole_catgirl/files/entities/projectiles/circle_empty_remove.xml"
+		count.min="1"
+		count.max="1"
+		kill_entity="0"
+		timeout_frames="2"
+	></LoadEntitiesComponent>
+
+	<AudioComponent
+		file="data/audio/Desktop/projectiles.bank"
+		event_root="player_projectiles/circle_of"
+	></AudioComponent>
+
+</Entity>

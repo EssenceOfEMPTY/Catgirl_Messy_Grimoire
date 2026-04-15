@@ -1,0 +1,9 @@
+<Entity>
+
+	<LuaComponent
+		script_source_file="mods/empty_the_blackhole_catgirl/files/scripts/projectiles/command/projectile_air_friction_set.lua"
+		execute_on_added="1"
+		remove_after_executed="1"
+	></LuaComponent>
+
+</Entity>

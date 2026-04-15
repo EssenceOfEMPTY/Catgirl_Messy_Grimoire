@@ -1,0 +1,25 @@
+<Entity>
+
+	<Base file="data/entities/base_projectile.xml" ></Base>
+
+	<ProjectileComponent
+		_enabled="1"
+		damage="0"
+		collide_with_world="0"
+		on_collision_die="0"
+		lifetime="3"
+	>
+	</ProjectileComponent>
+
+	<LuaComponent
+		_enabled="1"
+		script_source_file="mods/empty_the_blackhole_catgirl/files/scripts/projectiles/swap_life_and_death.lua"
+		execute_every_n_frame="2"
+	></LuaComponent>
+
+	<VariableStorageComponent
+		name="projectile_file"
+		value_string="mods/empty_the_blackhole_catgirl/files/entities/projectiles/swap_life_and_death.xml"
+	></VariableStorageComponent>
+
+</Entity>

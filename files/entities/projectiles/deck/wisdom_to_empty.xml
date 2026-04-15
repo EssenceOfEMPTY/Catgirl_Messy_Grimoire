@@ -1,0 +1,27 @@
+<Entity tags="projectile_player" >
+
+	<LifetimeComponent
+		lifetime="300"
+	></LifetimeComponent>
+
+	<LuaComponent
+		script_source_file="mods/empty_the_blackhole_catgirl/files/scripts/projectiles/wisdom_to_empty_start.lua"
+		execute_every_n_frame="0"
+		execute_on_added="1"
+		remove_after_executed="1"
+	></LuaComponent>
+
+	<LuaComponent
+		script_source_file="mods/empty_the_blackhole_catgirl/files/scripts/projectiles/wisdom_to_empty_end.lua"
+		execute_every_n_frame="0"
+		execute_on_removed="1"
+		remove_after_executed="1"
+	></LuaComponent>
+
+	<AudioComponent
+		file="data/audio/Desktop/projectiles.bank"
+		event_root="player_projectiles/circle_of"
+		set_latest_event_position="1"
+	></AudioComponent>
+
+</Entity>

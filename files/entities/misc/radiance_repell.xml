@@ -1,0 +1,15 @@
+<Entity>
+
+	<InheritTransformComponent />
+
+	<GameEffectComponent
+		effect="CONFUSION"
+		frames="40"
+	></GameEffectComponent>
+
+	<GameEffectComponent
+		effect="MOVEMENT_FASTER_2X"
+		frames="40"
+	></GameEffectComponent>
+
+</Entity>

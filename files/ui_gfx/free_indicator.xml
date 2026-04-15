@@ -1,0 +1,12 @@
+<Entity>
+
+	<SpriteComponent
+		_enabled="1"
+		alpha="1"
+		offset_x="5"
+		offset_y="2"
+		image_file="mods/empty_the_blackhole_catgirl/files/ui_gfx/free_indicator.png"
+		z_index="-0.5"
+	></SpriteComponent>
+
+</Entity>
