@@ -22,23 +22,30 @@ function info_print( info, key )
 	end
 end
 
----返回关于时间的3个数, 主要作为随机种子使用
----@return number year_day_minute
----@return number month_hour_second
----@return number game_frame_num
-function time_for_vec3( )
-	local year1, month1, day1, hour1, minute1, second1 = GameGetDateAndTimeLocal( )
-	local year2, month2, day2, hour2, minute2, second2 = GameGetDateAndTimeUTC( )
+---发送提示信息
+---@param name any
+---@param ... any
+function command_print( name, ... )
+	GamePrint( name .. ' : ' .. GameTextGet( ... ) )
+end
 
-	local year, month, day, hour, minute, second =
+---返回关于时间的3个数, 主要作为随机种子使用
+---@return number year_day_min
+---@return number mon_hour_sec
+---@return number frame_num
+function time_for_vec3( )
+	local year1, mon1, day1, hour1, min1, sec1 = GameGetDateAndTimeLocal( )
+	local year2, mon2, day2, hour2, min2, sec2 = GameGetDateAndTimeUTC( )
+
+	local year, mon, day, hour, min, sec =
 		( year1 or 0 ) + ( year2 or 0 ),
-		( month1 or 0 ) + ( month2 or 0 ),
+		( mon1 or 0 ) + ( mon2 or 0 ),
 		( day1 or 0 ) + ( day2 or 0 ),
 		( hour1 or 0 ) + ( hour2 or 0 ),
-		( minute1 or 0 ) + ( minute2 or 0 ),
-		( second1 or 0 ) + ( second2 or 0 )
+		( min1 or 0 ) + ( min2 or 0 ),
+		( sec1 or 0 ) + ( sec2 or 0 )
 
-	return ( year + day + minute ), ( month + hour + second ), GameGetFrameNum( )
+	return ( year + day + min ), ( mon + hour + sec ), GameGetFrameNum( )
 end
 
 ---将角度 deg 转换为弧度 rad
@@ -48,7 +55,7 @@ function deg_to_rad( deg )
 	return math.fmod( deg * math.pi / 180.0, 2 * math.pi )
 end
 
----在不更改速度大小的状态下将速度方向在原基础上逆时针旋转 angel°
+---在不更改速度大小的状态下将速度方向在原基础上逆时针旋转 angle°
 ---@param vel_x number
 ---@param vel_y number
 ---@param angle number
@@ -65,7 +72,7 @@ function rot_vel( vel_x, vel_y, angle )
 	end
 end
 
----在不更改速度大小的状态下将速度方向在正右方基础上逆时针旋转 angel°
+---在不更改速度大小的状态下将速度方向在正右方基础上逆时针旋转 angle°
 ---@param vel_x number
 ---@param vel_y number
 ---@param angle number
@@ -79,13 +86,19 @@ function abs_rot_vel( vel_x, vel_y, angle )
 end
 
 ---在不更改速度方向的状态下将速度大小变为 speed
----@param vel_x any
----@param vel_y any
----@param mod any
----@return unknown
----@return unknown
+---@param vel_x number
+---@param vel_y number
+---@param speed number
+---@return number vel_x
+---@return number vel_y
 function change_vel( vel_x, vel_y, speed )
-	return vel_x * speed, vel_y * speed
+	if ( vel_x == 0 and vel_y == 0 ) then
+		return 0, 0
+	else
+		vel_x, vel_y = vec_normalize( vel_x, vel_y )
+
+		return vel_x * speed, vel_y * speed
+	end
 end
 
 ---获取 NG+ 数
@@ -111,6 +124,13 @@ function get_money( entity )
 	end
 
 	return money
+end
+
+---移除投射物速度组件的速度上限
+---@param v_comp number
+function remove_speed_limit( v_comp )
+	ComponentSetValue2( v_comp, 'apply_terminal_velocity', 0 )
+	ComponentSetValue2( v_comp, 'limit_to_max_velocity', 0 )
 end
 
 ---返回任意数据的全大写数据类型
@@ -922,6 +942,136 @@ function replace_table_by_id( str, id, values, pattern )
 	return result
 end
 
+---在不完全替换的情况下更新块内容, 为键传入 nil 改为删除键
+---@param str string
+---@param id string
+---@param updates table
+---@param pattern string
+---@return string str_updated
+function update_table_by_id( str, id, updates, pattern )
+	if ( type( str ) ~= 'string' or type( id ) ~= 'string' or type( updates ) ~= 'table' or type( pattern ) ~= 'string' ) then
+		return str
+	end
+
+	local result = str
+	local pos = 1
+	local len = #result
+	local pattern_len = #pattern
+
+	while ( pos <= len ) do
+		local start_pos = string.find( result, pattern, pos, true )
+		if ( not start_pos ) then
+			break
+		end
+
+		local search_end_pos = start_pos + pattern_len
+		local end_pos = string.find( result, pattern, search_end_pos, true )
+		if ( not end_pos ) then
+			break
+		end
+
+		local content = string.sub( result, start_pos + pattern_len, end_pos - 1 )
+
+		local id_str = 'id=' .. id
+		local id_pos = string.find( content, id_str, 1, true )
+
+		if ( id_pos ) then
+			local before_char = ( id_pos == 1 ) and ',' or string.sub( content, id_pos - 1, id_pos - 1 )
+			local after_id_end = id_pos + #id_str - 1
+			local after_char = ( after_id_end == #content ) or string.sub( content, after_id_end + 1, after_id_end + 1 )
+
+			local valid_before = ( id_pos == 1 ) or ( before_char == ',' )
+			local valid_after = ( after_char == ',' ) or ( after_id_end == #content )
+
+			if ( valid_before and valid_after ) then
+				local original_table = { }
+				local kv_start = 1
+
+				while ( kv_start <= #content ) do
+					local eq_pos = string.find( content, '=', kv_start, true )
+					if ( not eq_pos ) then
+						break
+					end
+
+					local key = string.sub( content, kv_start, eq_pos - 1 )
+					local value_start = eq_pos + 1
+					local value = ''
+
+					if ( value_start <= #content ) then
+						local first_char = string.sub(content, value_start, value_start )
+						if ( first_char == '(' ) then
+							local paren_depth = 1
+							local p = value_start + 1
+							while ( p <= #content and paren_depth > 0 ) do
+								local char = string.sub( content, p, p )
+								if ( char == '(' ) then
+									paren_depth = paren_depth + 1
+								elseif ( char == ')' ) then
+									paren_depth = paren_depth - 1
+								end
+								p = p + 1
+							end
+							local comma_pos = string.find( content, ',', p - 1, true )
+							local value_end = comma_pos or ( #content + 1 )
+							value = string.sub( content, value_start, value_end - 1 )
+							kv_start = value_end
+						elseif ( first_char == '\'' ) then
+							local quote_end = string.find( content, '\'', value_start + 1, true )
+							if ( quote_end ) then
+								local comma_pos = string.find( content, ',', quote_end + 1, true )
+								local value_end = comma_pos or ( #content + 1 )
+								value = string.sub( content, value_start + 1, quote_end - 1 )
+								kv_start = value_end
+							else
+								value = string.sub( content, value_start + 1 )
+								kv_start = #content + 1
+							end
+						else
+							local comma_pos = string.find( content, ',', eq_pos + 1, true )
+							local value_end = comma_pos or ( #content + 1 )
+							value = string.sub( content, eq_pos + 1, value_end - 1 )
+							kv_start = value_end
+						end
+					end
+
+					original_table[key] = value
+					kv_start = kv_start + 1
+				end
+
+				for key, new_value in pairs( updates ) do
+					if ( new_value == nil ) then
+						original_table[ key ] = nil
+					else
+						original_table[ key ] = tostring( new_value )
+					end
+				end
+
+				local kv_pair = { }
+				for k, v in pairs( original_table ) do
+					local v_str = tostring( v )
+					if ( string.find( v_str, ',' ) or string.find( v_str, '=' ) ) then
+						v_str = '\'' .. v_str .. '\''
+					end
+					table.insert( kv_pair, k .. '=' .. v_str )
+				end
+				local new_content = table.concat( kv_pair, ',' )
+				local new_block = pattern .. new_content .. pattern
+
+				result = string.sub( result, 1, start_pos - 1 ) .. new_block .. string.sub( result, end_pos + pattern_len )
+
+				len = #result
+				pos = start_pos + #new_block
+			else
+				pos = end_pos + pattern_len
+			end
+		else
+			pos = end_pos + pattern_len
+		end
+	end
+
+	return result
+end
+
 ---从 str 内删除被 pattern 严格闭合的 id 键值为指定 id 的前 count 个表，返回修改后的字符串
 ---@param str string
 ---@param id string
@@ -985,12 +1135,11 @@ end
 ---为 c.action_description 新增 args;
 ---可替换或叠加
 ---@param c table
----@param can_replace boolean|nil
----@param can_merge boolean|nil
+---@param options table
 ---@param args table|nil
 ---@param extra_entities string|nil
 ---@param pattern string
-function add_desc_by_info( c, can_replace, can_merge, args, extra_entities, pattern )
+function add_desc_by_info( c, options, args, extra_entities, pattern )
 	if ( not reflecting and args ) then
 		local prefix = '::__DELAY_EXP__::'
 		for i, _ in pairs( args ) do
@@ -1006,10 +1155,12 @@ function add_desc_by_info( c, can_replace, can_merge, args, extra_entities, patt
 		local desc = c.action_description or ''
 		local values = search_table_from_format( desc, args.id, pattern )
 
-		if ( values and can_replace ) then
+		if ( values and options.replace ) then
 			local str = nil
 
-			if ( can_merge ) then
+			if ( options.update ) then
+				str = update_table_by_id( desc, args.id, args, pattern )
+			elseif ( options.merge ) then
 				str = merge_table_by_id( desc, args.id, args, pattern )
 			else
 				str = replace_table_by_id( desc, args.id, args, pattern )
@@ -1027,10 +1178,10 @@ function add_desc_by_info( c, can_replace, can_merge, args, extra_entities, patt
 end
 
 ---解析 command 的参数并求值
----@param action_id string action_description 中的 id
----@param entity_id number 实体 ID
----@param param_names string[] 参数名数组，例如 { 'lifetime' } 或 { 'tp_entities', 'x', 'y' }
----@return table|nil result_table 返回包含 shooter 和参数的键值对表，失败返回 nil
+---@param action_id string
+---@param entity_id number
+---@param param_names string[]
+---@return table|nil result_table
 function parse_and_evaluate_command_params( action_id, entity_id, param_names )
 	local p_comp = EntityGetFirstComponent( entity_id, 'ProjectileComponent' )
 	if ( not p_comp ) then
@@ -1057,16 +1208,13 @@ function parse_and_evaluate_command_params( action_id, entity_id, param_names )
 				if ( is_correct and result ~= nil ) then
 					result_table[ param_name ] = result
 				end
-				-- 求值失败则不创建该键
 			else
 				local num = tonumber( raw_value )
 				if ( num ~= nil ) then
 					result_table[ param_name ] = num
 				end
-				-- 转换失败则不创建该键
 			end
 		end
-		-- 键不存在则不创建
 	end
 
 	return result_table

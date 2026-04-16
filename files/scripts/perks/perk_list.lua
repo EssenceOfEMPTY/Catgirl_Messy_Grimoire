@@ -698,7 +698,7 @@ local new_perks =
 
 			for i, tag in ipairs( tags_to_remove ) do
 				local comp = EntityGetComponent( entity_who_picked, 'LuaComponent', tag )
-				for _, each in ipairs( comp or {} ) do
+				for _, each in ipairs( comp or { } ) do
 					EntityRemoveComponent( entity_who_picked, each )
 				end
 			end
@@ -712,20 +712,20 @@ local new_perks =
 			EntityAddComponent2( entity_who_picked, 'LuaComponent', {
 				_tags = 'empty_sanctuary_shield_tracker,perk_component',
 				execute_every_n_frame = 1,
-				script_source_file = empty_path .. 'scripts/perks/sanctuary_shield.lua'
+				script_source_file = empty_path .. 'scripts/perks/sanctuary_shield.lua',
 			} )
 
 			EntityAddComponent2( entity_who_picked, 'VariableStorageComponent', {
 				_tags = 'empty_sanctuary_shield_data,perk_component',
 				value_int = 0,
-				value_string = '0'
+				value_string = '0',
 			} )
 
 			local x, y = EntityGetTransform( entity_who_picked )
 			EntityAddComponent2( entity_who_picked, 'VariableStorageComponent', {
 				_tags = 'empty_sanctuary_shield_position,perk_component',
 				value_float = x or 0,
-				value_string = tostring( y or 0 )
+				value_string = tostring( y or 0 ),
 			} )
 		end,
 		func_remove = function( entity_who_picked )

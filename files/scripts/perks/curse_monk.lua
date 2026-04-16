@@ -9,8 +9,8 @@ if EntityGetIsAlive( entity ) then
 	if not ( storage_comp ) then
 		storage_comp = EntityAddComponent2( entity, 'VariableStorageComponent', {
 			_tags = 'empty_curse_monk',
-			value_int = get_money( entity )
-		})
+			value_int = get_money( entity ),
+		} )
 	else
 		local last_money = ComponentGetValue2( storage_comp, 'value_int' )
 		local current_money = get_money( entity )

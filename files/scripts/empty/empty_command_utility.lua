@@ -27,6 +27,10 @@ empty_command_functions = {
 			end
 
 			if ( reflect or type( extract ) == 'table' ) then
+				if ( type( extract ) ~= 'table' ) then
+					extract = { }
+				end
+
 				if ( #extract > 0 ) then
 					local value = random_gets( extract, 1 )[ 1 ]
 
@@ -169,7 +173,7 @@ empty_command_functions = {
 			if ( reflect or type( v_No ) == 'number' ) then
 				v_value = tonumber( GlobalsGetValue( 'EMPTY_COMMAND_VARIABLE_' .. tostring( v_No ), '0' ) ) or 0
 
-				command_print( 'variable_get(', '$empty_command_variable_get_success', tostring( v_No ), tostring( variable_value ) )
+				command_print( 'variable_get(', '$empty_command_variable_get_success', tostring( v_No ), tostring( v_value ) )
 			end
 
 			return v_value
@@ -233,6 +237,10 @@ empty_command_functions = {
 			local min = 0
 
 			if ( reflect or type( num_table ) == 'table' ) then
+				if ( type( num_table ) ~= 'table' ) then
+					num_table = { }
+				end
+
 				if ( #num_table == 0 ) then
 					command_print( 'min(', '$empty_command_error_empty_table' )
 				elseif ( #num_table == 1 ) then
@@ -268,6 +276,13 @@ empty_command_functions = {
 			end
 
 			if ( reflect or ( type( num1 ) == 'number' and type( num2 ) == 'number' ) ) then
+				if ( type( num1 ) ~= 'number' ) then
+					num1 = -math.huge
+				end
+				if ( type( num2 ) ~= 'number' ) then
+					num2 = -math.huge
+				end
+
 				return math.min( num1, num2 )
 			else
 				return 0
@@ -299,6 +314,10 @@ empty_command_functions = {
 			local max = 0
 
 			if ( reflect or type( num_table ) == 'table' ) then
+				if ( type( num_table ) ~= 'table' ) then
+					num_table = { }
+				end
+
 				if ( #num_table == 0 ) then
 					command_print( 'max(', '$empty_command_error_empty_table' )
 				elseif ( #num_table == 1 ) then
@@ -333,6 +352,13 @@ empty_command_functions = {
 			end
 
 			if ( reflect or ( type( num1 ) == 'number' and type( num2 ) == 'number' ) ) then
+				if ( type( num1 ) ~= 'number' ) then
+					num1 = -math.huge
+				end
+				if ( type( num2 ) ~= 'number' ) then
+					num2 = -math.huge
+				end
+
 				return math.max( num1, num2 )
 			else
 				return 0
@@ -389,7 +415,11 @@ empty_command_functions = {
 					command_print( 'lifetime_set(', '$empty_command_error_no_projectile_change' )
 				end
 			else
-				add_desc_by_info( c, true, false, {
+				add_desc_by_info( c, {
+					replace = true,
+					update = true,
+					merge = false,
+				}, {
 					id = 'empty_lifetime_set',
 					shooter = shooter,
 					lifetime = lifetime,
@@ -437,7 +467,11 @@ empty_command_functions = {
 					command_print( 'projectile_lifetime_set(', '$empty_command_error_no_projectile_change' )
 				end
 			else
-				add_desc_by_info( c, true, false, {
+				add_desc_by_info( c, {
+					replace = true,
+					update = true,
+					merge = false,
+				}, {
 					id = 'empty_projectile_lifetime_set',
 					shooter = shooter,
 					lifetime = lifetime,
@@ -458,7 +492,8 @@ empty_command_functions = {
 				'0',
 			},
 		},
-		---将投射物中 投射物 组件的 speed_min 与 speed_max 设为 speed; 
+		---投射物已发射的场合: 在保持方向的状态下将 速度 组件中的 vel_x, vel_y 的模更改为 speed; 
+		---投射物未发射的场合: 将投射物中 投射物 组件的 speed_min 与 speed_max 设为 speed; 
 		---负值将会反转速度方向
 		---@param c table
 		---@param reflect boolean
@@ -472,24 +507,36 @@ empty_command_functions = {
 			end
 
 			if ( reflect ) then
+				if ( type( speed ) ~= 'number' ) then
+					speed = 0
+				end
+
 				local entity = EntityGetRootEntity( GetUpdatedEntityID( ) )
 				local v_comps = EntityGetComponent( entity, 'VelocityComponent' ) or { }
-				local bool = true
+				local count, just_start = #v_comps, true
 
-				for _, v_comp in ipairs( v_comps or { } ) do
-					local x, y = ComponentGetValue2( v_comp, 'mVelocity' )
+				for _, v_comp in ipairs( v_comps ) do
+					remove_speed_limit( v_comp )
 
-					if ( x ~= 0 and y ~= 0 ) then
-						bool = false
+					local vel_x, vel_y = ComponentGetValue2( v_comp, 'mVelocity' )
+
+					if ( vel_x ~= 0 and vel_y ~= 0 ) then
+						vel_x, vel_y = change_vel( vel_x, vel_y, speed )
+
+						ComponentSetValue2( v_comp, 'mVelocity', vel_x, vel_y )
+
+						just_start = false
 					end
 				end
 
-				local p_comps = EntityGetComponent( entity, 'ProjectileComponent' ) or { }
-				local count = #p_comps
+				if ( just_start ) then
+					local p_comps = EntityGetComponent( entity, 'ProjectileComponent' ) or { }
+					count = #p_comps
 
-				for _, p_comp in ipairs( p_comps ) do
-					ComponentSetValue2( p_comp, 'speed_min', speed )
-					ComponentSetValue2( p_comp, 'speed_max', speed )
+					for _, p_comp in ipairs( p_comps ) do
+						ComponentSetValue2( p_comp, 'speed_min', speed )
+						ComponentSetValue2( p_comp, 'speed_max', speed )
+					end
 				end
 
 				if ( count > 0 ) then
@@ -498,7 +545,11 @@ empty_command_functions = {
 					command_print( 'projectile_speed_set(', '$empty_command_error_no_projectile_change' )
 				end
 			else
-				add_desc_by_info( c, true, false, {
+				add_desc_by_info( c, {
+					replace = true,
+					update = true,
+					merge = false,
+				}, {
 					id = 'empty_projectile_speed_set',
 					shooter = shooter,
 					speed = speed,
@@ -519,15 +570,15 @@ empty_command_functions = {
 				'0',
 			},
 		},
-		---将投射物中 速度 组件的 gravity 属性设为参数值
+		---将投射物中 速度 组件的 gravity_y 属性设为 gravity_y
 		---@param c table
 		---@param reflect boolean
 		---@param shooter number
-		---@param gravity string|number
+		---@param gravity_y string|number
 		---@return string|number gravity
-		action_1_paras = function ( c, reflect, shooter, gravity )
-			if ( type( gravity ) ~= 'number' and type( gravity ) ~= 'string' ) then
-				command_print( 'projectile_gravity_set(', '$empty_command_error_wrong_para_type', 'NUMBER', upper_type( gravity ) )
+		action_1_paras = function ( c, reflect, shooter, gravity_y )
+			if ( type( gravity_y ) ~= 'number' and type( gravity_y ) ~= 'string' ) then
+				command_print( 'projectile_gravity_set(', '$empty_command_error_wrong_para_type', 'NUMBER', upper_type( gravity_y ) )
 				return 0
 			end
 
@@ -537,7 +588,7 @@ empty_command_functions = {
 				local count = #v_comps
 
 				for _, v_comp in ipairs( v_comps ) do
-					ComponentSetValue2( v_comp, 'gravity_y', gravity )
+					ComponentSetValue2( v_comp, 'gravity_y', gravity_y )
 				end
 
 				if ( count > 0 ) then
@@ -546,14 +597,65 @@ empty_command_functions = {
 					command_print( 'projectile_gravity_set(', '$empty_command_error_no_projectile_change' )
 				end
 			else
-				add_desc_by_info( c, true, false, {
+				add_desc_by_info( c, {
+					replace = true,
+					update = true,
+					merge = false,
+				}, {
 					id = 'empty_projectile_gravity_set',
 					shooter = shooter,
-					gravity = gravity,
+					gravity_y = gravity_y,
 				}, empty_path .. 'entities/misc/command/projectile_gravity_set.xml,', '$' )
 			end
 
-			return gravity
+			return gravity_y
+		end,
+		---将投射物中 速度 组件的 gravity_y 属性设为 gravity_y, gravity_x 属性设为 gravity_x
+		---@param c table
+		---@param reflect boolean
+		---@param shooter number
+		---@param gravity_y string|number
+		---@param gravity_x string|number
+		---@return table gravity_yx
+		action_2_paras = function ( c, reflect, shooter, gravity_y, gravity_x )
+			if ( type( gravity_y ) ~= 'number' and type( gravity_y ) ~= 'string' ) then
+				command_print( 'projectile_gravity_set(', '$empty_command_error_wrong_para_type', 'NUMBER', upper_type( gravity_y ) )
+				return { 0, 0 }
+			end
+			if ( type( gravity_x ) ~= 'number' and type( gravity_x ) ~= 'string' ) then
+				command_print( 'projectile_gravity_set(', '$empty_command_error_wrong_para_type', 'NUMBER', upper_type( gravity_y ) )
+				return { 0, 0 }
+			end
+
+			if ( reflect ) then
+				local entity = EntityGetRootEntity( GetUpdatedEntityID( ) )
+				local v_comps = EntityGetComponent( entity, 'VelocityComponent' ) or { }
+				local count = #v_comps
+
+				for _, v_comp in ipairs( v_comps ) do
+					ComponentSetValue2( v_comp, 'gravity_y', gravity_y )
+					ComponentSetValue2( v_comp, 'gravity_x', gravity_x )
+				end
+
+				if ( count > 0 ) then
+					command_print( 'projectile_gravity_set(', '$empty_command_projectile_change_success', tostring( count ) )
+				else
+					command_print( 'projectile_gravity_set(', '$empty_command_error_no_projectile_change' )
+				end
+			else
+				add_desc_by_info( c, {
+					replace = true,
+					update = true,
+					merge = false,
+				}, {
+					id = 'empty_projectile_gravity_set',
+					shooter = shooter,
+					gravity_y = gravity_y,
+					gravity_x = gravity_x,
+				}, empty_path .. 'entities/misc/command/projectile_gravity_set.xml,', '$' )
+			end
+
+			return { gravity_y, gravity_x }
 		end
 	},
 	projectile_air_friction_set = {
@@ -594,7 +696,11 @@ empty_command_functions = {
 					command_print( 'projectile_air_friction_set(', '$empty_command_error_no_projectile_change' )
 				end
 			else
-				add_desc_by_info( c, true, false, {
+				add_desc_by_info( c, {
+					replace = true,
+					update = true,
+					merge = false,
+				}, {
 					id = 'empty_projectile_air_friction_set',
 					shooter = shooter,
 					air_friction = air_friction,
@@ -615,7 +721,7 @@ empty_command_functions = {
 				'0'
 			},
 		},
-		---在不更改速度大小的状态下将速度方向在原基础上逆时针旋转 angel°
+		---在不更改速度大小的状态下将速度方向在原基础上逆时针旋转 angle°
 		---@param c table
 		---@param reflect boolean
 		---@param shooter number
@@ -624,21 +730,30 @@ empty_command_functions = {
 		action_1_paras = function ( c, reflect, shooter, angle )
 			if ( type( angle ) ~= 'number' and type( angle ) ~= 'string' ) then
 				command_print( 'projectile_shoot_angle_add(', '$empty_command_error_wrong_para_type', 'NUMBER', upper_type( angle ) )
+				return 0
 			end
 
 			if ( reflect ) then
+				if ( type( angle ) ~= 'number' ) then
+					angle = 0
+				end
+
 				local entity = EntityGetRootEntity( GetUpdatedEntityID( ) )
 				local v_comps = EntityGetComponent( entity, 'VelocityComponent' )
 
 				for _, v_comp in ipairs( v_comps or { } ) do
 					local vel_x, vel_y = ComponentGetValue2( v_comp, 'mVelocity' )
 
-					vel_x, vel_y = rot_vel( vel_x, vel_y, angle )
+					vel_x, vel_y = rot_vel( vel_x, vel_y or 0, angle )
 
 					ComponentSetValue2( v_comp, 'mVelocity', vel_x, vel_y )
 				end
 			else
-				add_desc_by_info( c, true, false, {
+				add_desc_by_info( c, {
+					replace = true,
+					update = false,
+					merge = true,
+				}, {
 					id = 'empty_projectile_shoot_angle_add',
 					shooter = shooter,
 					angle = angle,
@@ -659,7 +774,7 @@ empty_command_functions = {
 				'0'
 			},
 		},
-		---在不更改速度大小的状态下将速度方向在正右方基础上逆时针旋转 angel°
+		---在不更改速度大小的状态下将速度方向在正右方基础上逆时针旋转 angle°
 		---@param c table
 		---@param reflect boolean
 		---@param shooter number
@@ -668,21 +783,30 @@ empty_command_functions = {
 		action_1_paras = function ( c, reflect, shooter, angle )
 			if ( type( angle ) ~= 'number' and type( angle ) ~= 'string' ) then
 				command_print( 'projectile_shoot_angle_set(', '$empty_command_error_wrong_para_type', 'NUMBER', upper_type( angle ) )
+				return 0
 			end
 
 			if ( reflect ) then
+				if ( type( angle ) ~= 'number' ) then
+					angle = 0
+				end
+
 				local entity = EntityGetRootEntity( GetUpdatedEntityID( ) )
 				local v_comps = EntityGetComponent( entity, 'VelocityComponent' )
 
 				for _, v_comp in ipairs( v_comps or { } ) do
 					local vel_x, vel_y = ComponentGetValue2( v_comp, 'mVelocity' )
 
-					vel_x, vel_y = abs_rot_vel( vel_x, vel_y, angle )
+					vel_x, vel_y = abs_rot_vel( vel_x, vel_y or 0, angle )
 
 					ComponentSetValue2( v_comp, 'mVelocity', vel_x, vel_y )
 				end
 			else
-				add_desc_by_info( c, true, false, {
+				add_desc_by_info( c, {
+					replace = true,
+					update = true,
+					merge = false,
+				}, {
 					id = 'empty_projectile_shoot_angle_set',
 					shooter = shooter,
 					angle = angle,
@@ -693,12 +817,158 @@ empty_command_functions = {
 		end
 	},
 	projectile_arc_set = {
-		para_names = {},
-		transform_tilde_into = {},
+		para_names = {
+			para_1 = {
+				'angle',
+			},
+			para_2 = {
+				'angle',
+				'inc',
+			},
+		},
+		transform_tilde_into = {
+			para_1 = {
+				'0',
+			},
+			para_2 = {
+				'0',
+				'0',
+			},
+		},
+		---在不更改速度大小的状态下将速度方向在原基础上每帧逆时针旋转 angle°
+		---@param c table
+		---@param reflect boolean
+		---@param shooter number
+		---@param angle string|number
+		---@return string|number angle
 		action_1_paras = function ( c, reflect, shooter, angle )
 			if ( type( angle ) ~= 'number' and type( angle ) ~= 'string' ) then
 				command_print( 'projectile_shoot_angle_set(', '$empty_command_error_wrong_para_type', 'NUMBER', upper_type( angle ) )
+				return 0
 			end
+
+			if ( reflect ) then
+				local entity = EntityGetRootEntity( GetUpdatedEntityID( ) )
+
+				local v_comps = EntityGetComponent( entity, 'VariableStorageComponent', 'projectile_arc_set' )
+				if ( v_comps ) then
+					for _, v_comp in ipairs( v_comps or { } ) do
+						if ( _ == 1 ) then
+							ComponentSetValue2( v_comp, 'value_int', 0 )
+							ComponentSetValue2( v_comp, 'value_string', tostring( angle ) )
+						else
+							EntityRemoveComponent( entity, v_comp )
+						end
+					end
+				else
+					EntityAddComponent2( entity, 'VariableStorageComponent', {
+						_tags = 'projectile_arc_set',
+						value_int = 0,
+						value_string = tostring( angle ),
+						value_float = 0,
+					} )
+				end
+
+				local l_comps = EntityGetComponent( entity, 'LuaComponent', 'projectile_arc_set' )
+				if ( l_comps ) then
+					for _, l_comp in ipairs( l_comps or { } ) do
+						if ( _ == 1 ) then
+							ComponentSetValue2( l_comp, 'execute_every_n_frame', 1 )
+							ComponentSetValue2( l_comp, 'script_source_file', empty_path .. 'scripts/command/projectile_arc_set.lua' )
+						else
+							EntityRemoveComponent( entity, l_comp )
+						end
+					end
+				else
+					EntityAddComponent2( entity, 'LuaComponent', {
+						_tags = 'projectile_arc_set',
+						execute_every_n_frame = 1,
+						script_source_file = empty_path .. 'scripts/command/projectile_arc_set_reflect.lua',
+					} )
+				end
+			else
+				add_desc_by_info( c, {
+					replace = true,
+					update = true,
+					merge = false,
+				}, {
+					id = 'empty_projectile_arc_set',
+					shooter = shooter,
+					angle = angle,
+				}, empty_path .. 'entities/misc/command/projectile_arc_set.xml,', '$' )
+			end
+
+			return angle
+		end,
+		---@param c table
+		---@param reflect boolean
+		---@param shooter number
+		---@param angle string|number
+		---@return table angle
+		action_2_paras = function ( c, reflect, shooter, angle, inc )
+			if ( type( angle ) ~= 'number' and type( angle ) ~= 'string' ) then
+				command_print( 'projectile_shoot_angle_set(', '$empty_command_error_wrong_para_type', 'NUMBER', upper_type( angle ) )
+				return { 0, 0 }
+			end
+			if ( type( inc ) ~= 'number' and type( inc ) ~= 'string' ) then
+				command_print( 'projectile_shoot_angle_set(', '$empty_command_error_wrong_para_type', 'NUMBER', upper_type( inc ) )
+				return { 0, 0 }
+			end
+
+			if ( reflect ) then
+				local entity = EntityGetRootEntity( GetUpdatedEntityID( ) )
+
+				local v_comps = EntityGetComponent( entity, 'VariableStorageComponent', 'projectile_arc_set' )
+				if ( v_comps ) then
+					for _, v_comp in ipairs( v_comps or { } ) do
+						if ( _ == 1 ) then
+							ComponentSetValue2( v_comp, 'value_int', 0 )
+							ComponentSetValue2( v_comp, 'value_string', tostring( angle ) )
+							ComponentSetValue2( v_comp, 'value_float', inc )
+						else
+							EntityRemoveComponent( entity, v_comp )
+						end
+					end
+				else
+					EntityAddComponent2( entity, 'VariableStorageComponent', {
+						_tags = 'projectile_arc_set',
+						value_int = 0,
+						value_string = tostring( angle ),
+						value_float = inc,
+					} )
+				end
+
+				local l_comps = EntityGetComponent( entity, 'LuaComponent', 'projectile_arc_set' )
+				if ( l_comps ) then
+					for _, l_comp in ipairs( l_comps or { } ) do
+						if ( _ == 1 ) then
+							ComponentSetValue2( l_comp, 'execute_every_n_frame', 1 )
+							ComponentSetValue2( l_comp, 'script_source_file', empty_path .. 'scripts/command/projectile_arc_set.lua' )
+						else
+							EntityRemoveComponent( entity, l_comp )
+						end
+					end
+				else
+					EntityAddComponent2( entity, 'LuaComponent', {
+						_tags = 'projectile_arc_set',
+						execute_every_n_frame = 1,
+						script_source_file = empty_path .. 'scripts/command/projectile_arc_set_reflect.lua',
+					} )
+				end
+			else
+				add_desc_by_info( c, {
+					replace = true,
+					update = true,
+					merge = false,
+				}, {
+					id = 'empty_projectile_arc_set',
+					shooter = shooter,
+					angle = angle,
+					inc = inc,
+				}, empty_path .. 'entities/misc/command/projectile_arc_set.xml,', '$' )
+			end
+
+			return { angle, inc }
 		end
 	},
 	explode = {
@@ -739,7 +1009,9 @@ empty_command_functions = {
 
 			if ( reflect or ( type( radius ) == 'number' and ( type( tar ) == 'number' or type( tar ) == 'table' ) ) ) then
 				if ( type( tar ) == 'number' ) then
-					tars = { tar }
+					tar = { tar }
+				elseif ( type( tar ) ~= 'table' ) then
+					tar = { }
 				end
 
 				if ( #tar == 0 ) then
@@ -760,7 +1032,7 @@ empty_command_functions = {
 					if ( _ ~= NULL_ENTITY and EntityGetIsAlive( _ ) ) then
 						local x, y = EntityGetTransform( _ )
 
-						local explode = EntityLoad( empty_path .. 'entities/projectiles/command/explosion.xml', x, y )
+						local explode = EntityLoad( empty_path .. 'entities/projectiles/command/explode_with_lua.xml', x, y )
 
 						if ( explode ) then
 							local projectile_comp = EntityGetFirstComponent( explode, 'ProjectileComponent' )
@@ -776,7 +1048,11 @@ empty_command_functions = {
 
 				command_print( 'explode(', '$empty_command_explode_tar_success', tostring( #tar ), tostring( radius ) )
 			else
-				add_desc_by_info( c, true, false, {
+				add_desc_by_info( c, {
+					replace = true,
+					update = true,
+					merge = false,
+				}, {
 					id = 'empty_explode',
 					shooter = shooter,
 					radius = radius,
@@ -809,7 +1085,14 @@ empty_command_functions = {
 			end
 
 			if ( reflect or ( type( radius ) == 'number' and type( x ) == 'number' and type( y ) == 'table' ) ) then
-				local explode = EntityLoad( empty_path .. 'entities/projectiles/command/explosion.xml', x, y )
+				if ( type( x ) ~= 'number' ) then
+					x = 0
+				end
+				if ( type( y ) ~= 'number' ) then
+					y = x
+				end
+
+				local explode = EntityLoad( empty_path .. 'entities/projectiles/command/explode_with_lua.xml', x, y )
 
 				if ( explode ) then
 					local projectile_comp = EntityGetFirstComponent( explode, 'ProjectileComponent' )
@@ -832,7 +1115,11 @@ empty_command_functions = {
 
 				command_print( 'explode(', '$empty_command_explode_xy_success', tostring( x ), tostring( y ), tostring( radius ) )
 			else
-				add_desc_by_info( c, true, false, {
+				add_desc_by_info( c, {
+					replace = true,
+					update = true,
+					merge = false,
+				}, {
 					id = 'empty_explode',
 					shooter = shooter,
 					radius = radius,
@@ -879,16 +1166,23 @@ empty_command_functions = {
 				return 0
 			end
 
-			local count = 0
+			local count = nil
 
 			if ( reflect ) then
-				local x, y = EntityGetTransform( tar )
-
 				if ( type( tp_entities ) == 'number' ) then
 					tp_entities = { tp_entities }
+				elseif ( type( tp_entities ) ~= 'table' ) then
+					tp_entities = { }
+				end
+				if ( type( tar ) ~= 'number' ) then
+					tar = 0
 				end
 
-				if ( type( tp_entities ) == 'table' and #tp_entities > 0 ) then
+				count = 0
+
+				if ( tar ~= NULL_ENTITY and EntityGetIsAlive( tar ) ) then
+					local x, y = EntityGetTransform( tar )
+
 					for _, each in ipairs( tp_entities ) do
 						if ( EntityGetIsAlive( each ) and not EntityHasTag( each, 'teleportable_NOT' ) ) then
 							EntityApplyTransform( each, x, y )
@@ -896,6 +1190,8 @@ empty_command_functions = {
 							count = count + 1
 						end
 					end
+				else
+					command_print( 'tp(', 'empty_command_tp_error_target_not_found', tostring( tar ) )
 				end
 
 				if ( count > 0 ) then
@@ -904,14 +1200,18 @@ empty_command_functions = {
 					command_print( 'tp(', '$empty_command_tp_error_no_entity_can_tp' )
 				end
 			else
-				add_desc_by_info( c, true, false, {
+				add_desc_by_info( c, {
+					replace = true,
+					update = true,
+					merge = false,
+				}, {
 					id = 'empty_tp',
 					shooter = shooter,
 					tp_entities = tp_entities,
 					tar = tar,
 				}, nil, '$' )
 
-				if ( type( tp_entities ) == "table" ) then
+				if ( type( tp_entities ) == 'table' ) then
 					count = #tp_entities
 				else
 					count = tp_entities
@@ -937,17 +1237,27 @@ empty_command_functions = {
 				return 0
 			end
 
-			if ( reflect ) then
-				local count = 0
+			local count = nil
 
+			if ( reflect ) then
 				if ( type( tp_entities ) == 'number' ) then
 					tp_entities = { tp_entities }
+				elseif ( type( tp_entities ) ~= 'table' ) then
+					tp_entities = { }
 				end
+				if ( type( x ) ~= 'number' ) then
+					x = 0
+				end
+				if ( type( y ) ~= 'number' ) then
+					y = x
+				end
+
+				count = 0
 
 				if ( type( tp_entities ) == 'table' and #tp_entities > 0 ) then
 					for _, each in ipairs( tp_entities ) do
 						if ( EntityGetIsAlive( each ) and not EntityHasTag( each, 'teleportable_NOT' ) ) then
-							EntityApplyTransform( each, tonumber( x ) or 0, tonumber( y ) or 0 )
+							EntityApplyTransform( each, x, y )
 
 							count = count + 1
 						end
@@ -959,10 +1269,12 @@ empty_command_functions = {
 				else
 					GamePrint( 'tp( : ' .. GameTextGet( '$empty_command_tp_error_no_entity_can_tp' ) )
 				end
-
-				return count
 			else
-				add_desc_by_info( c, true, false, {
+				add_desc_by_info( c, {
+					replace = true,
+					update = true,
+					merge = false,
+				}, {
 					id = 'empty_tp',
 					shooter = shooter,
 					tp_entities = tp_entities,
@@ -971,22 +1283,16 @@ empty_command_functions = {
 				}, nil, '$' )
 
 				if ( type( tp_entities ) == "table" ) then
-					return #tp_entities
+					count = #tp_entities
 				else
-					return tp_entities
+					count = tp_entities
 				end
 			end
+
+			return count
 		end
 	},
 }
-
----用于命令法术发送提示信息
----@param name any
----@param key any
----@param ... unknown
-function command_print( name, ... )
-	GamePrint( name .. ' : ' .. GameTextGet( ... ) )
-end
 
 --- '@' 处理器, 仅供解析 @ 使用
 ---@param token string
@@ -999,96 +1305,95 @@ local function command_at_handler( token, token_type, shooter, tar_x, tar_y )
 	local group, x, y = nil, nil, nil
 	if ( token == '@bosses' ) then
 		group = EntityGetWithTag( 'boss' )
+
 		if ( #group == 0 ) then
-			GamePrint( token .. ': ' .. GameTextGet( '$empty_command_at_error_no_such_entity' ) )
+			command_print( token, '$empty_command_at_error_no_such_entity' )
 		end
-		return group
 	elseif ( token == '@closest' ) then
 		return EntityGetClosest( tar_x, tar_y )
 	elseif ( token == '@enemies' ) then
 		group = EntityGetWithTag( 'enemy' )
+
 		if ( #group == 0 ) then
-			GamePrint( token .. ': ' .. GameTextGet( '$empty_command_at_error_no_such_entity' ) )
+			command_print( token, '$empty_command_at_error_no_such_entity' )
 		end
-		return group
 	elseif ( token == '@entities' ) then
-		group = { }
-		local players = command_at_handler( '@players', token_type, shooter, tar_x, tar_y ) or { }
-
-		if ( type( players ) == 'number' ) then
-			players = { players }
-		end
-
-		for _, each in ipairs( players ) do
-			x, y = EntityGetTransform( each )
-			add_table( group, EntityGetInRadius( x, y, 3000 ), false, false )
-		end
-		return remove_duplicates( group )
-	elseif ( token == '@items' ) then
-		group = EntityGetWithTag( 'item' )
-		if ( #group == 0 ) then
-			GamePrint( token .. ': ' .. GameTextGet( '$empty_command_at_error_no_such_entity' ) )
-		end
-		return group
-	elseif ( token == '@players' ) then
-		group = EntityGetWithTag( 'player_unit' )
-		group = EntityGetWithTag( 'polymorphed_player' )
-		if ( #group == 0 ) then
-			GamePrint( token .. ': ' .. GameTextGet( '$empty_command_at_error_no_such_entity' ) )
-		end
-		return group
-	elseif ( token == '@potions' ) then
-		group = EntityGetWithTag( 'potion' )
-		if ( #group == 0 ) then
-			GamePrint( token .. ': ' .. GameTextGet( '$empty_command_at_error_no_such_entity' ) )
-		end
-		return group
-	elseif ( token == '@projectiles' ) then
-		group = EntityGetWithTag( 'projectile' )
-		if ( #group == 0 ) then
-			GamePrint( token .. ': ' .. GameTextGet( '$empty_command_at_error_no_such_entity' ) )
-		end
-		return group
-	elseif ( token == '@random' ) then
-		group = command_at_handler( '@entities', token_type, shooter, tar_x, tar_y ) or { }
+		group = command_at_handler( '@players', token_type, shooter, tar_x, tar_y ) or { }
+		local entity = { }
 
 		if ( type( group ) == 'number' ) then
 			group = { group }
 		end
 
-		return random_gets( group, 1 )[ 1 ]
+		for _, each in ipairs( group ) do
+			x, y = EntityGetTransform( each )
+			add_table( entity, EntityGetInRadius( x, y, 3000 ), false, false )
+		end
+
+		group = remove_duplicates( entity )
+	elseif ( token == '@items' ) then
+		group = EntityGetWithTag( 'item' )
+
+		if ( #group == 0 ) then
+			command_print( token, '$empty_command_at_error_no_such_entity' )
+		end
+	elseif ( token == '@players' ) then
+		group = EntityGetWithTag( 'player_unit' ) or { }
+		add_table( group, EntityGetWithTag( 'polymorphed_player' ) or { } )
+
+		if ( #group == 0 ) then
+			command_print( token, '$empty_command_at_error_no_such_entity' )
+		end
+	elseif ( token == '@potions' ) then
+		group = EntityGetWithTag( 'potion' )
+
+		if ( #group == 0 ) then
+			command_print( token, '$empty_command_at_error_no_such_entity' )
+		end
+	elseif ( token == '@projectiles' ) then
+		group = EntityGetWithTag( 'projectile' )
+
+		if ( #group == 0 ) then
+			command_print( token, '$empty_command_at_error_no_such_entity' )
+		end
+	elseif ( token == '@random' ) then
+		group = command_at_handler( '@entities', token_type, shooter, tar_x, tar_y ) or { }
+
+		if ( type( group ) == 'table' ) then
+			group = random_gets( group, 1 )[ 1 ]
+		end
 	elseif ( token == '@self' ) then
 		return shooter
 	elseif ( token == '@wands' ) then
 		group = EntityGetWithTag( 'wand' )
+
 		if ( #group == 0 ) then
-			GamePrint( token .. ': ' .. GameTextGet( '$empty_command_at_error_no_such_entity' ) )
+			command_print( token, '$empty_command_at_error_no_such_entity' )
 		end
-		return group
 	elseif ( token == '@chunk_len' ) then
-		return chunk_length
+		group = chunk_length
 	elseif ( token == '@world_len' ) then
 		local w, h = BiomeMapGetSize( )
-		return w * chunk_length
+		group = w * chunk_length
 	elseif ( token == '~' ) then
 		if ( token_type == 'table' ) then
-			return { 0 }
+			group = { 0 }
 		elseif ( token_type == 'self' ) then
-			return command_at_handler( '@self', token_type, shooter, tar_x, tar_y )
+			group = command_at_handler( '@self', token_type, shooter, tar_x, tar_y )
 		elseif ( token_type == 'x' ) then
 			x, y = EntityGetTransform( shooter )
-			return x
+			group = x
 		elseif ( token_type == 'y' ) then
 			x, y = EntityGetTransform( shooter )
-			return y
+			group = y
 		else
 			if ( is_num( token_type ) ) then
-				return number_handler( token_type )
+				group = number_handler( token_type )
 			end
 		end
 	end
 
-	return nil
+	return group
 end
 
 ---二元运算处理器
@@ -1233,7 +1538,6 @@ local function evaluate_parameter( command_name, para_expr, para_need_type, shoo
 		elseif ( token.type == 'SELECTOR' ) then
 			return command_at_handler( token.value, para_need_type, shooter, tar_x, tar_y ), true
 		elseif ( token.type == 'FUNCTION_DELAYED' ) then
-			-- FUNCTION_DELAYED 类型直接返回延迟表达式字符串（已移除前缀）
 			return token.value, true
 		end
 	end
@@ -1530,8 +1834,7 @@ function from_table_get_paras( c, command_name, deck_table, pattern, shooter, ta
 				end
 			end
 		end
-			for i, v in ipairs( result ) do
-		end
+
 		return result, _ - 1, true
 	end
 
@@ -1590,8 +1893,8 @@ function build_delayed_expression( para_expr, pattern, para_need_type, shooter, 
 	end
 
 	local result = table.concat( result_parts, '' )
-	-- 添加延迟表达式前缀，用于预载阶段标记
 	result = DELY_EXPR_PREFIX .. result
+
 	return result, true
 end
 
@@ -1604,7 +1907,7 @@ end
 ---@return string|number|number[]|nil result
 ---@return boolean is_correct
 function evaluate_param_tokens( param_tokens, pattern, shooter, tar_x, tar_y )
-	local result, num_to_operate, current_operator, is_correct = nil, nil, nil, true
+	local result, op_num, current_operator, is_correct = nil, nil, nil, true
 
 	for _, token in ipairs( param_tokens ) do
 		if ( token.type == 'NUMBER' ) then
@@ -1614,7 +1917,7 @@ function evaluate_param_tokens( param_tokens, pattern, shooter, tar_x, tar_y )
 			end
 
 			if ( result or current_operator ) then
-				num_to_operate = num_value
+				op_num = num_value
 			else
 				result = num_value
 			end
@@ -1627,7 +1930,7 @@ function evaluate_param_tokens( param_tokens, pattern, shooter, tar_x, tar_y )
 					return nil, false
 				end
 				if ( result or current_operator ) then
-					num_to_operate = selector_value
+					op_num = selector_value
 				else
 					result = selector_value
 				end
@@ -1635,7 +1938,7 @@ function evaluate_param_tokens( param_tokens, pattern, shooter, tar_x, tar_y )
 				local selector_value = command_at_handler( token.value, 'none', shooter, tar_x, tar_y )
 
 				if ( result or current_operator ) then
-					num_to_operate = selector_value
+					op_num = selector_value
 				else
 					result = selector_value
 				end
@@ -1644,7 +1947,7 @@ function evaluate_param_tokens( param_tokens, pattern, shooter, tar_x, tar_y )
 			local tilde_value = command_at_handler( '~', token.value, shooter, tar_x, tar_y )
 
 			if ( result or current_operator ) then
-				num_to_operate = tilde_value
+				op_num = tilde_value
 			else
 				result = tilde_value
 			end
@@ -1656,7 +1959,7 @@ function evaluate_param_tokens( param_tokens, pattern, shooter, tar_x, tar_y )
 			end
 
 			if ( result or current_operator ) then
-				num_to_operate = func_result
+				op_num = func_result
 			else
 				result = func_result
 			end
@@ -1668,8 +1971,9 @@ function evaluate_param_tokens( param_tokens, pattern, shooter, tar_x, tar_y )
 			end
 		end
 
-		result, current_operator, is_correct = binary_operation_handler( result, num_to_operate, current_operator )
-		num_to_operate = nil
+		result, current_operator, is_correct = binary_operation_handler( result, op_num, current_operator )
+		op_num = nil
+
 		if ( not is_correct ) then
 			return nil, false
 		end
@@ -1694,7 +1998,7 @@ function parse_and_execute_function( func_name, params_str, pattern, shooter, ta
 	end
 
 	-- 解析参数字符串为参数列表
-	local params = { }
+	local paras= { }
 	local current_param = { }
 	local paren_depth = 0
 	local i = 1
@@ -1766,7 +2070,6 @@ function parse_and_execute_function( func_name, params_str, pattern, shooter, ta
 			end
 			local potential_func_name = string.sub( params_str, i, j - 1 )
 			if ( j <= len and string.sub( params_str, j, j ) == '(' ) then
-				-- 这是一个函数调用，找到匹配的右括号
 				local func_paren_depth = 1
 				local k = j + 1
 				while ( k <= len and func_paren_depth > 0 ) do
@@ -1781,7 +2084,7 @@ function parse_and_execute_function( func_name, params_str, pattern, shooter, ta
 
 				if ( func_paren_depth == 0 ) then
 					local func_params_str = string.sub( params_str, j + 1, k - 2 )
-					table.insert( current_param, { type = 'FUNCTION', value = potential_func_name, params = func_params_str } )
+					table.insert( current_param, { type = 'FUNCTION', value = potential_func_name, paras= func_params_str } )
 					i = k
 				else
 					return nil, false
@@ -1790,14 +2093,11 @@ function parse_and_execute_function( func_name, params_str, pattern, shooter, ta
 				return nil, false
 			end
 		elseif ( char == ':' ) then
-			-- 可能是延迟表达式前缀 ::__DELAY_EXP__::
 			if ( string.sub( params_str, i, i + 1 ) == '::' and string.sub( params_str, i + 2, i + 16 ) == '__DELAY_EXP__::' ) then
-				local prefix_len = 17  -- ::__DELAY_EXP__:: 完整长度 (2+13+2)
-				-- 检查后面是什么：@选择器 或 ~类型 或 函数调用
-				local next_start = i + prefix_len  -- 前缀后的第一个字符
+				local prefix_len = 17
+				local next_start = i + prefix_len
 				local next_char = string.sub( params_str, next_start, next_start )
-							if ( next_char == '@' ) then
-					-- @选择器
+				if ( next_char == '@' ) then
 					local j = next_start + 1
 					while ( j <= len and string.match( string.sub( params_str, j, j ), '[%a_]' ) ) do
 						j = j + 1
@@ -1805,9 +2105,8 @@ function parse_and_execute_function( func_name, params_str, pattern, shooter, ta
 					local selector = string.sub( params_str, next_start, j - 1 )
 					table.insert( current_param, { type = 'SELECTOR', value = selector } )
 					i = j
-					break  -- 延迟表达式已完整处理，跳出主循环
+					break
 				elseif ( next_char == '~' ) then
-					-- ~类型
 					if ( next_start + 1 <= len and string.sub( params_str, next_start + 1, next_start + 1 ) == pattern ) then
 						local j = next_start + 2
 						while ( j <= len and string.sub( params_str, j, j ) ~= pattern ) do
@@ -1817,7 +2116,7 @@ function parse_and_execute_function( func_name, params_str, pattern, shooter, ta
 							local tilde_type = string.sub( params_str, next_start + 2, j - 1 )
 							table.insert( current_param, { type = 'TILDE', value = tilde_type } )
 							i = j + 1
-							break  -- 延迟表达式已完整处理，跳出主循环
+							break
 						else
 							return nil, false
 						end
@@ -1825,14 +2124,12 @@ function parse_and_execute_function( func_name, params_str, pattern, shooter, ta
 						return nil, false
 					end
 				elseif ( string.match( next_char, '[%a_]' ) ) then
-					-- 可能是函数名
 					local j = next_start
 					while ( j <= len and string.match( string.sub( params_str, j, j ), '[%a_0-9]' ) ) do
 						j = j + 1
 					end
 					local potential_func_name = string.sub( params_str, next_start, j - 1 )
 					if ( j <= len and string.sub( params_str, j, j ) == '(' ) then
-						-- 嵌套函数调用，找到匹配的右括号
 						local func_paren_depth = 1
 						local k = j + 1
 						while ( k <= len and func_paren_depth > 0 ) do
@@ -1847,9 +2144,9 @@ function parse_and_execute_function( func_name, params_str, pattern, shooter, ta
 
 						if ( func_paren_depth == 0 ) then
 							local func_params_str = string.sub( params_str, j + 1, k - 2 )
-							table.insert( current_param, { type = 'FUNCTION', value = potential_func_name, params = func_params_str } )
+							table.insert( current_param, { type = 'FUNCTION', value = potential_func_name, paras= func_params_str } )
 							i = k
-							break  -- 延迟表达式已完整处理，跳出主循环
+							break
 						else
 							return nil, false
 						end
@@ -1871,15 +2168,11 @@ function parse_and_execute_function( func_name, params_str, pattern, shooter, ta
 		table.insert( params, current_param )
 	end
 
-	-- 计算每个参数的值
 	local param_values = { }
-	for _, param_tokens in ipairs( params ) do
+	for _, param_tokens in ipairs( paras) do
 		local param_value, param_correct = evaluate_param_tokens( param_tokens, pattern, shooter, tar_x, tar_y )
-			-- 如果解析失败，检查是否是延迟表达式字符串
 		if ( not param_correct ) then
-			-- 检查是否只包含一个 SELECTOR token（延迟表达式）
 			if ( #param_tokens == 1 and param_tokens[ 1 ].type == 'SELECTOR' ) then
-				-- 去除前缀并求值
 				local expr_str = param_tokens[ 1 ].value
 				if ( string.sub( expr_str, 1, #DELY_EXPR_PREFIX ) == DELY_EXPR_PREFIX ) then
 					expr_str = string.sub( expr_str, #DELY_EXPR_PREFIX + 1 )
@@ -1893,7 +2186,6 @@ function parse_and_execute_function( func_name, params_str, pattern, shooter, ta
 		table.insert( param_values, param_value )
 	end
 
-	-- 执行函数
 	local func_result = nil
 	if ( #param_values == 1 and empty_command_functions[ func_name ].action_1_paras ) then
 		func_result = empty_command_functions[ func_name ].action_1_paras( { }, true, shooter, param_values[ 1 ] )
@@ -1940,12 +2232,12 @@ function evaluate_delayed_expression( expr_string, pattern, shooter, tar_x, tar_
 					param_values[ i ] = tonumber( _ ) or _
 				end
 			end
-					-- 计算参数数量（使用 pairs 而不是 #，因为 param_values 是键值对表）
+
 			local param_count = 0
 			for _ in pairs( param_values ) do
 				param_count = param_count + 1
 			end
-					-- 查找函数的参数顺序
+
 			local para_count_key = 'para_' .. param_count
 			local para_names = nil
 			if ( empty_command_functions[ func_name ].para_names and
@@ -1955,39 +2247,36 @@ function evaluate_delayed_expression( expr_string, pattern, shooter, tar_x, tar_
 					if ( not para_names ) then
 				return nil, false
 			end
-					-- 按顺序组织参数值
-			local ordered_param_values = { }
+
+			local paras = { }
 			for _, para_name in ipairs( para_names ) do
 				if ( param_values[ para_name ] ) then
-					table.insert( ordered_param_values, param_values[ para_name ] )
+					table.insert( paras, param_values[ para_name ] )
 				else
 					return nil, false
 				end
 			end
-					local ordered_param_count = #ordered_param_values
-					-- 执行函数
+
 			local func_result = nil
-			if ( ordered_param_count == 1 and empty_command_functions[ func_name ].action_1_paras ) then
-				func_result = empty_command_functions[ func_name ].action_1_paras( { }, true, shooter, ordered_param_values[ 1 ] )
-			elseif ( ordered_param_count == 2 and empty_command_functions[ func_name ].action_2_paras ) then
-				func_result = empty_command_functions[ func_name ].action_2_paras( { }, true, shooter, ordered_param_values[ 1 ], ordered_param_values[ 2 ] )
-			elseif ( ordered_param_count == 3 and empty_command_functions[ func_name ].action_3_paras ) then
-				func_result = empty_command_functions[ func_name ].action_3_paras( { }, true, shooter, ordered_param_values[ 1 ], ordered_param_values[ 2 ], ordered_param_values[ 3 ] )
+
+			if ( #paras == 1 and empty_command_functions[ func_name ].action_1_paras ) then
+				func_result = empty_command_functions[ func_name ].action_1_paras( { }, true, shooter, paras[ 1 ] )
+			elseif ( #paras == 2 and empty_command_functions[ func_name ].action_2_paras ) then
+				func_result = empty_command_functions[ func_name ].action_2_paras( { }, true, shooter, paras[ 1 ], paras[ 2 ] )
+			elseif ( #paras == 3 and empty_command_functions[ func_name ].action_3_paras ) then
+				func_result = empty_command_functions[ func_name ].action_3_paras( { }, true, shooter, paras[ 1 ], paras[ 2 ], paras[ 3 ] )
 			else
 				return nil, false
 			end
-					return func_result, true
+
+			return func_result, true
 		end
 	end
 
-	-- 检查是否是标准函数调用格式：函数名(参数1,参数2,...)
 	local paren_pos = string.find( actual_expr, '(', 1, true )
-	if ( paren_pos ) then
-	end
 	if ( paren_pos and string.sub( actual_expr, #actual_expr, #actual_expr ) == ')' ) then
 		local func_name = string.sub( actual_expr, 1, paren_pos - 1 )
 		local params_str = string.sub( actual_expr, paren_pos + 1, #actual_expr - 1 )
-		-- 使用 parse_and_execute_function 解析并执行
 		local func_result, func_correct = parse_and_execute_function( func_name, params_str, pattern, shooter, tar_x, tar_y )
 		if ( func_correct ) then
 			return func_result, true
@@ -2059,7 +2348,7 @@ function evaluate_delayed_expression( expr_string, pattern, shooter, tar_x, tar_
 
 				if ( paren_depth == 0 ) then
 					local params_str = string.sub( actual_expr, j + 1, k - 2 )
-					table.insert( tokens, { type = 'FUNCTION', value = func_name, params = params_str } )
+					table.insert( tokens, { type = 'FUNCTION', value = func_name, paras= params_str } )
 					i = k
 				else
 					return nil, false
