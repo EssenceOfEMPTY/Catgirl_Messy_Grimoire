@@ -3,10 +3,28 @@ dofile_once( 'mods/empty_the_blackhole_catgirl/files/scripts/empty/empty_command
 
 local entity = EntityGetRootEntity( GetUpdatedEntityID( ) )
 
-if ( entity ~= NULL_ENTITY ) then
-	local paras= parse_and_evaluate_command_params( 'empty_projectile_speed_set', entity, { 'speed' } )
+local l_comps = EntityGetComponent( entity, 'LuaComponent', 'empty_speed_set_dupli' )
 
-	if ( paras) then
-		empty_command_functions[ 'projectile_speed_set' ].action_1_paras( { }, true, paras.shooter, paras.speed )
+if ( entity ~= NULL_ENTITY ) then
+	if ( EntityHasTag( entity, 'empty_projectile_speed_set_delay' ) ) then
+		local paras = parse_and_evaluate_command_paras( 'empty_projectile_speed_set', entity, { 'speed' } )
+
+		if ( paras ) then
+			empty_command_functions[ 'projectile_speed_set' ].action_1_paras( { }, true, paras.shooter, paras.speed )
+		end
+
+		for _, l_comp in ipairs( l_comps or { } ) do
+			EntityRemoveComponent( entity, l_comp )
+		end
+	else
+		EntityAddTag( entity, 'empty_projectile_speed_set_delay' )
+
+		ComponentSetValue2( GetUpdatedComponentID( ), 'mNextExecutionTime', GameGetFrameNum( ) )
+
+		for _, l_comp in ipairs( l_comps or { } ) do
+			if ( _ > 1 ) then
+				EntityRemoveComponent( entity, l_comp )
+			end
+		end
 	end
 end

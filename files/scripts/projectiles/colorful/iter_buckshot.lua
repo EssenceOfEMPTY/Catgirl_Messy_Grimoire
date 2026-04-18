@@ -8,10 +8,10 @@ if ( e_id ~= NULL_ENTITY ) then
 	local p_comp = EntityGetFirstComponent( e_id, 'ProjectileComponent' )
 
 	if ( p_comp ) then
-		local paras= parse_and_evaluate_command_params( 'empty_colorful_iter_projectile_buckshot', e_id, { 'count' }, 0 )
+		local paras = parse_and_evaluate_command_paras( 'empty_colorful_iter_projectile_buckshot', e_id, { 'count' }, 0 )
 
-		if ( paras) then
-			local count = params[ 'count' ]
+		if ( paras ) then
+			local count = paras[ 'count' ]
 
 			local dmg, dmg_explosion = ComponentGetValue2( p_comp, 'damage' ) or 0, ComponentObjectGetValue2( p_comp, 'config_explosion', 'damage' ) or 0
 			local delta, lifetime = ( ( count ) ^ math.max( 1, get_ng_num( ) ) ) / get_scale( ), ComponentGetValue2( p_comp, 'lifetime' ) or 0

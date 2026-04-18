@@ -5246,6 +5246,8 @@ local new_actions =
 			if ( is_correct ) then
 				if ( #paras == 1 ) then
 					empty_command_functions[ 'projectile_gravity_set' ].action_1_paras( c, false, shooter, paras[ 1 ] )
+				elseif ( #paras == 2 ) then
+					empty_command_functions[ 'projectile_gravity_set' ].action_2_paras( c, false, shooter, paras[ 1 ], paras[ 2 ] )
 				else
 					command_print( 'projectile_gravity_set(', '$empty_command_error_lack_paras', '1', to_string( #paras ) )
 					return
@@ -5350,6 +5352,42 @@ local new_actions =
 					empty_command_functions[ 'projectile_shoot_angle_set' ].action_1_paras( c, false, shooter, paras[ 1 ] )
 				else
 					command_print( 'projectile_shoot_angle_set(', '$empty_command_error_lack_paras', '1', to_string( #paras ) )
+					return
+				end
+
+				if ( command_count > 0 and recursion_level == nil and iteration == nil ) then
+					add_table_count( deck, hand, command_count )
+				end
+
+				draw_actions( 1, true )
+			end
+		end
+	},
+	{
+		info = 'command_function_projectile_arc_add',
+		series = {
+			[ 'command' ] = true,
+			[ 'function' ] = true,
+		},
+		type		= ACTION_TYPE_OTHER,
+		command_type = 'FUNCTION',
+		command_value = 'projectile_arc_add(',
+		spawn_level						= '10', --EMPTY_COMMAND_FUNCTION_PROJECTILE_ARC_ADD
+		spawn_probability				= '0.3', --EMPTY_COMMAND_FUNCTION_PROJECTILE_ARC_ADD
+		price = 500,
+		mana = 125,
+		action		= function ( recursion_level, iteration, copy_series, copy_specific )
+			local shooter = GetUpdatedEntityID( )
+			local tar_x, tar_y = EntityGetTransform( shooter )
+			local paras, command_count, is_correct = from_table_get_paras( c, 'projectile_arc_add', deck, '#', shooter, tar_x, tar_y )
+
+			if ( is_correct ) then
+				if ( #paras == 1 ) then
+					empty_command_functions[ 'projectile_arc_add' ].action_1_paras( c, false, shooter, paras[ 1 ] )
+				elseif ( #paras == 2 ) then
+					empty_command_functions[ 'projectile_arc_add' ].action_2_paras( c, false, shooter, paras[ 1 ], paras[ 2 ] )
+				else
+					command_print( 'projectile_arc_add(', '$empty_command_error_lack_paras', '1', to_string( #paras ) )
 					return
 				end
 
@@ -5469,8 +5507,6 @@ local new_actions =
 					add_table_count( deck, hand, command_count )
 				end
 			end
-
-			print( 'command_function_tp in gun_actions: action_description = ' .. c.action_description )
 		end
 	},
 	{

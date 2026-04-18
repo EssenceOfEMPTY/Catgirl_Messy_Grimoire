@@ -20,7 +20,7 @@ if ( entity ~= NULL_ENTITY ) then
 		for i, _ in ipairs( v_comps or { } ) do
 			local vel_x, vel_y = ComponentGetValue2( _, 'mVelocity' )
 
-			vel_x, vel_y = abs_rot_vel( vel_x, vel_y or 0, paras.angle + paras.frame * paras.inc )
+			vel_x, vel_y = rot_vel( vel_x, vel_y or 0, paras.angle + paras.frame * paras.inc )
 
 			ComponentSetValue2( _, 'mVelocity', vel_x, vel_y )
 		end

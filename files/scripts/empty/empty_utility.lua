@@ -1182,7 +1182,7 @@ end
 ---@param entity_id number
 ---@param param_names string[]
 ---@return table|nil result_table
-function parse_and_evaluate_command_params( action_id, entity_id, param_names )
+function parse_and_evaluate_command_paras( action_id, entity_id, param_names )
 	local p_comp = EntityGetFirstComponent( entity_id, 'ProjectileComponent' )
 	if ( not p_comp ) then
 		return nil

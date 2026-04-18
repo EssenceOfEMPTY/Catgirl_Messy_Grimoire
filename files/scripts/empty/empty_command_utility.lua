@@ -562,11 +562,19 @@ empty_command_functions = {
 	projectile_gravity_set = {
 		para_names = {
 			para_1 = {
-				'gravity',
+				'gravity_y',
+			},
+			para_2 = {
+				'gravity_y',
+				'gravity_x',
 			},
 		},
 		transform_tilde_into = {
 			para_1 = {
+				'0',
+			},
+			para_2 = {
+				'0',
 				'0',
 			},
 		},
@@ -623,7 +631,7 @@ empty_command_functions = {
 				return { 0, 0 }
 			end
 			if ( type( gravity_x ) ~= 'number' and type( gravity_x ) ~= 'string' ) then
-				command_print( 'projectile_gravity_set(', '$empty_command_error_wrong_para_type', 'NUMBER', upper_type( gravity_y ) )
+				command_print( 'projectile_gravity_set(', '$empty_command_error_wrong_para_type', 'NUMBER', upper_type( gravity_x ) )
 				return { 0, 0 }
 			end
 
@@ -816,7 +824,7 @@ empty_command_functions = {
 			return angle
 		end
 	},
-	projectile_arc_set = {
+	projectile_arc_add = {
 		para_names = {
 			para_1 = {
 				'angle',
@@ -843,7 +851,162 @@ empty_command_functions = {
 		---@return string|number angle
 		action_1_paras = function ( c, reflect, shooter, angle )
 			if ( type( angle ) ~= 'number' and type( angle ) ~= 'string' ) then
-				command_print( 'projectile_shoot_angle_set(', '$empty_command_error_wrong_para_type', 'NUMBER', upper_type( angle ) )
+				command_print( 'projectile_arc_add(', '$empty_command_error_wrong_para_type', 'NUMBER', upper_type( angle ) )
+				return 0
+			end
+
+			if ( reflect ) then
+				local entity = EntityGetRootEntity( GetUpdatedEntityID( ) )
+
+				local v_comps = EntityGetComponent( entity, 'VariableStorageComponent', 'projectile_arc_add' )
+				if ( v_comps ) then
+					for _, v_comp in ipairs( v_comps or { } ) do
+						if ( _ == 1 ) then
+							ComponentSetValue2( v_comp, 'value_int', 0 )
+							ComponentSetValue2( v_comp, 'value_string', tostring( angle ) )
+						else
+							EntityRemoveComponent( entity, v_comp )
+						end
+					end
+				else
+					EntityAddComponent2( entity, 'VariableStorageComponent', {
+						_tags = 'projectile_arc_add',
+						value_int = 0,
+						value_string = tostring( angle ),
+						value_float = 0,
+					} )
+				end
+
+				local l_comps = EntityGetComponent( entity, 'LuaComponent', 'projectile_arc_add' )
+				if ( l_comps ) then
+					for _, l_comp in ipairs( l_comps or { } ) do
+						if ( _ == 1 ) then
+							ComponentSetValue2( l_comp, 'execute_every_n_frame', 1 )
+							ComponentSetValue2( l_comp, 'script_source_file', empty_path .. 'scripts/command/projectile_arc_add.lua' )
+						else
+							EntityRemoveComponent( entity, l_comp )
+						end
+					end
+				else
+					EntityAddComponent2( entity, 'LuaComponent', {
+						_tags = 'projectile_arc_add',
+						execute_every_n_frame = 1,
+						script_source_file = empty_path .. 'scripts/command/projectile_arc_add_reflect.lua',
+					} )
+				end
+			else
+				add_desc_by_info( c, {
+					replace = true,
+					update = true,
+					merge = false,
+				}, {
+					id = 'empty_projectile_arc_add',
+					shooter = shooter,
+					angle = angle,
+				}, empty_path .. 'entities/misc/command/projectile_arc_add.xml,', '$' )
+			end
+
+			return angle
+		end,
+		---@param c table
+		---@param reflect boolean
+		---@param shooter number
+		---@param angle string|number
+		---@return table angle
+		action_2_paras = function ( c, reflect, shooter, angle, inc )
+			if ( type( angle ) ~= 'number' and type( angle ) ~= 'string' ) then
+				command_print( 'projectile_arc_add(', '$empty_command_error_wrong_para_type', 'NUMBER', upper_type( angle ) )
+				return { 0, 0 }
+			end
+			if ( type( inc ) ~= 'number' and type( inc ) ~= 'string' ) then
+				command_print( 'projectile_arc_add(', '$empty_command_error_wrong_para_type', 'NUMBER', upper_type( inc ) )
+				return { 0, 0 }
+			end
+
+			if ( reflect ) then
+				local entity = EntityGetRootEntity( GetUpdatedEntityID( ) )
+
+				local v_comps = EntityGetComponent( entity, 'VariableStorageComponent', 'projectile_arc_add' )
+				if ( v_comps ) then
+					for _, v_comp in ipairs( v_comps or { } ) do
+						if ( _ == 1 ) then
+							ComponentSetValue2( v_comp, 'value_int', 0 )
+							ComponentSetValue2( v_comp, 'value_string', tostring( angle ) )
+							ComponentSetValue2( v_comp, 'value_float', inc )
+						else
+							EntityRemoveComponent( entity, v_comp )
+						end
+					end
+				else
+					EntityAddComponent2( entity, 'VariableStorageComponent', {
+						_tags = 'projectile_arc_add',
+						value_int = 0,
+						value_string = tostring( angle ),
+						value_float = inc,
+					} )
+				end
+
+				local l_comps = EntityGetComponent( entity, 'LuaComponent', 'projectile_arc_add' )
+				if ( l_comps ) then
+					for _, l_comp in ipairs( l_comps or { } ) do
+						if ( _ == 1 ) then
+							ComponentSetValue2( l_comp, 'execute_every_n_frame', 1 )
+							ComponentSetValue2( l_comp, 'script_source_file', empty_path .. 'scripts/command/projectile_arc_add.lua' )
+						else
+							EntityRemoveComponent( entity, l_comp )
+						end
+					end
+				else
+					EntityAddComponent2( entity, 'LuaComponent', {
+						_tags = 'projectile_arc_add',
+						execute_every_n_frame = 1,
+						script_source_file = empty_path .. 'scripts/command/projectile_arc_add_reflect.lua',
+					} )
+				end
+			else
+				add_desc_by_info( c, {
+					replace = true,
+					update = true,
+					merge = false,
+				}, {
+					id = 'empty_projectile_arc_add',
+					shooter = shooter,
+					angle = angle,
+					inc = inc,
+				}, empty_path .. 'entities/misc/command/projectile_arc_add.xml,', '$' )
+			end
+
+			return { angle, inc }
+		end
+	},
+	projectile_arc_set = {
+		para_names = {
+			para_1 = {
+				'angle',
+			},
+			para_2 = {
+				'angle',
+				'inc',
+			},
+		},
+		transform_tilde_into = {
+			para_1 = {
+				'0',
+			},
+			para_2 = {
+				'0',
+				'0',
+			},
+		},
+		---在不更改速度大小的状态下将速度方向在正右方基础上每帧逆时针旋转 angle°
+		---@param c table
+		---@param reflect boolean
+		---@param shooter number
+		---@param angle string|number
+		---@return string|number angle
+		action_1_paras = function ( c, reflect, shooter, angle )
+			if ( type( angle ) ~= 'number' and type( angle ) ~= 'string' ) then
+				command_print( 'projectile_arc_set(', '$empty_command_error_wrong_para_type', 'NUMBER', upper_type( angle ) )
 				return 0
 			end
 
@@ -907,11 +1070,11 @@ empty_command_functions = {
 		---@return table angle
 		action_2_paras = function ( c, reflect, shooter, angle, inc )
 			if ( type( angle ) ~= 'number' and type( angle ) ~= 'string' ) then
-				command_print( 'projectile_shoot_angle_set(', '$empty_command_error_wrong_para_type', 'NUMBER', upper_type( angle ) )
+				command_print( 'projectile_arc_set(', '$empty_command_error_wrong_para_type', 'NUMBER', upper_type( angle ) )
 				return { 0, 0 }
 			end
 			if ( type( inc ) ~= 'number' and type( inc ) ~= 'string' ) then
-				command_print( 'projectile_shoot_angle_set(', '$empty_command_error_wrong_para_type', 'NUMBER', upper_type( inc ) )
+				command_print( 'projectile_arc_set(', '$empty_command_error_wrong_para_type', 'NUMBER', upper_type( inc ) )
 				return { 0, 0 }
 			end
 
@@ -1007,7 +1170,10 @@ empty_command_functions = {
 				return 0
 			end
 
-			if ( reflect or ( type( radius ) == 'number' and ( type( tar ) == 'number' or type( tar ) == 'table' ) ) ) then
+			if ( reflect ) then
+				if ( type( radius ) ~= 'number' ) then
+					radius = 0
+				end
 				if ( type( tar ) == 'number' ) then
 					tar = { tar }
 				elseif ( type( tar ) ~= 'table' ) then
@@ -1019,20 +1185,13 @@ empty_command_functions = {
 					return radius
 				end
 
-				local attributes = {
-					explosion_radius = radius,
-					damage = radius / get_scale( ),
-					camera_shake = radius / 10.0,
-					create_cell_probability = math.min( 100, 50 + radius / 5 ),
-					physics_explosion_power_min = radius / 5,
-					physics_explosion_power_max = radius / 4,
-				}
+				local attributes = construct_explode( radius )
 
 				for i, _ in ipairs( tar ) do
 					if ( _ ~= NULL_ENTITY and EntityGetIsAlive( _ ) ) then
 						local x, y = EntityGetTransform( _ )
 
-						local explode = EntityLoad( empty_path .. 'entities/projectiles/command/explode_with_lua.xml', x, y )
+						local explode = EntityLoad( empty_path .. 'entities/projectiles/command/explode.xml', x, y )
 
 						if ( explode ) then
 							local projectile_comp = EntityGetFirstComponent( explode, 'ProjectileComponent' )
@@ -1084,7 +1243,10 @@ empty_command_functions = {
 				return 0
 			end
 
-			if ( reflect or ( type( radius ) == 'number' and type( x ) == 'number' and type( y ) == 'table' ) ) then
+			if ( reflect ) then
+				if ( type( radius ) ~= 'number' ) then
+					radius = 0
+				end
 				if ( type( x ) ~= 'number' ) then
 					x = 0
 				end
@@ -1092,20 +1254,13 @@ empty_command_functions = {
 					y = x
 				end
 
-				local explode = EntityLoad( empty_path .. 'entities/projectiles/command/explode_with_lua.xml', x, y )
+				local explode = EntityLoad( empty_path .. 'entities/projectiles/command/explode.xml', x, y )
 
 				if ( explode ) then
 					local projectile_comp = EntityGetFirstComponent( explode, 'ProjectileComponent' )
 
 					if ( projectile_comp ) then
-						local attributes = {
-							explosion_radius = radius,
-							damage = radius / get_scale( ),
-							camera_shake = radius / 10.0,
-							create_cell_probability = math.min( 100, 50 + radius / 5 ),
-							physics_explosion_power_min = radius / 5,
-							physics_explosion_power_max = radius / 4,
-						}
+						local attributes = construct_explode( radius )
 
 						for k, v in pairs( attributes ) do
 							ComponentObjectSetValue2( projectile_comp, 'config_explosion', k, v )
@@ -1293,6 +1448,19 @@ empty_command_functions = {
 		end
 	},
 }
+
+---构造爆炸数据
+---@param radius number
+---@return table explode_attribute
+function construct_explode( radius )
+	return {
+		explosion_radius = radius,
+		damage = radius / get_scale( ),
+		camera_shake = radius / 10.0,
+		create_cell_probability = math.min( 100, 50 + radius / 5 ),
+		physics_explosion_power = 9 * radius / 20,
+	}
+end
 
 --- '@' 处理器, 仅供解析 @ 使用
 ---@param token string
@@ -1899,17 +2067,17 @@ function build_delayed_expression( para_expr, pattern, para_need_type, shooter, 
 end
 
 ---计算参数 token 列表的值
----@param param_tokens table[]
+---@param para_tokens table[]
 ---@param pattern string
 ---@param shooter number
 ---@param tar_x number
 ---@param tar_y number
 ---@return string|number|number[]|nil result
 ---@return boolean is_correct
-function evaluate_param_tokens( param_tokens, pattern, shooter, tar_x, tar_y )
+function evaluate_param_tokens( para_tokens, pattern, shooter, tar_x, tar_y )
 	local result, op_num, current_operator, is_correct = nil, nil, nil, true
 
-	for _, token in ipairs( param_tokens ) do
+	for _, token in ipairs( para_tokens ) do
 		if ( token.type == 'NUMBER' ) then
 			local num_value = tonumber( token.value )
 			if ( num_value == nil ) then
@@ -1952,7 +2120,7 @@ function evaluate_param_tokens( param_tokens, pattern, shooter, tar_x, tar_y )
 				result = tilde_value
 			end
 		elseif ( token.type == 'FUNCTION' ) then
-			local func_result, func_correct = parse_and_execute_function( token.value, token.params, pattern, shooter, tar_x, tar_y )
+			local func_result, func_correct = parse_and_execute_function( token.value, token.paras, pattern, shooter, tar_x, tar_y )
 
 			if ( not func_correct ) then
 				return nil, false
@@ -1998,7 +2166,7 @@ function parse_and_execute_function( func_name, params_str, pattern, shooter, ta
 	end
 
 	-- 解析参数字符串为参数列表
-	local paras= { }
+	local paras = { }
 	local current_param = { }
 	local paren_depth = 0
 	local i = 1
@@ -2009,7 +2177,7 @@ function parse_and_execute_function( func_name, params_str, pattern, shooter, ta
 
 		if ( char == ',' and paren_depth == 0 ) then
 			if ( #current_param > 0 ) then
-				table.insert( params, current_param )
+				table.insert( paras, current_param )
 				current_param = { }
 			end
 			i = i + 1
@@ -2084,7 +2252,7 @@ function parse_and_execute_function( func_name, params_str, pattern, shooter, ta
 
 				if ( func_paren_depth == 0 ) then
 					local func_params_str = string.sub( params_str, j + 1, k - 2 )
-					table.insert( current_param, { type = 'FUNCTION', value = potential_func_name, paras= func_params_str } )
+					table.insert( current_param, { type = 'FUNCTION', value = potential_func_name, paras = func_params_str } )
 					i = k
 				else
 					return nil, false
@@ -2144,7 +2312,7 @@ function parse_and_execute_function( func_name, params_str, pattern, shooter, ta
 
 						if ( func_paren_depth == 0 ) then
 							local func_params_str = string.sub( params_str, j + 1, k - 2 )
-							table.insert( current_param, { type = 'FUNCTION', value = potential_func_name, paras= func_params_str } )
+							table.insert( current_param, { type = 'FUNCTION', value = potential_func_name, paras = func_params_str } )
 							i = k
 							break
 						else
@@ -2165,11 +2333,11 @@ function parse_and_execute_function( func_name, params_str, pattern, shooter, ta
 	end
 
 	if ( #current_param > 0 ) then
-		table.insert( params, current_param )
+		table.insert( paras, current_param )
 	end
 
 	local param_values = { }
-	for _, param_tokens in ipairs( paras) do
+	for _, param_tokens in ipairs( paras ) do
 		local param_value, param_correct = evaluate_param_tokens( param_tokens, pattern, shooter, tar_x, tar_y )
 		if ( not param_correct ) then
 			if ( #param_tokens == 1 and param_tokens[ 1 ].type == 'SELECTOR' ) then
@@ -2244,7 +2412,7 @@ function evaluate_delayed_expression( expr_string, pattern, shooter, tar_x, tar_
 			     empty_command_functions[ func_name ].para_names[ para_count_key ] ) then
 				para_names = empty_command_functions[ func_name ].para_names[ para_count_key ]
 			end
-					if ( not para_names ) then
+			if ( not para_names ) then
 				return nil, false
 			end
 
@@ -2348,7 +2516,7 @@ function evaluate_delayed_expression( expr_string, pattern, shooter, tar_x, tar_
 
 				if ( paren_depth == 0 ) then
 					local params_str = string.sub( actual_expr, j + 1, k - 2 )
-					table.insert( tokens, { type = 'FUNCTION', value = func_name, paras= params_str } )
+					table.insert( tokens, { type = 'FUNCTION', value = func_name, paras = params_str } )
 					i = k
 				else
 					return nil, false
@@ -2362,7 +2530,21 @@ function evaluate_delayed_expression( expr_string, pattern, shooter, tar_x, tar_
 			return nil, false
 		end
 	end
-
+--[[
+	if ( #tokens == 1 and ( tokens[ 1 ].type == 'SELECTOR' or tokens[ 1 ].type == 'TILDE' ) ) then
+		local selector_value = nil
+		if ( tokens[ 1 ].type == 'SELECTOR' ) then
+			selector_value = command_at_handler( tokens[ 1 ].value, 'none', shooter, tar_x, tar_y )
+		else
+			selector_value = command_at_handler( '~', tokens[ 1 ].value, shooter, tar_x, tar_y )
+		end
+		if ( selector_value ~= nil ) then
+			return selector_value, true
+		else
+			return nil, false
+		end
+	end
+]]--
 	local result, num_to_operate, current_operator, is_correct = nil, nil, nil, true
 
 	for _, token in ipairs( tokens ) do
@@ -2394,7 +2576,7 @@ function evaluate_delayed_expression( expr_string, pattern, shooter, tar_x, tar_
 				result = tilde_value
 			end
 		elseif ( token.type == 'FUNCTION' ) then
-			local func_result, func_correct = parse_and_execute_function( token.value, token.params, pattern, shooter, tar_x, tar_y )
+			local func_result, func_correct = parse_and_execute_function( token.value, token.paras, pattern, shooter, tar_x, tar_y )
 			if ( not func_correct ) then
 				return nil, false
 			end

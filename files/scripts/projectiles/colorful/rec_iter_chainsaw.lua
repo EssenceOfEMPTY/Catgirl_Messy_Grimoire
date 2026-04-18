@@ -8,10 +8,10 @@ if ( e_id ~= NULL_ENTITY ) then
 	local p_comp = EntityGetFirstComponent( e_id, 'ProjectileComponent' )
 
 	if ( p_comp ) then
-		local paras= parse_and_evaluate_command_params( 'empty_colorful_rec_iter_projectile_chainsaw', e_id, { 'count' }, 0 )
+		local paras = parse_and_evaluate_command_paras( 'empty_colorful_rec_iter_projectile_chainsaw', e_id, { 'count' }, 0 )
 
-		if ( paras) then
-			local count = params[ 'count' ]
+		if ( paras ) then
+			local count = paras[ 'count' ]
 
 			local dmg = ComponentObjectGetValue2( p_comp, 'damage_by_type', 'slice' ) or 0
 			local delta = count ^ ( 1 + get_ng_num( ) )

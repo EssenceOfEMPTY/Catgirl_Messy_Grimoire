@@ -4,9 +4,9 @@ dofile_once( 'mods/empty_the_blackhole_catgirl/files/scripts/empty/empty_command
 local entity = EntityGetRootEntity( GetUpdatedEntityID( ) )
 
 if ( entity ~= NULL_ENTITY ) then
-	local paras= parse_and_evaluate_command_params( 'empty_lifetime_set', entity, { 'lifetime' } )
+	local paras = parse_and_evaluate_command_paras( 'empty_lifetime_set', entity, { 'lifetime' } )
 
-	if ( paras) then
+	if ( paras ) then
 		empty_command_functions[ 'lifetime_set' ].action_1_paras( { }, true, paras.shooter, paras.lifetime )
 	end
 end
