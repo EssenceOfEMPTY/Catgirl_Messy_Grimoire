@@ -13,4 +13,10 @@ if ( entity ~= NULL_ENTITY ) then
 			empty_command_functions[ 'projectile_arc_set' ].action_2_paras( { }, true, paras.shooter, paras.angle, paras.inc )
 		end
 	end
+
+	local l_comps = EntityGetComponent( entity, 'LuaComponent', 'empty_projectile_arc_set_dupli' )
+
+	for _, l_comp in ipairs( l_comps or { } ) do
+		EntityRemoveComponent( entity, l_comp )
+	end
 end

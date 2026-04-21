@@ -12,7 +12,7 @@ if ( comp_id ) then
 end
 
 local how_many = 8
-local angle_inc = ( 2 * math.pi ) / how_many
+local angle_inc = p2 / how_many
 local theta = 0
 local length = 100
 

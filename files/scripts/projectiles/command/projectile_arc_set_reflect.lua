@@ -4,7 +4,7 @@ dofile_once( 'mods/empty_the_blackhole_catgirl/files/scripts/empty/empty_utility
 local entity = EntityGetRootEntity( GetUpdatedEntityID( ) )
 
 if ( entity ~= NULL_ENTITY ) then
-	local v_comp = EntityGetFirstComponent( entity, 'VariableStorageComponent', 'projectile_arc_set' )
+	local v_comp = EntityGetFirstComponent( entity, 'VariableStorageComponent', 'projectile_arc_set_reflect' )
 
 	if ( v_comp ) then
 		local paras = {

@@ -9,4 +9,10 @@ if ( entity ~= NULL_ENTITY ) then
 	if ( paras ) then
 		empty_command_functions[ 'lifetime_set' ].action_1_paras( { }, true, paras.shooter, paras.lifetime )
 	end
+
+	local l_comps = EntityGetComponent( entity, 'LuaComponent', 'empty_lifetime_set_dupli' )
+
+	for _, l_comp in ipairs( l_comps or { } ) do
+		EntityRemoveComponent( entity, l_comp )
+	end
 end

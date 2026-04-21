@@ -1,4 +1,18 @@
-dofile_once('mods/empty_the_blackhole_catgirl/files/scripts/empty/empty_utility.lua')
+dofile_once( 'mods/empty_the_blackhole_catgirl/files/scripts/empty/empty_utility.lua' )
+--dofile_once( empty_path .. 'scripts/magic/for_some_command.lua' )
+--
+--local receiver = nil
+--function OnPlayerSpawned( player )
+--	local updator = EntityCreateNew( 'empty.updator' )
+--	EntityAddComponent2( updator, 'LuaComponent', { script_electricity_receiver_electrified = empty_path .. 'scripts/magic/for_some_command.lua' } )
+--	receiver = EntityAddComponent2( updator, 'ElectricityReceiverComponent', { electrified_msg_interval_frames = 1 } )
+--end
+--
+--function OnWorldPreUpdate( )
+--	if ( receiver ) then
+--		ComponentSetValue2( receiver, "mLastFrameElectrified", GameGetFrameNum( ) + 1 )
+--	end
+--end
 
 local translation = ModTextFileGetContent( 'data/translations/common.csv' )
 	.. ModTextFileGetContent( empty_path .. 'translations/empty_translation.csv' )

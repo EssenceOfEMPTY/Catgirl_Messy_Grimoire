@@ -1,5 +1,6 @@
 
 empty_path = 'mods/empty_the_blackhole_catgirl/files/'
+p2 = 2 * math.pi
 
 ---打印一切信息
 ---@param info any
@@ -13,9 +14,11 @@ function info_print( info, key )
 
 	if ( typ == 'table' ) then
 		print( '< ' .. typ .. ' > ' .. key .. ': {' )
+
 		for i, _ in pairs( info or { } ) do
 			info_print( _, i )
 		end
+
 		print( '}' )
 	else
 		print( '< ' .. typ .. ' > ' .. key .. ': ' .. tostring( info ) )
@@ -52,7 +55,15 @@ end
 ---@param deg number
 ---@return number rad
 function deg_to_rad( deg )
-	return math.fmod( deg * math.pi / 180.0, 2 * math.pi )
+	local rad = math.fmod( deg * math.pi / 180.0, p2 )
+
+	if ( rad > math.pi ) then
+		rad = rad - p2
+	elseif ( rad < -math.pi ) then
+		rad = rad + p2
+	end
+
+	return rad
 end
 
 ---在不更改速度大小的状态下将速度方向在原基础上逆时针旋转 angle°
@@ -79,10 +90,14 @@ end
 ---@return number vel_x
 ---@return number vel_y
 function abs_rot_vel( vel_x, vel_y, angle )
-	local rad, speed = deg_to_rad( -angle ), math.sqrt( vel_x * vel_x + vel_y * vel_y )
-	local sin, cos = math.sin( rad ), math.cos( rad )
+	if ( vel_x == 0 and vel_y == 0 ) then
+		return 0, 0
+	else
+		local rad, speed = deg_to_rad( -angle ), math.sqrt( vel_x * vel_x + vel_y * vel_y )
+		local sin, cos = math.sin( rad ), math.cos( rad )
 
-	return cos * speed, sin * speed
+		return cos * speed, sin * speed
+	end
 end
 
 ---在不更改速度方向的状态下将速度大小变为 speed
@@ -127,10 +142,16 @@ function get_money( entity )
 end
 
 ---移除投射物速度组件的速度上限
----@param v_comp number
-function remove_speed_limit( v_comp )
-	ComponentSetValue2( v_comp, 'apply_terminal_velocity', 0 )
-	ComponentSetValue2( v_comp, 'limit_to_max_velocity', 0 )
+---@param v_comps number|number[]|nil
+function remove_speed_limit( v_comps )
+	if ( type( v_comps ) == 'number' ) then
+		v_comps = { v_comps }
+	end
+
+	for _, v_comp in ipairs( v_comps or { } ) do
+		ComponentSetValue2( v_comp, 'apply_terminal_velocity', false )
+		ComponentSetValue2( v_comp, 'limit_to_max_velocity', false )
+	end
 end
 
 ---返回任意数据的全大写数据类型

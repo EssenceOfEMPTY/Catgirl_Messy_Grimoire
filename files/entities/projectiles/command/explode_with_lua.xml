@@ -24,7 +24,7 @@
 
 	<LuaComponent
 		script_source_file="mods/empty_the_blackhole_catgirl/files/scripts/projectiles/command/explode.lua"
-		execute_on_added="1"
+		execute_every_n_frame="0"
 	></LuaComponent>
 
 	<VariableStorageComponent

@@ -3496,10 +3496,7 @@ local new_actions =
 				add_table_count( hand, discarded, count )
 			end
 		end,
-	},--[[
-	{
-		info = '',
-	},]]--
+	},
 	{
 		info = 'divide_2+',
 		series = {
@@ -3542,7 +3539,7 @@ local new_actions =
 
 					local imax = nil
 
-					if ( data.series[ 'colorful' ] ) then
+					if ( data.series and data.series[ 'colorful' ] ) then
 						imax = data.action( nil, iter + 1, {
 							[ 'divide' ] = true,
 							[ '+' ] = true,
@@ -3629,7 +3626,7 @@ local new_actions =
 
 					local imax = nil
 
-					if ( data.series[ 'colorful' ] ) then
+					if ( data.series and data.series[ 'colorful' ] ) then
 						imax = data.action( nil, iter + 1, {
 							[ 'divide' ] = true,
 							[ '+' ] = true,
@@ -3716,7 +3713,7 @@ local new_actions =
 
 					local imax = nil
 
-					if ( data.series[ 'colorful' ] ) then
+					if ( data.series and data.series[ 'colorful' ] ) then
 						imax = data.action( nil, iter + 1, {
 							[ 'divide' ] = true,
 							[ '+' ] = true,
@@ -3805,7 +3802,7 @@ local new_actions =
 
 					local imax = nil
 
-					if ( data.series[ 'colorful' ] ) then
+					if ( data.series and data.series[ 'colorful' ] ) then
 						imax = data.action( nil, iter + 1, {
 							[ 'divide' ] = true,
 							[ '+' ] = true,
@@ -3890,7 +3887,7 @@ local new_actions =
 				if ( data ) and ( rec > -1 ) and ( data.uses_remaining ~= 0 ) then
 					local imax = nil
 
-					if ( data.series[ 'colorful' ] ) then
+					if ( data.series and data.series[ 'colorful' ] ) then
 						imax = data.action( 2, iter + 1, {
 							[ 'divide' ] = true,
 							[ '-' ] = true,
@@ -3971,7 +3968,7 @@ local new_actions =
 				if ( data ) and ( rec > -1 ) and ( data.uses_remaining ~= 0 ) then
 					local imax = nil
 
-					if ( data.series[ 'colorful' ] ) then
+					if ( data.series and data.series[ 'colorful' ] ) then
 						imax = data.action( 2, iter + 1, {
 							[ 'divide' ] = true,
 							[ '-' ] = true,
@@ -4052,7 +4049,7 @@ local new_actions =
 				if ( data ) and ( rec > -1 ) and ( data.uses_remaining ~= 0 ) then
 					local imax = nil
 
-					if ( data.series[ 'colorful' ] ) then
+					if ( data.series and data.series[ 'colorful' ] ) then
 						imax = data.action( 2, iter + 1, {
 							[ 'divide' ] = true,
 							[ '-' ] = true,
@@ -4135,7 +4132,7 @@ local new_actions =
 				if ( data ) and ( rec > -1 ) and ( data.uses_remaining ~= 0 ) then
 					local imax = nil
 
-					if ( data.series[ 'colorful' ] ) then
+					if ( data.series and data.series[ 'colorful' ] ) then
 						imax = data.action( 2, iter + 1, {
 							[ 'divide' ] = true,
 							[ '-' ] = true,
@@ -5363,6 +5360,9 @@ local new_actions =
 			end
 		end
 	},
+	--[[
+	{},
+	]]--
 	{
 		info = 'command_function_projectile_arc_add',
 		series = {

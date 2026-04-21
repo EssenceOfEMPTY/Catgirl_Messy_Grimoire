@@ -1,9 +1,9 @@
 <Entity>
 
 	<LuaComponent
-		_tags="empty_shoot_angle_set_dupli"
+		_tags="empty_projectile_shoot_angle_set_dupli"
 		script_source_file="mods/empty_the_blackhole_catgirl/files/scripts/projectiles/command/projectile_shoot_angle_set.lua"
-		execute_on_added="1"
+		execute_every_n_frame="0"
 	></LuaComponent>
 
 </Entity>

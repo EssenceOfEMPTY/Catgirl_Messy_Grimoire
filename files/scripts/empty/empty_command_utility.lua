@@ -513,31 +513,18 @@ empty_command_functions = {
 
 				local entity = EntityGetRootEntity( GetUpdatedEntityID( ) )
 				local v_comps = EntityGetComponent( entity, 'VelocityComponent' ) or { }
-				local count, just_start = #v_comps, true
+
+				remove_speed_limit( v_comps )
 
 				for _, v_comp in ipairs( v_comps ) do
-					remove_speed_limit( v_comp )
-
 					local vel_x, vel_y = ComponentGetValue2( v_comp, 'mVelocity' )
 
-					if ( vel_x ~= 0 and vel_y ~= 0 ) then
-						vel_x, vel_y = change_vel( vel_x, vel_y, speed )
+					vel_x, vel_y = change_vel( vel_x, vel_y or 0, speed )
 
-						ComponentSetValue2( v_comp, 'mVelocity', vel_x, vel_y )
-
-						just_start = false
-					end
+					ComponentSetValue2( v_comp, 'mVelocity', vel_x, vel_y )
 				end
 
-				if ( just_start ) then
-					local p_comps = EntityGetComponent( entity, 'ProjectileComponent' ) or { }
-					count = #p_comps
-
-					for _, p_comp in ipairs( p_comps ) do
-						ComponentSetValue2( p_comp, 'speed_min', speed )
-						ComponentSetValue2( p_comp, 'speed_max', speed )
-					end
-				end
+				local count = #v_comps
 
 				if ( count > 0 ) then
 					command_print( 'projectile_speed_set(', '$empty_command_projectile_change_success', tostring( count ) )
@@ -743,7 +730,7 @@ empty_command_functions = {
 
 			if ( reflect ) then
 				if ( type( angle ) ~= 'number' ) then
-					angle = 0
+					return 0
 				end
 
 				local entity = EntityGetRootEntity( GetUpdatedEntityID( ) )
@@ -858,7 +845,7 @@ empty_command_functions = {
 			if ( reflect ) then
 				local entity = EntityGetRootEntity( GetUpdatedEntityID( ) )
 
-				local v_comps = EntityGetComponent( entity, 'VariableStorageComponent', 'projectile_arc_add' )
+				local v_comps = EntityGetComponent( entity, 'VariableStorageComponent', 'projectile_arc_add_reflect' )
 				if ( v_comps ) then
 					for _, v_comp in ipairs( v_comps or { } ) do
 						if ( _ == 1 ) then
@@ -870,14 +857,14 @@ empty_command_functions = {
 					end
 				else
 					EntityAddComponent2( entity, 'VariableStorageComponent', {
-						_tags = 'projectile_arc_add',
+						_tags = 'projectile_arc_add_reflect',
 						value_int = 0,
 						value_string = tostring( angle ),
 						value_float = 0,
 					} )
 				end
 
-				local l_comps = EntityGetComponent( entity, 'LuaComponent', 'projectile_arc_add' )
+				local l_comps = EntityGetComponent( entity, 'LuaComponent', 'projectile_arc_add_reflect' )
 				if ( l_comps ) then
 					for _, l_comp in ipairs( l_comps or { } ) do
 						if ( _ == 1 ) then
@@ -889,9 +876,9 @@ empty_command_functions = {
 					end
 				else
 					EntityAddComponent2( entity, 'LuaComponent', {
-						_tags = 'projectile_arc_add',
-						execute_every_n_frame = 1,
-						script_source_file = empty_path .. 'scripts/command/projectile_arc_add_reflect.lua',
+						_tags = 'projectile_arc_add_reflect',
+						execute_every_n_frame = 0,
+						script_source_file = empty_path .. 'scripts/projectiles/command/projectile_arc_add_reflect.lua',
 					} )
 				end
 			else
@@ -926,7 +913,7 @@ empty_command_functions = {
 			if ( reflect ) then
 				local entity = EntityGetRootEntity( GetUpdatedEntityID( ) )
 
-				local v_comps = EntityGetComponent( entity, 'VariableStorageComponent', 'projectile_arc_add' )
+				local v_comps = EntityGetComponent( entity, 'VariableStorageComponent', 'projectile_arc_add_reflect' )
 				if ( v_comps ) then
 					for _, v_comp in ipairs( v_comps or { } ) do
 						if ( _ == 1 ) then
@@ -939,14 +926,14 @@ empty_command_functions = {
 					end
 				else
 					EntityAddComponent2( entity, 'VariableStorageComponent', {
-						_tags = 'projectile_arc_add',
+						_tags = 'projectile_arc_add_reflect',
 						value_int = 0,
 						value_string = tostring( angle ),
 						value_float = inc,
 					} )
 				end
 
-				local l_comps = EntityGetComponent( entity, 'LuaComponent', 'projectile_arc_add' )
+				local l_comps = EntityGetComponent( entity, 'LuaComponent', 'projectile_arc_add_reflect' )
 				if ( l_comps ) then
 					for _, l_comp in ipairs( l_comps or { } ) do
 						if ( _ == 1 ) then
@@ -958,9 +945,9 @@ empty_command_functions = {
 					end
 				else
 					EntityAddComponent2( entity, 'LuaComponent', {
-						_tags = 'projectile_arc_add',
-						execute_every_n_frame = 1,
-						script_source_file = empty_path .. 'scripts/command/projectile_arc_add_reflect.lua',
+						_tags = 'projectile_arc_add_reflect',
+						execute_every_n_frame = 0,
+						script_source_file = empty_path .. 'scripts/projectiles/command/projectile_arc_add_reflect.lua',
 					} )
 				end
 			else
@@ -1013,7 +1000,7 @@ empty_command_functions = {
 			if ( reflect ) then
 				local entity = EntityGetRootEntity( GetUpdatedEntityID( ) )
 
-				local v_comps = EntityGetComponent( entity, 'VariableStorageComponent', 'projectile_arc_set' )
+				local v_comps = EntityGetComponent( entity, 'VariableStorageComponent', 'projectile_arc_set_reflect' )
 				if ( v_comps ) then
 					for _, v_comp in ipairs( v_comps or { } ) do
 						if ( _ == 1 ) then
@@ -1025,14 +1012,14 @@ empty_command_functions = {
 					end
 				else
 					EntityAddComponent2( entity, 'VariableStorageComponent', {
-						_tags = 'projectile_arc_set',
+						_tags = 'projectile_arc_set_reflect',
 						value_int = 0,
 						value_string = tostring( angle ),
 						value_float = 0,
 					} )
 				end
 
-				local l_comps = EntityGetComponent( entity, 'LuaComponent', 'projectile_arc_set' )
+				local l_comps = EntityGetComponent( entity, 'LuaComponent', 'projectile_arc_set_reflect' )
 				if ( l_comps ) then
 					for _, l_comp in ipairs( l_comps or { } ) do
 						if ( _ == 1 ) then
@@ -1044,9 +1031,9 @@ empty_command_functions = {
 					end
 				else
 					EntityAddComponent2( entity, 'LuaComponent', {
-						_tags = 'projectile_arc_set',
-						execute_every_n_frame = 1,
-						script_source_file = empty_path .. 'scripts/command/projectile_arc_set_reflect.lua',
+						_tags = 'projectile_arc_set_reflect',
+						execute_every_n_frame = 0,
+						script_source_file = empty_path .. 'scripts/projectiles/command/projectile_arc_set_reflect.lua',
 					} )
 				end
 			else
@@ -1114,8 +1101,8 @@ empty_command_functions = {
 				else
 					EntityAddComponent2( entity, 'LuaComponent', {
 						_tags = 'projectile_arc_set',
-						execute_every_n_frame = 1,
-						script_source_file = empty_path .. 'scripts/command/projectile_arc_set_reflect.lua',
+						execute_every_n_frame = 0,
+						script_source_file = empty_path .. 'scripts/projectiles/command/projectile_arc_set_reflect.lua',
 					} )
 				end
 			else
@@ -1458,7 +1445,8 @@ function construct_explode( radius )
 		damage = radius / get_scale( ),
 		camera_shake = radius / 10.0,
 		create_cell_probability = math.min( 100, 50 + radius / 5 ),
-		physics_explosion_power = 9 * radius / 20,
+		[ 'physics_explosion_power.min' ] = radius / 5,
+		[ 'physics_explosion_power.max' ] = radius / 4,
 	}
 end
 
@@ -1486,19 +1474,11 @@ local function command_at_handler( token, token_type, shooter, tar_x, tar_y )
 			command_print( token, '$empty_command_at_error_no_such_entity' )
 		end
 	elseif ( token == '@entities' ) then
-		group = command_at_handler( '@players', token_type, shooter, tar_x, tar_y ) or { }
-		local entity = { }
+		group = EntityGetInRadius( 0, 0, math.huge )
 
-		if ( type( group ) == 'number' ) then
-			group = { group }
+		if ( #group == 0 ) then
+			command_print( token, '$empty_command_at_error_no_such_entity' )
 		end
-
-		for _, each in ipairs( group ) do
-			x, y = EntityGetTransform( each )
-			add_table( entity, EntityGetInRadius( x, y, 3000 ), false, false )
-		end
-
-		group = remove_duplicates( entity )
 	elseif ( token == '@items' ) then
 		group = EntityGetWithTag( 'item' )
 
