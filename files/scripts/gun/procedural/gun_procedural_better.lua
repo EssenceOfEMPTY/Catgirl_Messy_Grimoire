@@ -32,7 +32,7 @@ function generate_gun( cost, level, force_unshuffle )
 	gun[ 'force_unshuffle' ] = 0
 
 	p = Random( 0, 100 )
-	-- slow mana charger
+
 	if ( p < 20 ) then
 		gun[ 'mana_charge_speed' ] = ( 50 * level + Random( -5, 5 * level ) ) / 5
 		gun[ 'mana_max' ] = ( 50 + ( 150 * level ) + ( Random( -5, 5 ) * 10 ) ) * 3
@@ -45,7 +45,6 @@ function generate_gun( cost, level, force_unshuffle )
 	p = Random( 0, 100 )
 	if ( p < 15 + level * 6 ) then
 		gun[ 'force_unshuffle' ] = 1
-		-- print( 'force_unshuffle' )
 	end
 
 	local is_rare = 0

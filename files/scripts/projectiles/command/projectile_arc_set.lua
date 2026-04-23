@@ -2,19 +2,24 @@ dofile_once( 'data/scripts/lib/utilities.lua' )
 dofile_once( 'mods/empty_the_blackhole_catgirl/files/scripts/empty/empty_command_utility.lua' )
 
 local entity = EntityGetRootEntity( GetUpdatedEntityID( ) )
+local command = 'projectile_arc_set'
 
 if ( entity ~= NULL_ENTITY ) then
-	local paras = parse_and_evaluate_command_paras( 'empty_projectile_arc_set', entity, { 'angle', 'inc' } )
+	local paras = parse_and_evaluate_command_paras( command, entity, e_cmd_funcs[ command ].para_names.all )
 
 	if ( paras ) then
-		if ( paras.inc == nil ) then
-			empty_command_functions[ 'projectile_arc_set' ].action_1_paras( { }, true, paras.shooter, paras.angle )
-		else
-			empty_command_functions[ 'projectile_arc_set' ].action_2_paras( { }, true, paras.shooter, paras.angle, paras.inc )
+		if ( paras.duration and paras.duration > 0 ) then
+			e_cmd_funcs[ command ].action_4_paras( { }, true, paras.shooter, paras.angle, paras.inc, paras.delay, paras.duration )
+		elseif ( paras.delay and paras.delay >= 0 ) then
+			e_cmd_funcs[ command ].action_3_paras( { }, true, paras.shooter, paras.angle, paras.inc, paras.delay )
+		elseif ( paras.inc and paras.inc ~= 0 ) then
+			e_cmd_funcs[ command ].action_2_paras( { }, true, paras.shooter, paras.angle, paras.inc )
+		elseif ( paras.angle and paras.angle ~= 0 ) then
+			e_cmd_funcs[ command ].action_1_paras( { }, true, paras.shooter, paras.angle )
 		end
 	end
 
-	local l_comps = EntityGetComponent( entity, 'LuaComponent', 'empty_projectile_arc_set_dupli' )
+	local l_comps = EntityGetComponent( entity, 'LuaComponent', command .. '_dupli' )
 
 	for _, l_comp in ipairs( l_comps or { } ) do
 		EntityRemoveComponent( entity, l_comp )

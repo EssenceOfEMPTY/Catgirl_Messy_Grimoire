@@ -495,8 +495,12 @@ local new_actions =
 				if ( has_iter ) then
 					count = iter - 1
 				else
-					add_desc_by_info( c, true, false, {
-						id = 'empty_colorful_iter_projectile_buckshot',
+					add_desc_by_info( c, {
+						replace = true,
+						update = true,
+						merge = false,
+					}, {
+						id = 'colorful_iter_projectile_buckshot',
 						count = 0,
 					}, nil, '$' )
 				end
@@ -510,8 +514,12 @@ local new_actions =
 						add_projectile( empty_path .. 'entities/projectiles/colorful/iter_buckshot.xml' )
 					end
 
-					add_desc_by_info( c, true, true, {
-						id = 'empty_colorful_iter_projectile_buckshot',
+					add_desc_by_info( c, {
+						replace = true,
+						update = false,
+						merge = true,
+					}, {
+						id = 'colorful_iter_projectile_buckshot',
 						count = count,
 					}, nil, '$' )
 				end
@@ -559,8 +567,12 @@ local new_actions =
 				end
 
 				if ( ( not rec ) and ( not iter ) ) then
-					add_desc_by_info( c, true, false, {
-						id = 'empty_colorful_rec_iter_projectile_chainsaw',
+					add_desc_by_info( c, {
+						replace = true,
+						update = true,
+						merge = false,
+					}, {
+						id = 'colorful_rec_iter_projectile_chainsaw',
 						count = 0,
 					}, nil, '$' )
 				end
@@ -568,8 +580,12 @@ local new_actions =
 				if ( count > 0 ) then
 					add_projectile( empty_path .. 'entities/projectiles/colorful/rec_iter_chainsaw.xml' )
 
-					add_desc_by_info( c, true, true, {
-						id = 'empty_colorful_rec_iter_projectile_chainsaw',
+					add_desc_by_info( c, {
+						replace = true,
+						update = false,
+						merge = true,
+					}, {
+						id = 'colorful_rec_iter_projectile_chainsaw',
 						count = count,
 					}, nil, '$' )
 				end
@@ -799,12 +815,29 @@ local new_actions =
 		},
 		related_extra_entities	= { empty_path .. 'entities/misc/remove_air_friction.xml' },
 		type		= ACTION_TYPE_MODIFIER,
-		spawn_level						= '2,3,4,5,6', -- EMPTY_REMOVE_AIR_FRICTION
+		spawn_level						= '1,3,5,7,9', -- EMPTY_REMOVE_AIR_FRICTION
 		spawn_probability				= '0.5,0.4,0.4,0.3,0.3', -- EMPTY_REMOVE_AIR_FRICTION
 		price = 50,
 		mana = 1,
 		action		= function ( )
 			c.extra_entities = c.extra_entities .. empty_path .. 'entities/misc/remove_air_friction.xml,'
+
+			draw_actions( 1, true )
+		end
+	},
+	{
+		info = 'remove_liquid_friction',
+		series = {
+			[ 'remove' ] = true,
+		},
+		related_extra_entities	= { empty_path .. 'entities/misc/remove_liquid_friction.xml' },
+		type		= ACTION_TYPE_MODIFIER,
+		spawn_level						= '2,4,6,8,10', -- EMPTY_REMOVE_LIQUID_FRICTION
+		spawn_probability				= '0.5,0.4,0.4,0.3,0.3', -- EMPTY_REMOVE_LIQUID_FRICTION
+		price = 50,
+		mana = 1,
+		action		= function ( )
+			c.extra_entities = c.extra_entities .. empty_path .. 'entities/misc/remove_liquid_friction.xml,'
 
 			draw_actions( 1, true )
 		end
@@ -4956,15 +4989,15 @@ local new_actions =
 		price = 160,
 		mana = 0,
 		action		= function ( recursion_level, iteration, copy_series, copy_specific )
-			local shooter = GetUpdatedEntityID( )
+			local shooter, command = GetUpdatedEntityID( ), 'random_get'
 			local tar_x, tar_y = EntityGetTransform( shooter )
-			local paras, command_count, is_correct = from_table_get_paras( c, 'random_get', deck, '#', shooter, tar_x, tar_y )
+			local paras, command_count, is_correct = from_table_get_paras( c, command, deck, '#', shooter, tar_x, tar_y )
 
 			if ( is_correct ) then
 				if ( #paras == 1 ) then
-					empty_command_functions[ 'random_get' ].action_1_paras( c, false, shooter, paras[ 1 ] )
+					e_cmd_funcs[ command ].action_1_paras( c, false, shooter, paras[ 1 ] )
 				else
-					command_print( 'random_get(', '$empty_command_error_lack_paras', '1', to_string( #paras ) )
+					command_print( command .. '(', '$empty_command_error_lack_paras', '1', to_string( #paras ) )
 					return
 				end
 
@@ -4988,17 +5021,17 @@ local new_actions =
 		price = 240,
 		mana = 0,
 		action		= function ( recursion_level, iteration, copy_series, copy_specific )
-			local shooter = GetUpdatedEntityID( )
+			local shooter, command = GetUpdatedEntityID( ), 'get_first'
 			local tar_x, tar_y = EntityGetTransform( shooter )
-			local paras, command_count, is_correct = from_table_get_paras( c, 'get_first', deck, '#', shooter, tar_x, tar_y )
+			local paras, command_count, is_correct = from_table_get_paras( c, command, deck, '#', shooter, tar_x, tar_y )
 
 			if ( is_correct ) then
 				if ( #paras == 1 ) then
-					empty_command_functions[ 'get_first' ].action_1_paras( c, false, shooter, paras[ 1 ] )
+					e_cmd_funcs[ command ].action_1_paras( c, false, shooter, paras[ 1 ] )
 				elseif ( #paras == 2 ) then
-					empty_command_functions[ 'get_first' ].action_2_paras( c, false, shooter, paras[ 1 ], paras[ 2 ] )
+					e_cmd_funcs[ command ].action_2_paras( c, false, shooter, paras[ 1 ], paras[ 2 ] )
 				else
-					command_print( 'get_first(', '$empty_command_error_lack_paras', '1', to_string( #paras ) )
+					command_print( command .. '(', '$empty_command_error_lack_paras', '1', to_string( #paras ) )
 					return
 				end
 
@@ -5022,17 +5055,17 @@ local new_actions =
 		price = 240,
 		mana = 0,
 		action		= function ( recursion_level, iteration, copy_series, copy_specific )
-			local shooter = GetUpdatedEntityID( )
+			local shooter, command = GetUpdatedEntityID( ), 'get_last'
 			local tar_x, tar_y = EntityGetTransform( shooter )
-			local paras, command_count, is_correct = from_table_get_paras( c, 'get_last', deck, '#', shooter, tar_x, tar_y )
+			local paras, command_count, is_correct = from_table_get_paras( c, command, deck, '#', shooter, tar_x, tar_y )
 
 			if ( is_correct ) then
 				if ( #paras == 1 ) then
-					empty_command_functions[ 'get_last' ].action_1_paras( c, false, shooter, paras[ 1 ] )
+					e_cmd_funcs[ command ].action_1_paras( c, false, shooter, paras[ 1 ] )
 				elseif ( #paras == 2 ) then
-					empty_command_functions[ 'get_last' ].action_2_paras( c, false, shooter, paras[ 1 ], paras[ 2 ] )
+					e_cmd_funcs[ command ].action_2_paras( c, false, shooter, paras[ 1 ], paras[ 2 ] )
 				else
-					command_print( 'get_last(', '$empty_command_error_lack_paras', '1', to_string( #paras ) )
+					command_print( command .. '(', '$empty_command_error_lack_paras', '1', to_string( #paras ) )
 					return
 				end
 
@@ -5056,15 +5089,15 @@ local new_actions =
 		price = 80,
 		mana = 40,
 		action		= function ( recursion_level, iteration, copy_series, copy_specific )
-			local shooter = GetUpdatedEntityID( )
+			local shooter, command = GetUpdatedEntityID( ), 'variable_get'
 			local tar_x, tar_y = EntityGetTransform( shooter )
-			local paras, command_count, is_correct = from_table_get_paras( c, 'variable_get', deck, '#', shooter, tar_x, tar_y )
+			local paras, command_count, is_correct = from_table_get_paras( c, command, deck, '#', shooter, tar_x, tar_y )
 
 			if ( is_correct ) then
 				if ( #paras == 1 ) then
-					empty_command_functions[ 'variable_get' ].action_1_paras( c, false, shooter, paras[ 1 ] )
+					e_cmd_funcs[ command ].action_1_paras( c, false, shooter, paras[ 1 ] )
 				else
-					command_print( 'variable_get(', '$empty_command_error_lack_paras', '1', to_string( #paras ) )
+					command_print( command .. '(', '$empty_command_error_lack_paras', '1', to_string( #paras ) )
 					return
 				end
 
@@ -5088,15 +5121,15 @@ local new_actions =
 		price = 120,
 		mana = 60,
 		action		= function ( recursion_level, iteration, copy_series, copy_specific )
-			local shooter = GetUpdatedEntityID( )
+			local shooter, command = GetUpdatedEntityID( ), 'variable_set'
 			local tar_x, tar_y = EntityGetTransform( shooter )
-			local paras, command_count, is_correct = from_table_get_paras( c, 'variable_set', deck, '#', shooter, tar_x, tar_y )
+			local paras, command_count, is_correct = from_table_get_paras( c, command, deck, '#', shooter, tar_x, tar_y )
 
 			if ( is_correct ) then
 				if ( #paras == 2 ) then
-					empty_command_functions[ 'variable_set' ].action_2_paras( c, false, shooter, paras[ 1 ], paras[ 2 ] )
+					e_cmd_funcs[ command ].action_2_paras( c, false, shooter, paras[ 1 ], paras[ 2 ] )
 				else
-					command_print( 'variable_set(', '$empty_command_error_lack_paras', '2', to_string( #paras ) )
+					command_print( command .. '(', '$empty_command_error_lack_paras', '2', to_string( #paras ) )
 					return
 				end
 
@@ -5121,9 +5154,9 @@ local new_actions =
 		mana = 0,
 		max_uses	= 3,
 		action		= function ( recursion_level, iteration, copy_series, copy_specific )
-			local shooter = GetUpdatedEntityID( )
+			local shooter, command = GetUpdatedEntityID( ), 'lifetime_set'
 			local tar_x, tar_y = EntityGetTransform( shooter )
-			local paras, command_count, is_correct = from_table_get_paras( c, 'lifetime_set', deck, '#', shooter, tar_x, tar_y )
+			local paras, command_count, is_correct = from_table_get_paras( c, command, deck, '#', shooter, tar_x, tar_y )
 
 			if ( is_correct ) then
 				if ( #paras == 1 ) then
@@ -5133,9 +5166,9 @@ local new_actions =
 						mana = mana - paras[ 1 ]
 					end
 
-					empty_command_functions[ 'lifetime_set' ].action_1_paras( c, false, shooter, paras[ 1 ] )
+					e_cmd_funcs[ command ].action_1_paras( c, false, shooter, paras[ 1 ] )
 				else
-					command_print( 'lifetime_set(', '$empty_command_error_lack_paras', '1', to_string( #paras ) )
+					command_print( command .. '(', '$empty_command_error_lack_paras', '1', to_string( #paras ) )
 					return
 				end
 
@@ -5162,9 +5195,9 @@ local new_actions =
 		mana = 0,
 		max_uses	= 10,
 		action		= function ( recursion_level, iteration, copy_series, copy_specific )
-			local shooter = GetUpdatedEntityID( )
+			local shooter, command = GetUpdatedEntityID( ), 'projectile_lifetime_set'
 			local tar_x, tar_y = EntityGetTransform( shooter )
-			local paras, command_count, is_correct = from_table_get_paras( c, 'projectile_lifetime_set', deck, '#', shooter, tar_x, tar_y )
+			local paras, command_count, is_correct = from_table_get_paras( c, command, deck, '#', shooter, tar_x, tar_y )
 
 			if ( is_correct ) then
 				if ( #paras == 1 ) then
@@ -5174,9 +5207,9 @@ local new_actions =
 						mana = mana - paras[ 1 ]
 					end
 
-					empty_command_functions[ 'projectile_lifetime_set' ].action_1_paras( c, false, shooter, paras[ 1 ] )
+					e_cmd_funcs[ command ].action_1_paras( c, false, shooter, paras[ 1 ] )
 				else
-					command_print( 'projectile_lifetime_set(', '$empty_command_error_lack_paras', '1', to_string( #paras ) )
+					command_print( command .. '(', '$empty_command_error_lack_paras', '1', to_string( #paras ) )
 					return
 				end
 
@@ -5202,15 +5235,17 @@ local new_actions =
 		price = 500,
 		mana = 10,
 		action		= function ( recursion_level, iteration, copy_series, copy_specific )
-			local shooter = GetUpdatedEntityID( )
+			local shooter, command = GetUpdatedEntityID( ), 'projectile_speed_set'
 			local tar_x, tar_y = EntityGetTransform( shooter )
-			local paras, command_count, is_correct = from_table_get_paras( c, 'projectile_speed_set', deck, '#', shooter, tar_x, tar_y )
+			local paras, command_count, is_correct = from_table_get_paras( c, command, deck, '#', shooter, tar_x, tar_y )
 
 			if ( is_correct ) then
 				if ( #paras == 1 ) then
-					empty_command_functions[ 'projectile_speed_set' ].action_1_paras( c, false, shooter, paras[ 1 ] )
+					e_cmd_funcs[ command ].action_1_paras( c, false, shooter, paras[ 1 ] )
+				elseif ( #paras == 2 ) then
+					e_cmd_funcs[ command ].action_1_paras( c, false, shooter, paras[ 1 ], paras[ 2 ] )
 				else
-					command_print( 'projectile_speed_set(', '$empty_command_error_lack_paras', '1', to_string( #paras ) )
+					command_print( command .. '(', '$empty_command_error_lack_paras', '1', to_string( #paras ) )
 					return
 				end
 
@@ -5236,17 +5271,17 @@ local new_actions =
 		price = 500,
 		mana = 10,
 		action		= function ( recursion_level, iteration, copy_series, copy_specific )
-			local shooter = GetUpdatedEntityID( )
+			local shooter, command = GetUpdatedEntityID( ), 'projectile_gravity_set'
 			local tar_x, tar_y = EntityGetTransform( shooter )
-			local paras, command_count, is_correct = from_table_get_paras( c, 'projectile_gravity_set', deck, '#', shooter, tar_x, tar_y )
+			local paras, command_count, is_correct = from_table_get_paras( c, command, deck, '#', shooter, tar_x, tar_y )
 
 			if ( is_correct ) then
 				if ( #paras == 1 ) then
-					empty_command_functions[ 'projectile_gravity_set' ].action_1_paras( c, false, shooter, paras[ 1 ] )
+					e_cmd_funcs[ command ].action_1_paras( c, false, shooter, paras[ 1 ] )
 				elseif ( #paras == 2 ) then
-					empty_command_functions[ 'projectile_gravity_set' ].action_2_paras( c, false, shooter, paras[ 1 ], paras[ 2 ] )
+					e_cmd_funcs[ command ].action_2_paras( c, false, shooter, paras[ 1 ], paras[ 2 ] )
 				else
-					command_print( 'projectile_gravity_set(', '$empty_command_error_lack_paras', '1', to_string( #paras ) )
+					command_print( command .. '(', '$empty_command_error_lack_paras', '1', to_string( #paras ) )
 					return
 				end
 
@@ -5272,15 +5307,15 @@ local new_actions =
 		price = 500,
 		mana = 5,
 		action		= function ( recursion_level, iteration, copy_series, copy_specific )
-			local shooter = GetUpdatedEntityID( )
+			local shooter, command = GetUpdatedEntityID( ), 'projectile_air_friction_set'
 			local tar_x, tar_y = EntityGetTransform( shooter )
-			local paras, command_count, is_correct = from_table_get_paras( c, 'projectile_air_friction_set', deck, '#', shooter, tar_x, tar_y )
+			local paras, command_count, is_correct = from_table_get_paras( c, command, deck, '#', shooter, tar_x, tar_y )
 
 			if ( is_correct ) then
 				if ( #paras == 1 ) then
-					empty_command_functions[ 'projectile_air_friction_set' ].action_1_paras( c, false, shooter, paras[ 1 ] )
+					e_cmd_funcs[ command ].action_1_paras( c, false, shooter, paras[ 1 ] )
 				else
-					command_print( 'projectile_air_friction_set(', '$empty_command_error_lack_paras', '1', to_string( #paras ) )
+					command_print( command .. '(', '$empty_command_error_lack_paras', '1', to_string( #paras ) )
 					return
 				end
 
@@ -5306,15 +5341,17 @@ local new_actions =
 		price = 500,
 		mana = 15,
 		action		= function ( recursion_level, iteration, copy_series, copy_specific )
-			local shooter = GetUpdatedEntityID( )
+			local shooter, command = GetUpdatedEntityID( ), 'projectile_shoot_angle_add'
 			local tar_x, tar_y = EntityGetTransform( shooter )
-			local paras, command_count, is_correct = from_table_get_paras( c, 'projectile_shoot_angle_add', deck, '#', shooter, tar_x, tar_y )
+			local paras, command_count, is_correct = from_table_get_paras( c, command, deck, '#', shooter, tar_x, tar_y )
 
 			if ( is_correct ) then
 				if ( #paras == 1 ) then
-					empty_command_functions[ 'projectile_shoot_angle_add' ].action_1_paras( c, false, shooter, paras[ 1 ] )
+					e_cmd_funcs[ command ].action_1_paras( c, false, shooter, paras[ 1 ] )
+				elseif ( #paras == 2 ) then
+					e_cmd_funcs[ command ].action_1_paras( c, false, shooter, paras[ 1 ], paras[ 2 ] )
 				else
-					command_print( 'projectile_shoot_angle_add(', '$empty_command_error_lack_paras', '1', to_string( #paras ) )
+					command_print( command .. '(', '$empty_command_error_lack_paras', '1', to_string( #paras ) )
 					return
 				end
 
@@ -5340,15 +5377,17 @@ local new_actions =
 		price = 500,
 		mana = 15,
 		action		= function ( recursion_level, iteration, copy_series, copy_specific )
-			local shooter = GetUpdatedEntityID( )
+			local shooter, command = GetUpdatedEntityID( ), 'projectile_shoot_angle_set'
 			local tar_x, tar_y = EntityGetTransform( shooter )
-			local paras, command_count, is_correct = from_table_get_paras( c, 'projectile_shoot_angle_set', deck, '#', shooter, tar_x, tar_y )
+			local paras, command_count, is_correct = from_table_get_paras( c, command, deck, '#', shooter, tar_x, tar_y )
 
 			if ( is_correct ) then
 				if ( #paras == 1 ) then
-					empty_command_functions[ 'projectile_shoot_angle_set' ].action_1_paras( c, false, shooter, paras[ 1 ] )
+					e_cmd_funcs[ command ].action_1_paras( c, false, shooter, paras[ 1 ] )
+				elseif ( #paras == 2 ) then
+					e_cmd_funcs[ command ].action_1_paras( c, false, shooter, paras[ 1 ], paras[ 2 ] )
 				else
-					command_print( 'projectile_shoot_angle_set(', '$empty_command_error_lack_paras', '1', to_string( #paras ) )
+					command_print( command .. '(', '$empty_command_error_lack_paras', '1', to_string( #paras ) )
 					return
 				end
 
@@ -5361,8 +5400,41 @@ local new_actions =
 		end
 	},
 	--[[
-	{},
 	]]--
+	{
+		info = 'command_function_projectile_spread_set',
+		series = {
+			[ 'command' ] = true,
+			[ 'function' ] = true,
+		},
+		type		= ACTION_TYPE_OTHER,
+		command_type = 'FUNCTION',
+		command_value = 'projectile_spread_set(',
+		spawn_level						= '0,1,2,3,4', --EMPTY_COMMAND_FUNCTION_PROJECTILE_SPREAD_SET
+		spawn_probability				= '0.1,0.2,0.3,0.4,0.5', --EMPTY_COMMAND_FUNCTION_PROJECTILE_SPREAD_SET
+		price = 500,
+		mana = 0,
+		action		= function ( recursion_level, iteration, copy_series, copy_specific )
+			local shooter, command = GetUpdatedEntityID( ), 'projectile_spread_set'
+			local tar_x, tar_y = EntityGetTransform( shooter )
+			local paras, command_count, is_correct = from_table_get_paras( c, command, deck, '#', shooter, tar_x, tar_y )
+
+			if ( is_correct ) then
+				if ( #paras == 1 ) then
+					e_cmd_funcs[ command ].action_1_paras( c, false, shooter, paras[ 1 ] )
+				else
+					command_print( command .. '(', '$empty_command_error_lack_paras', '1', to_string( #paras ) )
+					return
+				end
+
+				if ( command_count > 0 and recursion_level == nil and iteration == nil ) then
+					add_table_count( deck, hand, command_count )
+				end
+
+				draw_actions( 1, true )
+			end
+		end
+	},
 	{
 		info = 'command_function_projectile_arc_add',
 		series = {
@@ -5377,17 +5449,17 @@ local new_actions =
 		price = 500,
 		mana = 125,
 		action		= function ( recursion_level, iteration, copy_series, copy_specific )
-			local shooter = GetUpdatedEntityID( )
+			local shooter, command = GetUpdatedEntityID( ), 'projectile_arc_add'
 			local tar_x, tar_y = EntityGetTransform( shooter )
-			local paras, command_count, is_correct = from_table_get_paras( c, 'projectile_arc_add', deck, '#', shooter, tar_x, tar_y )
+			local paras, command_count, is_correct = from_table_get_paras( c, command, deck, '#', shooter, tar_x, tar_y )
 
 			if ( is_correct ) then
 				if ( #paras == 1 ) then
-					empty_command_functions[ 'projectile_arc_add' ].action_1_paras( c, false, shooter, paras[ 1 ] )
+					e_cmd_funcs[ command ].action_1_paras( c, false, shooter, paras[ 1 ] )
 				elseif ( #paras == 2 ) then
-					empty_command_functions[ 'projectile_arc_add' ].action_2_paras( c, false, shooter, paras[ 1 ], paras[ 2 ] )
+					e_cmd_funcs[ command ].action_2_paras( c, false, shooter, paras[ 1 ], paras[ 2 ] )
 				else
-					command_print( 'projectile_arc_add(', '$empty_command_error_lack_paras', '1', to_string( #paras ) )
+					command_print( command .. '(', '$empty_command_error_lack_paras', '1', to_string( #paras ) )
 					return
 				end
 
@@ -5413,17 +5485,17 @@ local new_actions =
 		price = 500,
 		mana = 125,
 		action		= function ( recursion_level, iteration, copy_series, copy_specific )
-			local shooter = GetUpdatedEntityID( )
+			local shooter, command = GetUpdatedEntityID( )'projectile_arc_set'
 			local tar_x, tar_y = EntityGetTransform( shooter )
-			local paras, command_count, is_correct = from_table_get_paras( c, 'projectile_arc_set', deck, '#', shooter, tar_x, tar_y )
+			local paras, command_count, is_correct = from_table_get_paras( c, command, deck, '#', shooter, tar_x, tar_y )
 
 			if ( is_correct ) then
 				if ( #paras == 1 ) then
-					empty_command_functions[ 'projectile_arc_set' ].action_1_paras( c, false, shooter, paras[ 1 ] )
+					e_cmd_funcs[ command ].action_1_paras( c, false, shooter, paras[ 1 ] )
 				elseif ( #paras == 2 ) then
-					empty_command_functions[ 'projectile_arc_set' ].action_2_paras( c, false, shooter, paras[ 1 ], paras[ 2 ] )
+					e_cmd_funcs[ command ].action_2_paras( c, false, shooter, paras[ 1 ], paras[ 2 ] )
 				else
-					command_print( 'projectile_arc_set(', '$empty_command_error_lack_paras', '1', to_string( #paras ) )
+					command_print( command .. '(', '$empty_command_error_lack_paras', '1', to_string( #paras ) )
 					return
 				end
 
@@ -5450,17 +5522,17 @@ local new_actions =
 		mana = 120,
 		max_uses	= 6,
 		action		= function ( recursion_level, iteration, copy_series, copy_specific )
-			local shooter = GetUpdatedEntityID( )
+			local shooter, command = GetUpdatedEntityID( ), 'explode'
 			local tar_x, tar_y = EntityGetTransform( shooter )
-			local paras, command_count, is_correct = from_table_get_paras( c, 'explode', deck, '#', shooter, tar_x, tar_y )
+			local paras, command_count, is_correct = from_table_get_paras( c, command, deck, '#', shooter, tar_x, tar_y )
 
 			if ( is_correct ) then
 				if ( #paras == 2 ) then
-					empty_command_functions[ 'explode' ].action_2_paras( c, false, shooter, paras[ 1 ], paras[ 2 ] )
+					e_cmd_funcs[ command ].action_2_paras( c, false, shooter, paras[ 1 ], paras[ 2 ] )
 				elseif ( #paras == 3 ) then
-					empty_command_functions[ 'explode' ].action_3_paras( c, false, shooter, paras[ 1 ], paras[ 2 ], paras[ 3 ] )
+					e_cmd_funcs[ command ].action_3_paras( c, false, shooter, paras[ 1 ], paras[ 2 ], paras[ 3 ] )
 				else
-					command_print( 'explode(', '$empty_command_error_lack_paras', '2', to_string( #paras ) )
+					command_print( command .. '(', '$empty_command_error_lack_paras', '2', to_string( #paras ) )
 					return
 				end
 
@@ -5487,17 +5559,17 @@ local new_actions =
 		mana = 360,
 		max_uses	= 3,
 		action		= function ( recursion_level, iteration, copy_series, copy_specific )
-			local shooter = GetUpdatedEntityID( )
+			local shooter, command = GetUpdatedEntityID( ), 'tp'
 			local tar_x, tar_y = EntityGetTransform( shooter )
-			local paras, command_count, is_correct = from_table_get_paras( c, 'tp', deck, '#', shooter, tar_x, tar_y )
+			local paras, command_count, is_correct = from_table_get_paras( c, command, deck, '#', shooter, tar_x, tar_y )
 
 			if ( is_correct ) then
 				if ( #paras == 2 ) then
-					empty_command_functions[ 'tp' ].action_2_paras( c, false, shooter, paras[ 1 ], paras[ 2 ] )
+					e_cmd_funcs[ command ].action_2_paras( c, false, shooter, paras[ 1 ], paras[ 2 ] )
 				elseif ( #paras == 3 ) then
-					empty_command_functions[ 'tp' ].action_3_paras( c, false, shooter, paras[ 1 ], paras[ 2 ], paras[ 3 ] )
+					e_cmd_funcs[ command ].action_3_paras( c, false, shooter, paras[ 1 ], paras[ 2 ], paras[ 3 ] )
 				else
-					command_print( 'tp(', '$empty_command_error_lack_paras', '2', to_string( #paras ) )
+					command_print( command .. '(', '$empty_command_error_lack_paras', '2', to_string( #paras ) )
 					return
 				end
 

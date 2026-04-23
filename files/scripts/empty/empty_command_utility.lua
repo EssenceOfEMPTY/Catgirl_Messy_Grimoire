@@ -7,8 +7,9 @@ local DELY_EXPR_PREFIX = '::__DELAY_EXP__::'
 local FUNC_CALL_PREFIX = '__FUNC_CALL__::'
 local ARGS_SEPA_PREFIX = '::__ARGS_SEPA__::'
 
-empty_command_functions = {
+e_cmd_funcs = {
 	random_get = {
+		max_paras = 1,
 		transform_tilde_into = {
 			para_1 = {
 				'table',
@@ -21,8 +22,10 @@ empty_command_functions = {
 		---@param extract string|number[]
 		---@return string|number value
 		action_1_paras = function ( c, reflect, shooter, extract )
+			local command = 'random_get'
+
 			if ( type( extract ) ~= 'table' and type( extract ) ~= 'string' ) then
-				command_print( 'random_get(', '$empty_command_error_wrong_para_type', 'NUMBER[ ]', upper_type( extract ) )
+				command_print( command .. '(', '$empty_command_error_wrong_para_type', 'NUMBER[ ]', upper_type( extract ) )
 				return 0
 			end
 
@@ -34,17 +37,18 @@ empty_command_functions = {
 				if ( #extract > 0 ) then
 					local value = random_gets( extract, 1 )[ 1 ]
 
-					command_print( 'random_get(', '$empty_command_random_get_success', tostring( value ) )
+					command_print( command .. '(', '$empty_command_random_get_success', tostring( value ) )
 					return value
 				else
-					command_print( 'random_get(', '$empty_command_error_empty_table' )
+					command_print( command .. '(', '$empty_command_error_empty_table' )
 				end
 			end
 
 			return 0
-		end
+		end,
 	},
 	get_first = {
+		max_paras = 2,
 		transform_tilde_into = {
 			para_1 = {
 				'table',
@@ -61,7 +65,7 @@ empty_command_functions = {
 		---@param extract string|number[]
 		---@return string|number value
 		action_1_paras = function ( c, reflect, shooter, extract )
-			return empty_command_functions[ 'get_first' ].action_2_paras( { }, reflect, shooter, extract, 1 )
+			return e_cmd_funcs[ 'get_first' ].action_2_paras( { }, reflect, shooter, extract, 1 )
 		end,
 		---从 < NUMBER[ ] > 中选择顺数第 No 个 < NUMBER > 返回
 		---@param c table
@@ -70,34 +74,37 @@ empty_command_functions = {
 		---@param No string|number
 		---@return string|number value
 		action_2_paras = function ( c, reflect, shooter, extract, No )
+			local command = 'get_first'
+
 			if ( type( extract ) ~= 'table' and type( extract ) ~= 'string' ) then
-				command_print( 'get_first(', '$empty_command_error_wrong_para_type', 'NUMBER[ ]', upper_type( extract ) )
+				command_print( command .. '(', '$empty_command_error_wrong_para_type', 'NUMBER[ ]', upper_type( extract ) )
 				return 0
 			end
 			if ( type( No ) ~= 'number' and type( No ) ~= 'string' ) then
-				command_print( 'get_first(', '$empty_command_error_wrong_para_type', 'NUMBER', upper_type( No ) )
+				command_print( command .. '(', '$empty_command_error_wrong_para_type', 'NUMBER', upper_type( No ) )
 				return 0
 			end
 
 			if ( reflect or type( extract ) == 'table' ) then
 				if ( #extract > 0 ) then
 					if ( No > #extract ) then
-						command_print( 'get_first(', '$empty_command_error_index_out_of_range', tostring( No ), tostring( #extract ) )
+						command_print( command .. '(', '$empty_command_error_index_out_of_range', tostring( No ), tostring( #extract ) )
 					else
 						local value = extract[ No ]
 
-						command_print( 'get_first(', '$empty_command_get_first_success', tostring( No ), tostring( value ) )
+						command_print( command .. '(', '$empty_command_get_first_success', tostring( No ), tostring( value ) )
 						return value
 					end
 				else
-					command_print( 'get_first(', '$empty_command_error_empty_table' )
+					command_print( command .. '(', '$empty_command_error_empty_table' )
 				end
 			end
 
 			return 0
-		end
+		end,
 	},
 	get_last = {
+		max_paras = 2,
 		transform_tilde_into = {
 			para_1 = {
 				'table',
@@ -114,7 +121,7 @@ empty_command_functions = {
 		---@param extract string|number[]
 		---@return string|number value
 		action_1_paras = function ( c, reflect, shooter, extract )
-			return empty_command_functions[ 'get_last' ].action_2_paras( { }, reflect, shooter, extract, 1 )
+			return e_cmd_funcs[ 'get_last' ].action_2_paras( { }, reflect, shooter, extract, 1 )
 		end,
 		---从 < NUMBER[ ] > 中选择倒数第 No 个 < NUMBER > 返回
 		---@param c table
@@ -123,34 +130,37 @@ empty_command_functions = {
 		---@param No string|number
 		---@return string|number value
 		action_2_paras = function ( c, reflect, shooter, extract, No )
+			local command = 'get_last'
+
 			if ( type( extract ) ~= 'table' and type( extract ) ~= 'string' ) then
-				command_print( 'get_last(', '$empty_command_error_wrong_para_type', 'NUMBER[ ]', upper_type( extract ) )
+				command_print( command .. '(', '$empty_command_error_wrong_para_type', 'NUMBER[ ]', upper_type( extract ) )
 				return 0
 			end
 			if ( type( No ) ~= 'number' and type( No ) ~= 'string' ) then
-				command_print( 'get_last(', '$empty_command_error_wrong_para_type', 'NUMBER', upper_type( No ) )
+				command_print( command .. '(', '$empty_command_error_wrong_para_type', 'NUMBER', upper_type( No ) )
 				return 0
 			end
 
 			if ( reflect or type( extract ) == 'table' ) then
 				if ( #extract > 0 ) then
 					if ( No > #extract ) then
-						command_print( 'get_last(', '$empty_command_error_index_out_of_range', tostring( No ), tostring( #extract ) )
+						command_print( command .. '(', '$empty_command_error_index_out_of_range', tostring( No ), tostring( #extract ) )
 					else
 						local value = extract[ #extract - No + 1 ]
 
-						command_print( 'get_last(', '$empty_command_get_last_success', tostring( No ), tostring( value ) )
+						command_print( command .. '(', '$empty_command_get_last_success', tostring( No ), tostring( value ) )
 						return value
 					end
 				else
-					command_print( 'get_last(', '$empty_command_error_empty_table' )
+					command_print( command .. '(', '$empty_command_error_empty_table' )
 				end
 			end
 
 			return 0
-		end
+		end,
 	},
 	variable_get = {
+		max_paras = 1,
 		transform_tilde_into = {
 			para_1 = {
 				'0',
@@ -163,8 +173,10 @@ empty_command_functions = {
 		---@param v_No string|number
 		---@return string|number variable_value
 		action_1_paras = function ( c, reflect, shooter, v_No )
+			local command = 'variable_get'
+
 			if ( type( v_No ) ~= 'number' and type( v_No ) ~= 'string' ) then
-				command_print( 'variable_get(', '$empty_command_error_wrong_para_type', 'NUMBER', upper_type( v_No ) )
+				command_print( command .. '(', '$empty_command_error_wrong_para_type', 'NUMBER', upper_type( v_No ) )
 				return 0
 			end
 
@@ -173,13 +185,14 @@ empty_command_functions = {
 			if ( reflect or type( v_No ) == 'number' ) then
 				v_value = tonumber( GlobalsGetValue( 'EMPTY_COMMAND_VARIABLE_' .. tostring( v_No ), '0' ) ) or 0
 
-				command_print( 'variable_get(', '$empty_command_variable_get_success', tostring( v_No ), tostring( v_value ) )
+				command_print( command .. '(', '$empty_command_variable_get_success', tostring( v_No ), tostring( v_value ) )
 			end
 
 			return v_value
-		end
+		end,
 	},
 	variable_set = {
+		max_paras = 2,
 		transform_tilde_into = {
 			para_2 = {
 				'0',
@@ -194,25 +207,28 @@ empty_command_functions = {
 		---@param v_value string|number
 		---@return string|number set_value
 		action_2_paras = function ( c, reflect, shooter, v_No, v_value )
+			local command = 'variable_set'
+
 			if ( type( v_No ) ~= 'number' and type( v_No ) ~= 'string' ) then
-				command_print( 'variable_set(', '$empty_command_error_wrong_para_type', 'NUMBER', upper_type( v_No ) )
+				command_print( command .. '(', '$empty_command_error_wrong_para_type', 'NUMBER', upper_type( v_No ) )
 				return 0
 			end
 			if ( type( v_value ) ~= 'number' and type( v_value ) ~= 'string' ) then
-				command_print( 'variable_set(', '$empty_command_error_wrong_para_type', 'NUMBER', upper_type( v_value ) )
+				command_print( command .. '(', '$empty_command_error_wrong_para_type', 'NUMBER', upper_type( v_value ) )
 				return 0
 			end
 
 			if ( reflect or ( type( v_No ) == 'number' and type( v_value ) == 'number' ) ) then
 				GlobalsSetValue( 'EMPTY_COMMAND_VARIABLE_' .. tostring( v_No ), tostring( v_value ) )
 
-				command_print( 'variable_set(', '$empty_command_variable_set_success', tostring( v_No ), tostring( v_value ) )
+				command_print( command .. '(', '$empty_command_variable_set_success', tostring( v_No ), tostring( v_value ) )
 			end
 
 			return v_value
-		end
+		end,
 	},
 	min = {
+		max_paras = 2,
 		transform_tilde_into = {
 			para_1 = {
 				'table',
@@ -229,8 +245,10 @@ empty_command_functions = {
 		---@param num_table string|number[]
 		---@return string|number
 		action_1_paras = function ( c, reflect, shooter, num_table )
+			local command = 'min'
+
 			if ( type( num_table ) ~= 'table' and type( num_table ) ~= 'string' ) then
-				command_print( 'min(', '$empty_command_error_wrong_para_type', 'NUMBER[ ]', upper_type( num_table ) )
+				command_print( command .. '(', '$empty_command_error_wrong_para_type', 'NUMBER[ ]', upper_type( num_table ) )
 				return 0
 			end
 
@@ -242,7 +260,7 @@ empty_command_functions = {
 				end
 
 				if ( #num_table == 0 ) then
-					command_print( 'min(', '$empty_command_error_empty_table' )
+					command_print( command .. '(', '$empty_command_error_empty_table' )
 				elseif ( #num_table == 1 ) then
 					min = num_table[ 1 ]
 				else
@@ -266,30 +284,33 @@ empty_command_functions = {
 		---@param num2 string|number
 		---@return string|number
 		action_2_paras = function ( c, reflect, shooter, num1, num2 )
+			local command = 'min'
+
 			if ( type( num1 ) ~= 'number' and type( num1 ) ~= 'string' ) then
-				command_print( 'min(', '$empty_command_error_wrong_para_type', 'NUMBER', upper_type( num1 ) )
+				command_print( command .. '(', '$empty_command_error_wrong_para_type', 'NUMBER', upper_type( num1 ) )
 				return 0
 			end
 			if ( type( num2 ) ~= 'number' and type( num2 ) ~= 'string' ) then
-				command_print( 'min(', '$empty_command_error_wrong_para_type', 'NUMBER', upper_type( num2 ) )
+				command_print( command .. '(', '$empty_command_error_wrong_para_type', 'NUMBER', upper_type( num2 ) )
 				return 0
 			end
 
 			if ( reflect or ( type( num1 ) == 'number' and type( num2 ) == 'number' ) ) then
 				if ( type( num1 ) ~= 'number' ) then
-					num1 = -math.huge
+					num1 = math.huge
 				end
 				if ( type( num2 ) ~= 'number' ) then
-					num2 = -math.huge
+					num2 = math.huge
 				end
 
 				return math.min( num1, num2 )
 			else
 				return 0
 			end
-		end
+		end,
 	},
 	max = {
+		max_paras = 2,
 		transform_tilde_into = {
 			para_1 = {
 				'table',
@@ -306,8 +327,10 @@ empty_command_functions = {
 		---@param num_table string|number[]
 		---@return string|number
 		action_1_paras = function ( c, reflect, shooter, num_table )
+			local command = 'max'
+
 			if ( type( num_table ) ~= 'table' and type( num_table ) ~= 'string' ) then
-				command_print( 'max(', '$empty_command_error_wrong_para_type', 'NUMBER[ ]', upper_type( num_table ) )
+				command_print( command .. '(', '$empty_command_error_wrong_para_type', 'NUMBER[ ]', upper_type( num_table ) )
 				return 0
 			end
 
@@ -319,11 +342,12 @@ empty_command_functions = {
 				end
 
 				if ( #num_table == 0 ) then
-					command_print( 'max(', '$empty_command_error_empty_table' )
+					command_print( command .. '(', '$empty_command_error_empty_table' )
 				elseif ( #num_table == 1 ) then
 					max = num_table[ 1 ]
 				else
 					max = -math.huge
+
 					for _, each in ipairs( num_table ) do
 						if ( each > max ) then
 							max = each
@@ -342,12 +366,14 @@ empty_command_functions = {
 		---@param num2 string|number
 		---@return string|number
 		action_2_paras = function ( c, reflect, shooter, num1, num2 )
+			local command = 'max'
+
 			if ( type( num1 ) ~= 'number' and type( num1 ) ~= 'string' ) then
-				command_print( 'max(', '$empty_command_error_wrong_para_type', 'NUMBER', upper_type( num1 ) )
+				command_print( command .. '(', '$empty_command_error_wrong_para_type', 'NUMBER', upper_type( num1 ) )
 				return 0
 			end
 			if ( type( num2 ) ~= 'number' and type( num2 ) ~= 'string' ) then
-				command_print( 'max(', '$empty_command_error_wrong_para_type', 'NUMBER', upper_type( num2 ) )
+				command_print( command .. '(', '$empty_command_error_wrong_para_type', 'NUMBER', upper_type( num2 ) )
 				return 0
 			end
 
@@ -363,10 +389,14 @@ empty_command_functions = {
 			else
 				return 0
 			end
-		end
+		end,
 	},
 	lifetime_set = {
+		max_paras = 1,
 		para_names = {
+			all = {
+				'lifetime',
+			},
 			para_1 = {
 				'lifetime',
 			},
@@ -383,12 +413,18 @@ empty_command_functions = {
 		---@param lifetime string|number
 		---@return string|number lifetime
 		action_1_paras = function ( c, reflect, shooter, lifetime )
+			local command = 'lifetime_set'
+
 			if ( type( lifetime ) ~= 'number' and type( lifetime ) ~= 'string' ) then
-				command_print( 'lifetime_set(', '$empty_command_error_wrong_para_type', 'NUMBER', upper_type( lifetime ) )
+				command_print( command .. '(', '$empty_command_error_wrong_para_type', 'NUMBER', upper_type( lifetime ) )
 				return 0
 			end
 
 			if ( reflect ) then
+				if ( type( lifetime ) ~= 'number' ) then
+					lifetime = 0
+				end
+
 				local entity = EntityGetRootEntity( GetUpdatedEntityID( ) )
 				local l_comps = EntityGetComponent( entity, 'LifetimeComponent' ) or { }
 				local count = #l_comps
@@ -410,9 +446,9 @@ empty_command_functions = {
 				end
 
 				if ( count > 0 ) then
-					command_print( 'lifetime_set(', '$empty_command_projectile_change_success', tostring( count ) )
+					command_print( command .. '(', '$empty_command_projectile_change_success', tostring( count ) )
 				else
-					command_print( 'lifetime_set(', '$empty_command_error_no_projectile_change' )
+					command_print( command .. '(', '$empty_command_error_no_projectile_change' )
 				end
 			else
 				add_desc_by_info( c, {
@@ -420,17 +456,21 @@ empty_command_functions = {
 					update = true,
 					merge = false,
 				}, {
-					id = 'empty_lifetime_set',
+					id = command,
 					shooter = shooter,
 					lifetime = lifetime,
-				}, empty_path .. 'entities/misc/command/lifetime_set.xml,', '$' )
+				}, empty_path .. 'entities/misc/command/' .. command .. '.xml,', '$' )
 			end
 
 			return lifetime
-		end
+		end,
 	},
 	projectile_lifetime_set = {
+		max_paras = 1,
 		para_names = {
+			all = {
+				'lifetime',
+			},
 			para_1 = {
 				'lifetime',
 			},
@@ -447,12 +487,18 @@ empty_command_functions = {
 		---@param lifetime string|number
 		---@return string|number lifetime
 		action_1_paras = function ( c, reflect, shooter, lifetime )
+			local command = 'projectile_lifetime_set'
+
 			if ( type( lifetime ) ~= 'number' and type( lifetime ) ~= 'string' ) then
-				command_print( 'projectile_lifetime_set(', '$empty_command_error_wrong_para_type', 'NUMBER', upper_type( lifetime ) )
+				command_print( command .. '(', '$empty_command_error_wrong_para_type', 'NUMBER', upper_type( lifetime ) )
 				return 0
 			end
 
 			if ( reflect ) then
+				if ( type( lifetime ) ~= 'number' ) then
+					lifetime = 0
+				end
+
 				local entity = EntityGetRootEntity( GetUpdatedEntityID( ) )
 				local p_comps = EntityGetComponent( entity, 'ProjectileComponent' ) or { }
 				local count = #p_comps
@@ -462,9 +508,9 @@ empty_command_functions = {
 				end
 
 				if ( count > 0 ) then
-					command_print( 'projectile_lifetime_set(', '$empty_command_projectile_change_success', tostring( count ) )
+					command_print( command .. '(', '$empty_command_projectile_change_success', tostring( count ) )
 				else
-					command_print( 'projectile_lifetime_set(', '$empty_command_error_no_projectile_change' )
+					command_print( command .. '(', '$empty_command_error_no_projectile_change' )
 				end
 			else
 				add_desc_by_info( c, {
@@ -472,23 +518,37 @@ empty_command_functions = {
 					update = true,
 					merge = false,
 				}, {
-					id = 'empty_projectile_lifetime_set',
+					id = command,
 					shooter = shooter,
 					lifetime = lifetime,
-				}, empty_path .. 'entities/misc/command/projectile_lifetime_set.xml,', '$')
+				}, empty_path .. 'entities/misc/command/' .. command .. '.xml,', '$')
 			end
 
 			return lifetime
-		end
+		end,
 	},
 	projectile_speed_set = {
+		max_paras = 2,
 		para_names = {
+			all = {
+				'speed',
+				'vel_x',
+				'vel_y',
+			},
 			para_1 = {
 				'speed',
+			},
+			para_2 = {
+				'vel_x',
+				'vel_y',
 			},
 		},
 		transform_tilde_into = {
 			para_1 = {
+				'0',
+			},
+			para_2 = {
+				'0',
 				'0',
 			},
 		},
@@ -501,8 +561,10 @@ empty_command_functions = {
 		---@param speed string|number
 		---@return string|number speed
 		action_1_paras = function ( c, reflect, shooter, speed )
+			local command = 'projectile_speed_set'
+
 			if ( type( speed ) ~= 'number' and type( speed ) ~= 'string' ) then
-				command_print( 'projectile_speed_set(', '$empty_command_error_wrong_para_type', 'NUMBER', upper_type( speed ) )
+				command_print( command .. '(', '$empty_command_error_wrong_para_type', 'NUMBER', upper_type( speed ) )
 				return 0
 			end
 
@@ -527,27 +589,90 @@ empty_command_functions = {
 				local count = #v_comps
 
 				if ( count > 0 ) then
-					command_print( 'projectile_speed_set(', '$empty_command_projectile_change_success', tostring( count ) )
+					command_print( command .. '(', '$empty_command_projectile_change_success', tostring( count ) )
 				else
-					command_print( 'projectile_speed_set(', '$empty_command_error_no_projectile_change' )
+					command_print( command .. '(', '$empty_command_error_no_projectile_change' )
 				end
 			else
 				add_desc_by_info( c, {
 					replace = true,
-					update = true,
+					update = false,
 					merge = false,
 				}, {
-					id = 'empty_projectile_speed_set',
+					id = command,
 					shooter = shooter,
 					speed = speed,
-				}, empty_path .. 'entities/misc/command/projectile_speed_set.xml,', '$' )
+				}, empty_path .. 'entities/misc/command/' .. command .. '.xml,', '$' )
 			end
 
 			return speed
-		end
+		end,
+		---将投射物中 速度 组件中的 vel_x, vel_y 属性分别更改为 vel_x, vel_y
+		---@param c table
+		---@param reflect boolean
+		---@param shooter number
+		---@param vel_x string|number
+		---@param vel_y string|number
+		---@return table vel_xy
+		action_2_paras = function ( c, reflect, shooter, vel_x, vel_y )
+			local command = 'projectile_speed_set'
+
+			if ( type( vel_x ) ~= 'number' and type( vel_x ) ~= 'string' ) then
+				command_print( command .. '(', '$empty_command_error_wrong_para_type', 'NUMBER', upper_type( vel_x ) )
+				return { 0, 0 }
+			end
+			if ( type( vel_y ) ~= 'number' and type( vel_y ) ~= 'string' ) then
+				command_print( command .. '(', '$empty_command_error_wrong_para_type', 'NUMBER', upper_type( vel_y ) )
+				return { 0, 0 }
+			end
+
+			if ( reflect ) then
+				if ( type( vel_x ) ~= 'number' ) then
+					vel_x = 0
+				end
+				if ( type( vel_y ) ~= 'number' ) then
+					vel_y = 0
+				end
+
+				local entity = EntityGetRootEntity( GetUpdatedEntityID( ) )
+				local v_comps = EntityGetComponent( entity, 'VelocityComponent' ) or { }
+
+				remove_speed_limit( v_comps )
+
+				for _, v_comp in ipairs( v_comps ) do
+					ComponentSetValue2( v_comp, 'mVelocity', vel_x, vel_y )
+				end
+
+				local count = #v_comps
+
+				if ( count > 0 ) then
+					command_print( command .. '(', '$empty_command_projectile_change_success', tostring( count ) )
+				else
+					command_print( command .. '(', '$empty_command_error_no_projectile_change' )
+				end
+			else
+				add_desc_by_info( c, {
+					replace = true,
+					update = false,
+					merge = false,
+				}, {
+					id = command,
+					shooter = shooter,
+					vel_x = vel_x,
+					vel_y = vel_y,
+				}, empty_path .. 'entities/misc/command/' .. command .. '.xml,', '$' )
+			end
+
+			return { vel_x, vel_y }
+		end,
 	},
 	projectile_gravity_set = {
+		max_paras = 2,
 		para_names = {
+			all = {
+				'gravity_y',
+				'gravity_x',
+			},
 			para_1 = {
 				'gravity_y',
 			},
@@ -572,12 +697,18 @@ empty_command_functions = {
 		---@param gravity_y string|number
 		---@return string|number gravity
 		action_1_paras = function ( c, reflect, shooter, gravity_y )
+			local command = 'projectile_gravity_set'
+
 			if ( type( gravity_y ) ~= 'number' and type( gravity_y ) ~= 'string' ) then
-				command_print( 'projectile_gravity_set(', '$empty_command_error_wrong_para_type', 'NUMBER', upper_type( gravity_y ) )
+				command_print( command .. '(', '$empty_command_error_wrong_para_type', 'NUMBER', upper_type( gravity_y ) )
 				return 0
 			end
 
 			if ( reflect ) then
+				if ( type( gravity_y ) ~= 'number' ) then
+					gravity_y = 0
+				end
+
 				local entity = EntityGetRootEntity( GetUpdatedEntityID( ) )
 				local v_comps = EntityGetComponent( entity, 'VelocityComponent' ) or { }
 				local count = #v_comps
@@ -587,9 +718,9 @@ empty_command_functions = {
 				end
 
 				if ( count > 0 ) then
-					command_print( 'projectile_gravity_set(', '$empty_command_projectile_change_success', tostring( count ) )
+					command_print( command .. '(', '$empty_command_projectile_change_success', tostring( count ) )
 				else
-					command_print( 'projectile_gravity_set(', '$empty_command_error_no_projectile_change' )
+					command_print( command .. '(', '$empty_command_error_no_projectile_change' )
 				end
 			else
 				add_desc_by_info( c, {
@@ -597,10 +728,10 @@ empty_command_functions = {
 					update = true,
 					merge = false,
 				}, {
-					id = 'empty_projectile_gravity_set',
+					id = command,
 					shooter = shooter,
 					gravity_y = gravity_y,
-				}, empty_path .. 'entities/misc/command/projectile_gravity_set.xml,', '$' )
+				}, empty_path .. 'entities/misc/command/' .. command .. '.xml,', '$' )
 			end
 
 			return gravity_y
@@ -613,16 +744,25 @@ empty_command_functions = {
 		---@param gravity_x string|number
 		---@return table gravity_yx
 		action_2_paras = function ( c, reflect, shooter, gravity_y, gravity_x )
+			local command = 'projectile_gravity_set'
+
 			if ( type( gravity_y ) ~= 'number' and type( gravity_y ) ~= 'string' ) then
-				command_print( 'projectile_gravity_set(', '$empty_command_error_wrong_para_type', 'NUMBER', upper_type( gravity_y ) )
+				command_print( command .. '(', '$empty_command_error_wrong_para_type', 'NUMBER', upper_type( gravity_y ) )
 				return { 0, 0 }
 			end
 			if ( type( gravity_x ) ~= 'number' and type( gravity_x ) ~= 'string' ) then
-				command_print( 'projectile_gravity_set(', '$empty_command_error_wrong_para_type', 'NUMBER', upper_type( gravity_x ) )
+				command_print( command .. '(', '$empty_command_error_wrong_para_type', 'NUMBER', upper_type( gravity_x ) )
 				return { 0, 0 }
 			end
 
 			if ( reflect ) then
+				if ( type( gravity_y ) ~= 'number' ) then
+					gravity_y = 0
+				end
+				if ( type( gravity_x ) ~= 'number' ) then
+					gravity_x = 0
+				end
+
 				local entity = EntityGetRootEntity( GetUpdatedEntityID( ) )
 				local v_comps = EntityGetComponent( entity, 'VelocityComponent' ) or { }
 				local count = #v_comps
@@ -633,9 +773,9 @@ empty_command_functions = {
 				end
 
 				if ( count > 0 ) then
-					command_print( 'projectile_gravity_set(', '$empty_command_projectile_change_success', tostring( count ) )
+					command_print( command .. '(', '$empty_command_projectile_change_success', tostring( count ) )
 				else
-					command_print( 'projectile_gravity_set(', '$empty_command_error_no_projectile_change' )
+					command_print( command .. '(', '$empty_command_error_no_projectile_change' )
 				end
 			else
 				add_desc_by_info( c, {
@@ -643,18 +783,22 @@ empty_command_functions = {
 					update = true,
 					merge = false,
 				}, {
-					id = 'empty_projectile_gravity_set',
+					id = command,
 					shooter = shooter,
 					gravity_y = gravity_y,
 					gravity_x = gravity_x,
-				}, empty_path .. 'entities/misc/command/projectile_gravity_set.xml,', '$' )
+				}, empty_path .. 'entities/misc/command/' .. command .. '.xml,', '$' )
 			end
 
 			return { gravity_y, gravity_x }
-		end
+		end,
 	},
 	projectile_air_friction_set = {
+		max_paras = 1,
 		para_names = {
+			all = {
+				'air_friction',
+			},
 			para_1 = {
 				'air_friction',
 			},
@@ -671,12 +815,18 @@ empty_command_functions = {
 		---@param air_friction string|number
 		---@return string|number air_friction
 		action_1_paras = function ( c, reflect, shooter, air_friction )
+			local command = 'projectile_air_friction_set'
+
 			if ( type( air_friction ) ~= 'number' and type( air_friction ) ~= 'string' ) then
-				command_print( 'projectile_air_friction_set(', '$empty_command_error_wrong_para_type', 'NUMBER', upper_type( air_friction ) )
+				command_print( command .. '(', '$empty_command_error_wrong_para_type', 'NUMBER', upper_type( air_friction ) )
 				return 0
 			end
 
 			if ( reflect ) then
+				if ( type( air_friction ) ~= 'number' ) then
+					air_friction = 0
+				end
+
 				local entity = EntityGetRootEntity( GetUpdatedEntityID( ) )
 				local v_comps = EntityGetComponent( entity, 'VelocityComponent' ) or { }
 				local count = #v_comps
@@ -686,9 +836,9 @@ empty_command_functions = {
 				end
 
 				if ( count > 0 ) then
-					command_print( 'projectile_air_friction_set(', '$empty_command_projectile_change_success', tostring( count ) )
+					command_print( command .. '(', '$empty_command_projectile_change_success', tostring( count ) )
 				else
-					command_print( 'projectile_air_friction_set(', '$empty_command_error_no_projectile_change' )
+					command_print( command .. '(', '$empty_command_error_no_projectile_change' )
 				end
 			else
 				add_desc_by_info( c, {
@@ -696,24 +846,37 @@ empty_command_functions = {
 					update = true,
 					merge = false,
 				}, {
-					id = 'empty_projectile_air_friction_set',
+					id = command,
 					shooter = shooter,
 					air_friction = air_friction,
-				}, empty_path .. 'entities/misc/command/projectile_air_friction_set.xml,', '$' )
+				}, empty_path .. 'entities/misc/command/' .. command .. '.xml,', '$' )
 			end
 
 			return air_friction
-		end
+		end,
 	},
 	projectile_shoot_angle_add = {
+		max_paras = 2,
 		para_names = {
+			all = {
+				'angle',
+				'delay',
+			},
 			para_1 = {
 				'angle',
+			},
+			para_2 = {
+				'angle',
+				'delay',
 			},
 		},
 		transform_tilde_into = {
 			para_1 = {
-				'0'
+				'0',
+			},
+			para_2 = {
+				'0',
+				'0',
 			},
 		},
 		---在不更改速度大小的状态下将速度方向在原基础上逆时针旋转 angle°
@@ -723,61 +886,10 @@ empty_command_functions = {
 		---@param angle string|number
 		---@return string|number angle
 		action_1_paras = function ( c, reflect, shooter, angle )
+			local command = 'projectile_shoot_angle_add'
+
 			if ( type( angle ) ~= 'number' and type( angle ) ~= 'string' ) then
-				command_print( 'projectile_shoot_angle_add(', '$empty_command_error_wrong_para_type', 'NUMBER', upper_type( angle ) )
-				return 0
-			end
-
-			if ( reflect ) then
-				if ( type( angle ) ~= 'number' ) then
-					return 0
-				end
-
-				local entity = EntityGetRootEntity( GetUpdatedEntityID( ) )
-				local v_comps = EntityGetComponent( entity, 'VelocityComponent' )
-
-				for _, v_comp in ipairs( v_comps or { } ) do
-					local vel_x, vel_y = ComponentGetValue2( v_comp, 'mVelocity' )
-
-					vel_x, vel_y = rot_vel( vel_x, vel_y or 0, angle )
-
-					ComponentSetValue2( v_comp, 'mVelocity', vel_x, vel_y )
-				end
-			else
-				add_desc_by_info( c, {
-					replace = true,
-					update = false,
-					merge = true,
-				}, {
-					id = 'empty_projectile_shoot_angle_add',
-					shooter = shooter,
-					angle = angle,
-				}, empty_path .. 'entities/misc/command/projectile_shoot_angle_add.xml,', '$' )
-			end
-
-			return angle
-		end
-	},
-	projectile_shoot_angle_set = {
-		para_names = {
-			para_1 = {
-				'angle',
-			},
-		},
-		transform_tilde_into = {
-			para_1 = {
-				'0'
-			},
-		},
-		---在不更改速度大小的状态下将速度方向在正右方基础上逆时针旋转 angle°
-		---@param c table
-		---@param reflect boolean
-		---@param shooter number
-		---@param angle string|number
-		---@return string|number angle
-		action_1_paras = function ( c, reflect, shooter, angle )
-			if ( type( angle ) ~= 'number' and type( angle ) ~= 'string' ) then
-				command_print( 'projectile_shoot_angle_set(', '$empty_command_error_wrong_para_type', 'NUMBER', upper_type( angle ) )
+				command_print( command .. '(', '$empty_command_error_wrong_para_type', 'NUMBER', upper_type( angle ) )
 				return 0
 			end
 
@@ -787,14 +899,21 @@ empty_command_functions = {
 				end
 
 				local entity = EntityGetRootEntity( GetUpdatedEntityID( ) )
-				local v_comps = EntityGetComponent( entity, 'VelocityComponent' )
+				local v_comps = EntityGetComponent( entity, 'VelocityComponent' ) or { }
+				local count = #v_comps
 
-				for _, v_comp in ipairs( v_comps or { } ) do
+				for _, v_comp in ipairs( v_comps ) do
 					local vel_x, vel_y = ComponentGetValue2( v_comp, 'mVelocity' )
 
-					vel_x, vel_y = abs_rot_vel( vel_x, vel_y or 0, angle )
+					vel_x, vel_y = rot_vel( vel_x, vel_y or 0, angle )
 
 					ComponentSetValue2( v_comp, 'mVelocity', vel_x, vel_y )
+				end
+
+				if ( count > 0 ) then
+					command_print( command .. '(', '$empty_command_projectile_change_success', tostring( count ) )
+				else
+					command_print( command .. '(', '$empty_command_error_no_projectile_change' )
 				end
 			else
 				add_desc_by_info( c, {
@@ -802,23 +921,86 @@ empty_command_functions = {
 					update = true,
 					merge = false,
 				}, {
-					id = 'empty_projectile_shoot_angle_set',
+					id = command,
 					shooter = shooter,
 					angle = angle,
-				}, empty_path .. 'entities/misc/command/projectile_shoot_angle_set.xml,', '$' )
+				}, empty_path .. 'entities/misc/command/' .. command .. '.xml,', '$' )
 			end
 
 			return angle
-		end
+		end,
+		---经过 delay 帧的延迟后, 在不更改速度大小的状态下将速度方向在原基础上逆时针旋转 angle°
+		---@param c table
+		---@param reflect boolean
+		---@param shooter number
+		---@param angle string|number
+		---@param delay string|number
+		---@return table angle_delay
+		action_2_paras = function ( c, reflect, shooter, angle, delay )
+			local command = 'projectile_shoot_angle_add'
+			local command_delay = command .. '_delay'
+
+			if ( type( angle ) ~= 'number' and type( angle ) ~= 'string' ) then
+				command_print( command .. '(', '$empty_command_error_wrong_para_type', 'NUMBER', upper_type( angle ) )
+				return { 0, 0 }
+			end
+			if ( type( angle ) ~= 'number' and type( angle ) ~= 'string' ) then
+				command_print( command .. '(', '$empty_command_error_wrong_para_type', 'NUMBER', upper_type( angle ) )
+				return { 0, 0 }
+			end
+
+			if ( reflect ) then
+				if ( type( angle ) ~= 'number' ) then
+					angle = 0
+				end
+				if ( type( delay ) ~= 'number' ) then
+					delay = 0
+				elseif ( delay % 1 ~= 0 ) then
+					delay = math.floor( delay )
+				end
+
+				local entity = EntityGetRootEntity( GetUpdatedEntityID( ) )
+
+				EntityAddComponent2( entity, 'VariableStorageComponent', {
+					_tags = command_delay,
+					value_float = angle,
+				} )
+
+				EntityAddComponent2( entity, 'LuaComponent', {
+					_tags = command_delay,
+					script_source_file = empty_path .. 'scripts/projectiles/command/' .. command_delay .. '.lua',
+					execute_every_n_frame = delay - 1,
+					remove_after_executed = true,
+				} )
+			else
+				add_desc_by_info( c, {
+					replace = true,
+					update = true,
+					merge = false,
+				}, {
+					id = command,
+					shooter = shooter,
+					angle = angle,
+					delay = delay,
+				}, empty_path .. 'entities/misc/command/' .. command .. '.xml,', '$' )
+			end
+
+			return { angle, delay }
+		end,
 	},
-	projectile_arc_add = {
+	projectile_shoot_angle_set = {
+		max_paras = 2,
 		para_names = {
+			all = {
+				'angle',
+				'delay',
+			},
 			para_1 = {
 				'angle',
 			},
 			para_2 = {
 				'angle',
-				'inc',
+				'delay',
 			},
 		},
 		transform_tilde_into = {
@@ -826,6 +1008,225 @@ empty_command_functions = {
 				'0',
 			},
 			para_2 = {
+				'0',
+				'0',
+			},
+		},
+		---在不更改速度大小的状态下将速度方向在正右方基础上逆时针旋转 angle°
+		---@param c table
+		---@param reflect boolean
+		---@param shooter number
+		---@param angle string|number
+		---@return string|number angle
+		action_1_paras = function ( c, reflect, shooter, angle )
+			local command = 'projectile_shoot_angle_set'
+
+			if ( type( angle ) ~= 'number' and type( angle ) ~= 'string' ) then
+				command_print( command .. '(', '$empty_command_error_wrong_para_type', 'NUMBER', upper_type( angle ) )
+				return 0
+			end
+
+			if ( reflect ) then
+				if ( type( angle ) ~= 'number' ) then
+					angle = 0
+				end
+
+				local entity = EntityGetRootEntity( GetUpdatedEntityID( ) )
+				local v_comps = EntityGetComponent( entity, 'VelocityComponent' ) or { }
+				local count = #v_comps
+
+				for _, v_comp in ipairs( v_comps ) do
+					local vel_x, vel_y = ComponentGetValue2( v_comp, 'mVelocity' )
+
+					vel_x, vel_y = abs_rot_vel( vel_x, vel_y or 0, angle )
+
+					ComponentSetValue2( v_comp, 'mVelocity', vel_x, vel_y )
+				end
+
+				if ( count > 0 ) then
+					command_print( command .. '(', '$empty_command_projectile_change_success', tostring( count ) )
+				else
+					command_print( command .. '(', '$empty_command_error_no_projectile_change' )
+				end
+			else
+				add_desc_by_info( c, {
+					replace = true,
+					update = true,
+					merge = false,
+				}, {
+					id = command,
+					shooter = shooter,
+					angle = angle,
+				}, empty_path .. 'entities/misc/command/' .. command .. '.xml,', '$' )
+			end
+
+			return angle
+		end,
+		---在经过 delay 帧的延迟后, 在不更改速度大小的状态下将速度方向在正右方基础上逆时针旋转 angle°
+		---@param c table
+		---@param reflect boolean
+		---@param shooter number
+		---@param angle string|number
+		---@param delay string|number
+		---@return table angle_delay
+		action_2_paras = function ( c, reflect, shooter, angle, delay )
+			local command = 'projectile_shoot_angle_set'
+			local command_delay = command .. '_delay'
+
+			if ( type( angle ) ~= 'number' and type( angle ) ~= 'string' ) then
+				command_print( command .. '(', '$empty_command_error_wrong_para_type', 'NUMBER', upper_type( angle ) )
+				return { 0, 0 }
+			end
+			if ( type( angle ) ~= 'number' and type( angle ) ~= 'string' ) then
+				command_print( command .. '(', '$empty_command_error_wrong_para_type', 'NUMBER', upper_type( angle ) )
+				return { 0, 0 }
+			end
+
+			if ( reflect ) then
+				if ( type( angle ) ~= 'number' ) then
+					angle = 0
+				end
+				if ( type( delay ) ~= 'number' ) then
+					delay = 0
+				elseif ( delay % 1 ~= 0 ) then
+					delay = math.floor( delay )
+				end
+
+				local entity = EntityGetRootEntity( GetUpdatedEntityID( ) )
+
+				EntityAddComponent2( entity, 'VariableStorageComponent', {
+					_tags = command_delay,
+					value_float = angle,
+				} )
+
+				EntityAddComponent2( entity, 'LuaComponent', {
+					_tags = command_delay,
+					script_source_file = empty_path .. 'scripts/projectiles/command/' .. command_delay .. '.lua',
+					execute_every_n_frame = delay - 1,
+					remove_after_executed = true,
+				} )
+			else
+				add_desc_by_info( c, {
+					replace = true,
+					update = true,
+					merge = false,
+				}, {
+					id = command,
+					shooter = shooter,
+					angle = angle,
+					delay = delay,
+				}, empty_path .. 'entities/misc/command/' .. command .. '.xml,', '$' )
+			end
+
+			return { angle, delay }
+		end,
+	},
+	projectile_spread_set = {
+		max_paras = 1,
+		para_names = {
+			all = {
+				'angle',
+			},
+			para_1 = {
+				'angle',
+			},
+		},
+		transform_tilde_into = {
+			para_1 = {
+				'0',
+			},
+		},
+		---将投射物的出射散射设为 angle°
+		---@param c table
+		---@param reflect boolean
+		---@param shooter number
+		---@param angle string|number
+		---@return string|number angle
+		action_1_paras = function ( c, reflect, shooter, angle )
+			local command = 'projectile_arc_add'
+
+			if ( type( angle ) ~= 'number' and type( angle ) ~= 'string' ) then
+				command_print( command .. '(', '$empty_command_error_wrong_para_type', 'NUMBER', upper_type( angle ) )
+				return 0
+			end
+
+			if ( reflect ) then
+				if ( type( angle ) ~= 'number' ) then
+					angle = 0
+				end
+
+				local entity = EntityGetRootEntity( GetUpdatedEntityID( ) )
+				local p_comps = EntityGetComponent( entity, 'ProjectileComponent' ) or { }
+				local rad, count = deg_to_rad( angle ), #p_comps
+
+				for _, p_comp in ipairs( p_comps ) do
+					ComponentSetValue2( p_comp, 'direction_random_rad', rad )
+				end
+
+				if ( count > 0 ) then
+					command_print( command .. '(', '$empty_command_projectile_change_success', tostring( count ) )
+				else
+					command_print( command .. '(', '$empty_command_error_no_projectile_change' )
+				end
+			else
+				add_desc_by_info( c, {
+					replace = true,
+					update = true,
+					merge = false,
+				}, {
+					id = command,
+					shooter = shooter,
+					angle = angle,
+				}, empty_path .. 'entities/misc/command/' .. command .. '.xml,', '$' )
+			end
+
+			return angle
+		end,
+	},
+	projectile_arc_add = {
+		max_paras = 4,
+		para_names = {
+			all = {
+				'angle',
+				'inc',
+				'start',
+				'end',
+			},
+			para_1 = {
+				'angle',
+			},
+			para_2 = {
+				'angle',
+				'inc',
+			},
+			para_3 = {
+				'angle',
+				'inc',
+				'delay',
+			},
+			para_4 = {
+				'angle',
+				'inc',
+				'delay',
+				'duration',
+			},
+		},
+		transform_tilde_into = {
+			para_1 = {
+				'0',
+			},
+			para_2 = {
+				'0',
+				'0',
+			},
+			para_3 = {
+				'0',
+				'0',
+				'0',
+			},
+			para_4 = {
+				'0',
+				'0',
 				'0',
 				'0',
 			},
@@ -837,16 +1238,30 @@ empty_command_functions = {
 		---@param angle string|number
 		---@return string|number angle
 		action_1_paras = function ( c, reflect, shooter, angle )
+			local command = 'projectile_arc_add'
+			local command_reflect = command .. '_reflect'
+
 			if ( type( angle ) ~= 'number' and type( angle ) ~= 'string' ) then
-				command_print( 'projectile_arc_add(', '$empty_command_error_wrong_para_type', 'NUMBER', upper_type( angle ) )
+				command_print( command .. '(', '$empty_command_error_wrong_para_type', 'NUMBER', upper_type( angle ) )
 				return 0
 			end
 
 			if ( reflect ) then
-				local entity = EntityGetRootEntity( GetUpdatedEntityID( ) )
+				if ( type( angle ) ~= 'number' ) then
+					angle = 0
+				end
 
-				local v_comps = EntityGetComponent( entity, 'VariableStorageComponent', 'projectile_arc_add_reflect' )
-				if ( v_comps ) then
+				local entity = EntityGetRootEntity( GetUpdatedEntityID( ) )
+				local v_comps = EntityGetComponent( entity, 'VariableStorageComponent', command_reflect )
+
+				if ( not v_comps ) then
+					EntityAddComponent2( entity, 'VariableStorageComponent', {
+						_tags = command_reflect,
+						value_int = 0,
+						value_string = tostring( angle ),
+						value_float = 0,
+					} )
+				else
 					for _, v_comp in ipairs( v_comps or { } ) do
 						if ( _ == 1 ) then
 							ComponentSetValue2( v_comp, 'value_int', 0 )
@@ -855,31 +1270,22 @@ empty_command_functions = {
 							EntityRemoveComponent( entity, v_comp )
 						end
 					end
-				else
-					EntityAddComponent2( entity, 'VariableStorageComponent', {
-						_tags = 'projectile_arc_add_reflect',
-						value_int = 0,
-						value_string = tostring( angle ),
-						value_float = 0,
-					} )
 				end
 
-				local l_comps = EntityGetComponent( entity, 'LuaComponent', 'projectile_arc_add_reflect' )
-				if ( l_comps ) then
+				local l_comps = EntityGetComponent( entity, 'LuaComponent', command_reflect )
+
+				if ( not l_comps ) then
+					EntityAddComponent2( entity, 'LuaComponent', {
+						_tags = command_reflect,
+						execute_every_n_frame = 0,
+						script_source_file = empty_path .. 'scripts/projectiles/command/' .. command_reflect .. '.lua',
+					} )
+				else
 					for _, l_comp in ipairs( l_comps or { } ) do
-						if ( _ == 1 ) then
-							ComponentSetValue2( l_comp, 'execute_every_n_frame', 1 )
-							ComponentSetValue2( l_comp, 'script_source_file', empty_path .. 'scripts/command/projectile_arc_add.lua' )
-						else
+						if ( _ > 1 ) then
 							EntityRemoveComponent( entity, l_comp )
 						end
 					end
-				else
-					EntityAddComponent2( entity, 'LuaComponent', {
-						_tags = 'projectile_arc_add_reflect',
-						execute_every_n_frame = 0,
-						script_source_file = empty_path .. 'scripts/projectiles/command/projectile_arc_add_reflect.lua',
-					} )
 				end
 			else
 				add_desc_by_info( c, {
@@ -887,10 +1293,10 @@ empty_command_functions = {
 					update = true,
 					merge = false,
 				}, {
-					id = 'empty_projectile_arc_add',
+					id = command,
 					shooter = shooter,
 					angle = angle,
-				}, empty_path .. 'entities/misc/command/projectile_arc_add.xml,', '$' )
+				}, empty_path .. 'entities/misc/command/' .. command .. '.xml,', '$' )
 			end
 
 			return angle
@@ -901,20 +1307,37 @@ empty_command_functions = {
 		---@param angle string|number
 		---@return table angle
 		action_2_paras = function ( c, reflect, shooter, angle, inc )
+			local command = 'projectile_arc_add'
+			local command_reflect = command .. '_reflect'
+
 			if ( type( angle ) ~= 'number' and type( angle ) ~= 'string' ) then
-				command_print( 'projectile_arc_add(', '$empty_command_error_wrong_para_type', 'NUMBER', upper_type( angle ) )
+				command_print( command .. '(', '$empty_command_error_wrong_para_type', 'NUMBER', upper_type( angle ) )
 				return { 0, 0 }
 			end
 			if ( type( inc ) ~= 'number' and type( inc ) ~= 'string' ) then
-				command_print( 'projectile_arc_add(', '$empty_command_error_wrong_para_type', 'NUMBER', upper_type( inc ) )
+				command_print( command .. '(', '$empty_command_error_wrong_para_type', 'NUMBER', upper_type( inc ) )
 				return { 0, 0 }
 			end
 
 			if ( reflect ) then
-				local entity = EntityGetRootEntity( GetUpdatedEntityID( ) )
+				if ( type( angle ) ~= 'number' ) then
+					angle = 0
+				end
+				if ( type( inc ) ~= 'number' ) then
+					inc = 0
+				end
 
-				local v_comps = EntityGetComponent( entity, 'VariableStorageComponent', 'projectile_arc_add_reflect' )
-				if ( v_comps ) then
+				local entity = EntityGetRootEntity( GetUpdatedEntityID( ) )
+				local v_comps = EntityGetComponent( entity, 'VariableStorageComponent', command_reflect )
+
+				if ( not v_comps ) then
+					EntityAddComponent2( entity, 'VariableStorageComponent', {
+						_tags = command_reflect,
+						value_int = 0,
+						value_string = tostring( angle ),
+						value_float = inc,
+					} )
+				else
 					for _, v_comp in ipairs( v_comps or { } ) do
 						if ( _ == 1 ) then
 							ComponentSetValue2( v_comp, 'value_int', 0 )
@@ -924,31 +1347,22 @@ empty_command_functions = {
 							EntityRemoveComponent( entity, v_comp )
 						end
 					end
-				else
-					EntityAddComponent2( entity, 'VariableStorageComponent', {
-						_tags = 'projectile_arc_add_reflect',
-						value_int = 0,
-						value_string = tostring( angle ),
-						value_float = inc,
-					} )
 				end
 
-				local l_comps = EntityGetComponent( entity, 'LuaComponent', 'projectile_arc_add_reflect' )
-				if ( l_comps ) then
+				local l_comps = EntityGetComponent( entity, 'LuaComponent', command_reflect )
+
+				if ( not l_comps ) then
+					EntityAddComponent2( entity, 'LuaComponent', {
+						_tags = command_reflect,
+						execute_every_n_frame = 0,
+						script_source_file = empty_path .. 'scripts/projectiles/command/' .. command_reflect .. '.lua',
+					} )
+				else
 					for _, l_comp in ipairs( l_comps or { } ) do
-						if ( _ == 1 ) then
-							ComponentSetValue2( l_comp, 'execute_every_n_frame', 1 )
-							ComponentSetValue2( l_comp, 'script_source_file', empty_path .. 'scripts/command/projectile_arc_add.lua' )
-						else
+						if ( _ > 1 ) then
 							EntityRemoveComponent( entity, l_comp )
 						end
 					end
-				else
-					EntityAddComponent2( entity, 'LuaComponent', {
-						_tags = 'projectile_arc_add_reflect',
-						execute_every_n_frame = 0,
-						script_source_file = empty_path .. 'scripts/projectiles/command/projectile_arc_add_reflect.lua',
-					} )
 				end
 			else
 				add_desc_by_info( c, {
@@ -956,18 +1370,25 @@ empty_command_functions = {
 					update = true,
 					merge = false,
 				}, {
-					id = 'empty_projectile_arc_add',
+					id = command,
 					shooter = shooter,
 					angle = angle,
 					inc = inc,
-				}, empty_path .. 'entities/misc/command/projectile_arc_add.xml,', '$' )
+				}, empty_path .. 'entities/misc/command/' .. command .. '.xml,', '$' )
 			end
 
 			return { angle, inc }
-		end
+		end,
 	},
 	projectile_arc_set = {
+		max_paras = 4,
 		para_names = {
+			all = {
+				'angle',
+				'inc',
+				'start',
+				'end',
+			},
 			para_1 = {
 				'angle',
 			},
@@ -975,12 +1396,34 @@ empty_command_functions = {
 				'angle',
 				'inc',
 			},
+			para_3 = {
+				'angle',
+				'inc',
+				'delay',
+			},
+			para_4 = {
+				'angle',
+				'inc',
+				'delay',
+				'duration',
+			},
 		},
 		transform_tilde_into = {
 			para_1 = {
 				'0',
 			},
 			para_2 = {
+				'0',
+				'0',
+			},
+			para_3 = {
+				'0',
+				'0',
+				'0',
+			},
+			para_4 = {
+				'0',
+				'0',
 				'0',
 				'0',
 			},
@@ -992,16 +1435,30 @@ empty_command_functions = {
 		---@param angle string|number
 		---@return string|number angle
 		action_1_paras = function ( c, reflect, shooter, angle )
+			local command = 'projectile_arc_set'
+			local command_reflect = command .. '_reflect'
+
 			if ( type( angle ) ~= 'number' and type( angle ) ~= 'string' ) then
-				command_print( 'projectile_arc_set(', '$empty_command_error_wrong_para_type', 'NUMBER', upper_type( angle ) )
+				command_print( command .. '(', '$empty_command_error_wrong_para_type', 'NUMBER', upper_type( angle ) )
 				return 0
 			end
 
 			if ( reflect ) then
-				local entity = EntityGetRootEntity( GetUpdatedEntityID( ) )
+				if ( type( angle ) ~= 'number' ) then
+					angle = 0
+				end
 
-				local v_comps = EntityGetComponent( entity, 'VariableStorageComponent', 'projectile_arc_set_reflect' )
-				if ( v_comps ) then
+				local entity = EntityGetRootEntity( GetUpdatedEntityID( ) )
+				local v_comps = EntityGetComponent( entity, 'VariableStorageComponent', command_reflect )
+
+				if ( not v_comps ) then
+					EntityAddComponent2( entity, 'VariableStorageComponent', {
+						_tags = command_reflect,
+						value_int = 0,
+						value_string = tostring( angle ),
+						value_float = 0,
+					} )
+				else
 					for _, v_comp in ipairs( v_comps or { } ) do
 						if ( _ == 1 ) then
 							ComponentSetValue2( v_comp, 'value_int', 0 )
@@ -1010,31 +1467,22 @@ empty_command_functions = {
 							EntityRemoveComponent( entity, v_comp )
 						end
 					end
-				else
-					EntityAddComponent2( entity, 'VariableStorageComponent', {
-						_tags = 'projectile_arc_set_reflect',
-						value_int = 0,
-						value_string = tostring( angle ),
-						value_float = 0,
-					} )
 				end
 
-				local l_comps = EntityGetComponent( entity, 'LuaComponent', 'projectile_arc_set_reflect' )
-				if ( l_comps ) then
+				local l_comps = EntityGetComponent( entity, 'LuaComponent', command_reflect )
+
+				if ( not l_comps ) then
+					EntityAddComponent2( entity, 'LuaComponent', {
+						_tags = command_reflect,
+						script_source_file = empty_path .. 'scripts/projectiles/command/' .. command_reflect .. '.lua',
+						execute_every_n_frame = 0,
+					} )
+				else
 					for _, l_comp in ipairs( l_comps or { } ) do
-						if ( _ == 1 ) then
-							ComponentSetValue2( l_comp, 'execute_every_n_frame', 1 )
-							ComponentSetValue2( l_comp, 'script_source_file', empty_path .. 'scripts/command/projectile_arc_set.lua' )
-						else
+						if ( _ > 1 ) then
 							EntityRemoveComponent( entity, l_comp )
 						end
 					end
-				else
-					EntityAddComponent2( entity, 'LuaComponent', {
-						_tags = 'projectile_arc_set_reflect',
-						execute_every_n_frame = 0,
-						script_source_file = empty_path .. 'scripts/projectiles/command/projectile_arc_set_reflect.lua',
-					} )
 				end
 			else
 				add_desc_by_info( c, {
@@ -1042,34 +1490,53 @@ empty_command_functions = {
 					update = true,
 					merge = false,
 				}, {
-					id = 'empty_projectile_arc_set',
+					id = command,
 					shooter = shooter,
 					angle = angle,
-				}, empty_path .. 'entities/misc/command/projectile_arc_set.xml,', '$' )
+				}, empty_path .. 'entities/misc/command/' .. command .. '.xml,', '$' )
 			end
 
 			return angle
 		end,
+		---在不更改速度大小的状态下将速度方向在正右方基础上每帧逆时针旋转 ( angle + 生效帧数 * inc )°
 		---@param c table
 		---@param reflect boolean
 		---@param shooter number
 		---@param angle string|number
+		---@param inc string|number
 		---@return table angle
 		action_2_paras = function ( c, reflect, shooter, angle, inc )
+			local command = 'projectile_arc_set'
+			local command_reflect = command .. '_reflect'
+
 			if ( type( angle ) ~= 'number' and type( angle ) ~= 'string' ) then
-				command_print( 'projectile_arc_set(', '$empty_command_error_wrong_para_type', 'NUMBER', upper_type( angle ) )
+				command_print( command .. '(', '$empty_command_error_wrong_para_type', 'NUMBER', upper_type( angle ) )
 				return { 0, 0 }
 			end
 			if ( type( inc ) ~= 'number' and type( inc ) ~= 'string' ) then
-				command_print( 'projectile_arc_set(', '$empty_command_error_wrong_para_type', 'NUMBER', upper_type( inc ) )
+				command_print( command .. '(', '$empty_command_error_wrong_para_type', 'NUMBER', upper_type( inc ) )
 				return { 0, 0 }
 			end
 
 			if ( reflect ) then
-				local entity = EntityGetRootEntity( GetUpdatedEntityID( ) )
+				if ( type( angle ) ~= 'number' ) then
+					angle = 0
+				end
+				if ( type( inc ) ~= 'number' ) then
+					inc = 0
+				end
 
-				local v_comps = EntityGetComponent( entity, 'VariableStorageComponent', 'projectile_arc_set' )
-				if ( v_comps ) then
+				local entity = EntityGetRootEntity( GetUpdatedEntityID( ) )
+				local v_comps = EntityGetComponent( entity, 'VariableStorageComponent', command_reflect )
+
+				if ( not v_comps ) then
+					EntityAddComponent2( entity, 'VariableStorageComponent', {
+						_tags = command_reflect,
+						value_int = 0,
+						value_string = tostring( angle ),
+						value_float = inc,
+					} )
+				else
 					for _, v_comp in ipairs( v_comps or { } ) do
 						if ( _ == 1 ) then
 							ComponentSetValue2( v_comp, 'value_int', 0 )
@@ -1079,31 +1546,22 @@ empty_command_functions = {
 							EntityRemoveComponent( entity, v_comp )
 						end
 					end
-				else
-					EntityAddComponent2( entity, 'VariableStorageComponent', {
-						_tags = 'projectile_arc_set',
-						value_int = 0,
-						value_string = tostring( angle ),
-						value_float = inc,
-					} )
 				end
 
-				local l_comps = EntityGetComponent( entity, 'LuaComponent', 'projectile_arc_set' )
-				if ( l_comps ) then
+				local l_comps = EntityGetComponent( entity, 'LuaComponent', command_reflect )
+
+				if ( not l_comps ) then
+					EntityAddComponent2( entity, 'LuaComponent', {
+						_tags = command_reflect,
+						script_source_file = empty_path .. 'scripts/projectiles/command/' .. command_reflect .. '.lua',
+						execute_every_n_frame = 0,
+					} )
+				else
 					for _, l_comp in ipairs( l_comps or { } ) do
-						if ( _ == 1 ) then
-							ComponentSetValue2( l_comp, 'execute_every_n_frame', 1 )
-							ComponentSetValue2( l_comp, 'script_source_file', empty_path .. 'scripts/command/projectile_arc_set.lua' )
-						else
+						if ( _ > 1 ) then
 							EntityRemoveComponent( entity, l_comp )
 						end
 					end
-				else
-					EntityAddComponent2( entity, 'LuaComponent', {
-						_tags = 'projectile_arc_set',
-						execute_every_n_frame = 0,
-						script_source_file = empty_path .. 'scripts/projectiles/command/projectile_arc_set_reflect.lua',
-					} )
 				end
 			else
 				add_desc_by_info( c, {
@@ -1111,18 +1569,111 @@ empty_command_functions = {
 					update = true,
 					merge = false,
 				}, {
-					id = 'empty_projectile_arc_set',
+					id = command,
 					shooter = shooter,
 					angle = angle,
 					inc = inc,
-				}, empty_path .. 'entities/misc/command/projectile_arc_set.xml,', '$' )
+				}, empty_path .. 'entities/misc/command/' .. command .. '.xml,', '$' )
 			end
 
 			return { angle, inc }
-		end
+		end,
+		---经过 delay 帧的延迟后, 在不更改速度大小的状态下将速度方向在正右方基础上每帧逆时针旋转 ( angle + 生效帧数 * inc )°
+		---@param c table
+		---@param reflect boolean
+		---@param shooter number
+		---@param angle string|number
+		---@param inc string|number
+		---@param delay string|number
+		---@return table angle
+		action_3_paras = function ( c, reflect, shooter, angle, inc, delay )
+			local command = 'projectile_arc_set'
+			local command_reflect = command .. '_reflect'
+
+			if ( type( angle ) ~= 'number' and type( angle ) ~= 'string' ) then
+				command_print( command .. '(', '$empty_command_error_wrong_para_type', 'NUMBER', upper_type( angle ) )
+				return { 0, 0 }
+			end
+			if ( type( inc ) ~= 'number' and type( inc ) ~= 'string' ) then
+				command_print( command .. '(', '$empty_command_error_wrong_para_type', 'NUMBER', upper_type( inc ) )
+				return { 0, 0 }
+			end
+
+			if ( reflect ) then
+				if ( type( angle ) ~= 'number' ) then
+					angle = 0
+				end
+				if ( type( inc ) ~= 'number' ) then
+					inc = 0
+				end
+				if ( type( delay ) ~= 'number' ) then
+					delay = 0
+				elseif ( delay % 1 ~= 0 ) then
+					delay = math.floor( delay )
+				end
+
+				local entity = EntityGetRootEntity( GetUpdatedEntityID( ) )
+				local v_comps = EntityGetComponent( entity, 'VariableStorageComponent', command_reflect )
+
+				if ( not v_comps ) then
+					EntityAddComponent2( entity, 'VariableStorageComponent', {
+						_tags = command_reflect,
+						value_int = 0,
+						value_string = tostring( angle ),
+						value_float = inc,
+					} )
+				else
+					for _, v_comp in ipairs( v_comps or { } ) do
+						if ( _ == 1 ) then
+							ComponentSetValue2( v_comp, 'value_int', 0 )
+							ComponentSetValue2( v_comp, 'value_string', tostring( angle ) )
+							ComponentSetValue2( v_comp, 'value_float', inc )
+						else
+							EntityRemoveComponent( entity, v_comp )
+						end
+					end
+				end
+
+				local l_comps = EntityGetComponent( entity, 'LuaComponent', command_reflect )
+
+				if ( not l_comps ) then
+					EntityAddComponent2( entity, 'LuaComponent', {
+						_tags = command_reflect,
+						script_source_file = empty_path .. 'scripts/projectiles/command/' .. command_reflect .. '_delay.lua',
+						execute_every_n_frame = delay - 1,
+					} )
+				else
+					for _, l_comp in ipairs( l_comps or { } ) do
+						if ( _ > 1 ) then
+							EntityRemoveComponent( entity, l_comp )
+						end
+					end
+				end
+			else
+				add_desc_by_info( c, {
+					replace = true,
+					update = true,
+					merge = false,
+				}, {
+					id = command,
+					shooter = shooter,
+					angle = angle,
+					inc = inc,
+				}, empty_path .. 'entities/misc/command/' .. command .. '.xml,', '$' )
+			end
+
+			return { angle, inc }
+		end,
 	},
 	explode = {
+		max_paras = 3,
 		para_names = {
+			all = {
+				'radius',
+				'tar',
+				'x',
+				'y',
+			},
 			para_2 = {
 				'radius',
 				'tar',
@@ -1152,8 +1703,10 @@ empty_command_functions = {
 		---@param tar string|number|number[]
 		---@return string|number radius
 		action_2_paras = function ( c, reflect, shooter, radius, tar )
+			local command = 'explode'
+
 			if ( type( radius ) ~= 'number' and type( radius ) ~= 'string' ) then
-				command_print( 'explode(', '$empty_command_error_wrong_para_type', 'NUMBER', upper_type( radius ) )
+				command_print( command .. '(', '$empty_command_error_wrong_para_type', 'NUMBER', upper_type( radius ) )
 				return 0
 			end
 
@@ -1168,7 +1721,7 @@ empty_command_functions = {
 				end
 
 				if ( #tar == 0 ) then
-					command_print( 'explode(', '$empty_command_error_empty_table' )
+					command_print( command .. '(', '$empty_command_error_empty_table' )
 					return radius
 				end
 
@@ -1178,7 +1731,7 @@ empty_command_functions = {
 					if ( _ ~= NULL_ENTITY and EntityGetIsAlive( _ ) ) then
 						local x, y = EntityGetTransform( _ )
 
-						local explode = EntityLoad( empty_path .. 'entities/projectiles/command/explode.xml', x, y )
+						local explode = EntityLoad( empty_path .. 'entities/projectiles/command/' .. command .. '.xml', x, y )
 
 						if ( explode ) then
 							local projectile_comp = EntityGetFirstComponent( explode, 'ProjectileComponent' )
@@ -1192,14 +1745,14 @@ empty_command_functions = {
 					end
 				end
 
-				command_print( 'explode(', '$empty_command_explode_tar_success', tostring( #tar ), tostring( radius ) )
+				command_print( command .. '(', '$empty_command_explode_tar_success', tostring( #tar ), tostring( radius ) )
 			else
 				add_desc_by_info( c, {
 					replace = true,
 					update = true,
 					merge = false,
 				}, {
-					id = 'empty_explode',
+					id = command,
 					shooter = shooter,
 					radius = radius,
 					tar = tar,
@@ -1217,16 +1770,18 @@ empty_command_functions = {
 		---@param y string|number
 		---@return string|number radius
 		action_3_paras = function ( c, reflect, shooter, radius, x, y )
+			local command = 'explode'
+
 			if ( type( radius ) ~= 'number' and type( radius ) ~= 'string' ) then
-				command_print( 'explode(', '$empty_command_error_wrong_para_type', 'NUMBER', upper_type( radius ) )
+				command_print( command .. '(', '$empty_command_error_wrong_para_type', 'NUMBER', upper_type( radius ) )
 				return 0
 			end
 			if ( type( x ) ~= 'number' and type( x ) ~= 'string' ) then
-				command_print( 'explode(', '$empty_command_error_wrong_para_type', 'NUMBER', upper_type( x ) )
+				command_print( command .. '(', '$empty_command_error_wrong_para_type', 'NUMBER', upper_type( x ) )
 				return 0
 			end
 			if ( type( y ) ~= 'number' and type( y ) ~= 'string' ) then
-				command_print( 'explode(', '$empty_command_error_wrong_para_type', 'NUMBER', upper_type( y ) )
+				command_print( command .. '(', '$empty_command_error_wrong_para_type', 'NUMBER', upper_type( y ) )
 				return 0
 			end
 
@@ -1241,7 +1796,7 @@ empty_command_functions = {
 					y = x
 				end
 
-				local explode = EntityLoad( empty_path .. 'entities/projectiles/command/explode.xml', x, y )
+				local explode = EntityLoad( empty_path .. 'entities/projectiles/command/' .. command .. '.xml', x, y )
 
 				if ( explode ) then
 					local projectile_comp = EntityGetFirstComponent( explode, 'ProjectileComponent' )
@@ -1255,14 +1810,14 @@ empty_command_functions = {
 					end
 				end
 
-				command_print( 'explode(', '$empty_command_explode_xy_success', tostring( x ), tostring( y ), tostring( radius ) )
+				command_print( command .. '(', '$empty_command_explode_xy_success', tostring( x ), tostring( y ), tostring( radius ) )
 			else
 				add_desc_by_info( c, {
 					replace = true,
 					update = true,
 					merge = false,
 				}, {
-					id = 'empty_explode',
+					id = command,
 					shooter = shooter,
 					radius = radius,
 					x = x,
@@ -1274,7 +1829,14 @@ empty_command_functions = {
 		end,
 	},
 	tp = {
+		max_paras = 3,
 		para_names = {
+			all = {
+				'tp_entities',
+				'tar',
+				'x',
+				'y',
+			},
 			para_2 = {
 				'tp_entities',
 				'tar',
@@ -1303,8 +1865,10 @@ empty_command_functions = {
 		---@param tar string|number
 		---@return string|number tp_count
 		action_2_paras = function ( c, reflect, shooter, tp_entities, tar )
+			local command = 'tp'
+
 			if ( type( tar ) ~= 'number' and type( tar ) ~= 'string' ) then
-				command_print( 'tp(', '$empty_command_error_wrong_para_type', 'NUMBER', upper_type( tar ) )
+				command_print( command .. '(', '$empty_command_error_wrong_para_type', 'NUMBER', upper_type( tar ) )
 				return 0
 			end
 
@@ -1333,13 +1897,13 @@ empty_command_functions = {
 						end
 					end
 				else
-					command_print( 'tp(', 'empty_command_tp_error_target_not_found', tostring( tar ) )
+					command_print( command .. '(', 'empty_command_tp_error_target_not_found', tostring( tar ) )
 				end
 
 				if ( count > 0 ) then
-					command_print( 'tp(', '$empty_command_tp_success', tostring( count ), tostring( x ), tostring( y ) )
+					command_print( command .. '(', '$empty_command_tp_success', tostring( count ), tostring( x ), tostring( y ) )
 				else
-					command_print( 'tp(', '$empty_command_tp_error_no_entity_can_tp' )
+					command_print( command .. '(', '$empty_command_tp_error_no_entity_can_tp' )
 				end
 			else
 				add_desc_by_info( c, {
@@ -1347,7 +1911,7 @@ empty_command_functions = {
 					update = true,
 					merge = false,
 				}, {
-					id = 'empty_tp',
+					id = command,
 					shooter = shooter,
 					tp_entities = tp_entities,
 					tar = tar,
@@ -1370,12 +1934,14 @@ empty_command_functions = {
 		---@param y string|number
 		---@return string|number
 		action_3_paras = function ( c, reflect, shooter, tp_entities, x, y )
+			local command = 'tp'
+
 			if ( type( x ) ~= 'number' and type( x ) ~= 'string' ) then
-				GamePrint( 'tp( : ' .. GameTextGet( '$empty_command_error_wrong_para_type', 'NUMBER', string.upper( type( x ) ) ) )
+				command_print( command .. '(', '$empty_command_error_wrong_para_type', 'NUMBER', string.upper( type( x ) ) )
 				return 0
 			end
 			if ( type( y ) ~= 'number' and type( y ) ~= 'string' ) then
-				GamePrint( 'tp( : ' .. GameTextGet( '$empty_command_error_wrong_para_type', 'NUMBER', string.upper( type( y ) ) ) )
+				command_print( command .. '(', '$empty_command_error_wrong_para_type', 'NUMBER', string.upper( type( y ) ) )
 				return 0
 			end
 
@@ -1407,9 +1973,9 @@ empty_command_functions = {
 				end
 
 				if ( count > 0 ) then
-					GamePrint( 'tp( : ' .. GameTextGet( '$empty_command_tp_success', tostring( count ), tostring( x ), tostring( y ) ) )
+					command_print( command .. '(', '$empty_command_tp_success', tostring( count ), tostring( x ), tostring( y ) )
 				else
-					GamePrint( 'tp( : ' .. GameTextGet( '$empty_command_tp_error_no_entity_can_tp' ) )
+					command_print( command .. '(', '$empty_command_tp_error_no_entity_can_tp' )
 				end
 			else
 				add_desc_by_info( c, {
@@ -1417,7 +1983,7 @@ empty_command_functions = {
 					update = true,
 					merge = false,
 				}, {
-					id = 'empty_tp',
+					id = command,
 					shooter = shooter,
 					tp_entities = tp_entities,
 					x = x,
@@ -1432,7 +1998,7 @@ empty_command_functions = {
 			end
 
 			return count
-		end
+		end,
 	},
 }
 
@@ -1713,7 +2279,7 @@ local function evaluate_parameter( command_name, para_expr, para_need_type, shoo
 			if ( current_operator == nil ) then
 				current_operator = token.value
 			else
-				GamePrint( GameTextGet( '$empty_command_error_continuous_operator' ) )
+				command_print( 'evaluate_parameter', '$empty_command_error_continuous_operator' )
 				return nil, false
 			end
 		end
@@ -1726,7 +2292,7 @@ local function evaluate_parameter( command_name, para_expr, para_need_type, shoo
 	end
 
 	if ( type( result ) == 'table' and #result == 0 ) then
-		GamePrint( command_name .. '( : ' .. GameTextGet( '$empty_command_error_empty_result' ) )
+		command_print( command_name .. '(', '$empty_command_error_empty_result' )
 		return nil, false
 	end
 
@@ -1745,21 +2311,13 @@ end
 ---@return number command_spell_count
 ---@return boolean is_correct
 function from_table_get_paras( c, command_name, deck_table, pattern, shooter, tar_x, tar_y )
-	local paras = { }
-	local current_para = { }
-	local expecting_separator = false
-	local para_count = 0
-	local max_para = 0
-
-	for not_use, options in pairs( empty_command_functions[ command_name ].transform_tilde_into or { } ) do
-		max_para = math.max( max_para, #options )
-	end
+	local paras, current_para, expecting_separator, para_count, max_para = { }, { }, false, 0, e_cmd_funcs[ command_name ].max_paras or 1
 
 	local _ = 1
 	local param_completed = false
 	while ( _ <= #deck_table ) do
 		local card = deck_table[ _ ]
-		param_completed = false  -- 重置标志
+		param_completed = false
 
 		if ( card.command_type and card.command_value ) then
 			---@type string
@@ -1775,11 +2333,10 @@ function from_table_get_paras( c, command_name, deck_table, pattern, shooter, ta
 						current_para = { }
 						expecting_separator = false
 					else
-						GamePrint( command_name .. '(: ' .. GameTextGet( '$empty_command_error_no_para_content', tostring( para_count + 1 ) ) )
+						command_print( command_name .. '(', '$empty_command_error_no_para_content', tostring( para_count + 1 ) )
 						return { }, _, false
 					end
 				elseif ( token_value == ')' ) then
-					-- 如果参数还没有被添加（比如从子函数返回后），则添加
 					if ( not param_completed and #current_para > 0 ) then
 						table.insert( paras, current_para )
 						para_count = para_count + 1
@@ -1789,7 +2346,7 @@ function from_table_get_paras( c, command_name, deck_table, pattern, shooter, ta
 				end
 			elseif ( token_type == 'OPERATOR' ) then
 				if ( #current_para > 0 and current_para[ #current_para ].type == 'OPERATOR' ) then
-					GamePrint( command_name .. '(: ' .. GameTextGet( '$empty_command_error_continuous_operator' ) )
+					command_print( command_name .. '(', '$empty_command_error_continuous_operator' )
 					return { }, _, false
 				end
 
@@ -1801,10 +2358,11 @@ function from_table_get_paras( c, command_name, deck_table, pattern, shooter, ta
 				else
 					table.insert( current_para, { type = 'NUMBER', value = token_value } )
 				end
+
 				expecting_separator = true
 			elseif ( token_type == 'SELECTOR' ) then
 				if ( expecting_separator and #current_para > 0 ) then
-					GamePrint( command_name .. '(: ' .. GameTextGet( '$empty_command_error_need_operator_here', current_para[ #current_para ].value, token_value ) )
+					command_print( command_name .. '(', '$empty_command_error_need_operator_here', current_para[ #current_para ].value, token_value )
 					return { }, _, false
 				end
 
@@ -1812,16 +2370,19 @@ function from_table_get_paras( c, command_name, deck_table, pattern, shooter, ta
 				expecting_separator = true
 			elseif ( token_type == 'FUNCTION' ) then
 				local function_value = string.sub( token_value, 1, #token_value - 1 )
-							if ( expecting_separator and #current_para > 0 ) then
-					GamePrint( command_name .. '(: ' .. GameTextGet( '$empty_command_error_need_operator_here', current_para[ #current_para ].value, function_value ) )
+
+				if ( expecting_separator and #current_para > 0 ) then
+					command_print( command_name .. '(', '$empty_command_error_need_operator_here', current_para[ #current_para ].value, function_value )
 					return { }, _, false
 				end
 
 				local remaining_deck = { }
+
 				for i = _ + 1, #deck_table do
 					table.insert( remaining_deck, deck_table[ i ] )
 				end
-							local func_paras, func_dis_count, func_is_correct = from_table_get_paras( c, function_value, remaining_deck, pattern, shooter, tar_x, tar_y )
+
+				local func_paras, func_dis_count, func_is_correct = from_table_get_paras( c, function_value, remaining_deck, pattern, shooter, tar_x, tar_y )
 
 				if ( func_is_correct and #func_paras > 0 ) then
 					local has_delayed_expr = false
@@ -1835,9 +2396,9 @@ function from_table_get_paras( c, command_name, deck_table, pattern, shooter, ta
 					if ( has_delayed_expr ) then
 						local para_count_key = 'para_' .. #func_paras
 						local para_names = nil
-						if ( empty_command_functions[ function_value ].para_names and
-						     empty_command_functions[ function_value ].para_names[ para_count_key ] ) then
-							para_names = empty_command_functions[ function_value ].para_names[ para_count_key ]
+						if ( e_cmd_funcs[ function_value ].para_names and
+						     e_cmd_funcs[ function_value ].para_names[ para_count_key ] ) then
+							para_names = e_cmd_funcs[ function_value ].para_names[ para_count_key ]
 						end
 
 						if ( para_names and #para_names == #func_paras ) then
@@ -1887,19 +2448,23 @@ function from_table_get_paras( c, command_name, deck_table, pattern, shooter, ta
 						local func_result = nil
 						local func_name = function_value
 
-						if ( func_name and empty_command_functions[ func_name ] ) then
-							if ( #func_paras == 1 and empty_command_functions[ func_name ].action_1_paras ) then
-								func_result = empty_command_functions[ func_name ].action_1_paras( c, false, shooter, func_paras[ 1 ] )
-							elseif ( #func_paras == 2 and empty_command_functions[ func_name ].action_2_paras ) then
-								func_result = empty_command_functions[ func_name ].action_2_paras( c, false, shooter, func_paras[ 1 ], func_paras[ 2 ] )
-							elseif ( #func_paras == 3 and empty_command_functions[ func_name ].action_3_paras ) then
-								func_result = empty_command_functions[ func_name ].action_3_paras( c, false, shooter, func_paras[ 1 ], func_paras[ 2 ], func_paras[ 3 ] )
-							else
-								GamePrint( func_name .. '(: ' .. GameTextGet( '$empty_command_error_paras_overflow', tostring( #func_paras ), tostring( max_para ) ) )
+						if ( func_name and e_cmd_funcs[ func_name ] ) then
+							if ( #func_paras > e_cmd_funcs[ func_name ].max_paras ) then
+								command_print( func_name .. '(', '$empty_command_error_paras_overflow', tostring( #func_paras ), tostring( max_para ) )
 								return { }, _, false
 							end
+
+							if ( #func_paras == 1 and e_cmd_funcs[ func_name ].action_1_paras ) then
+								func_result = e_cmd_funcs[ func_name ].action_1_paras( c, false, shooter, func_paras[ 1 ] )
+							elseif ( #func_paras == 2 and e_cmd_funcs[ func_name ].action_2_paras ) then
+								func_result = e_cmd_funcs[ func_name ].action_2_paras( c, false, shooter, func_paras[ 1 ], func_paras[ 2 ] )
+							elseif ( #func_paras == 3 and e_cmd_funcs[ func_name ].action_3_paras ) then
+								func_result = e_cmd_funcs[ func_name ].action_3_paras( c, false, shooter, func_paras[ 1 ], func_paras[ 2 ], func_paras[ 3 ] )
+							elseif ( #func_paras == 4 and e_cmd_funcs[ func_name ].action_4_paras ) then
+								func_result = e_cmd_funcs[ func_name ].action_4_paras( c, false, shooter, func_paras[ 1 ], func_paras[ 2 ], func_paras[ 3 ], func_paras[ 4 ] )
+							end
 						else
-							GamePrint( command_name .. '(: ' .. GameTextGet( '$empty_command_error_unknown_function', tostring( func_name ) ) )
+							command_print(  command_name .. '(', '$empty_command_error_unknown_function', tostring( func_name ) )
 							return { }, _, false
 						end
 
@@ -1927,23 +2492,23 @@ function from_table_get_paras( c, command_name, deck_table, pattern, shooter, ta
 	end
 
 	if ( #paras > max_para ) then
-		GamePrint( GameTextGet( '$empty_command_error_paras_overflow', tostring( max_para ), tostring( #paras ) ) )
+		command_print( 'from_table_get_paras', '$empty_command_error_paras_overflow', tostring( max_para ), tostring( #paras ) )
 		return { }, 0, false
 	end
 
-			local result = { }
-		local final_para_count = 'para_' .. tostring( #paras )
+	local result = { }
+	local final_para_count = 'para_' .. tostring( #paras )
 
-		local transform_table = nil
-		if ( empty_command_functions[ command_name ] and
-			 empty_command_functions[ command_name ].transform_tilde_into and
-			 empty_command_functions[ command_name ].transform_tilde_into[ final_para_count ] ) then
-			transform_table = empty_command_functions[ command_name ].transform_tilde_into[ final_para_count ]
-		end
+	local transform_table = nil
+	if ( e_cmd_funcs[ command_name ] and
+		e_cmd_funcs[ command_name ].transform_tilde_into and
+		e_cmd_funcs[ command_name ].transform_tilde_into[ final_para_count ] ) then
+		transform_table = e_cmd_funcs[ command_name ].transform_tilde_into[ final_para_count ]
+	end
 
-			if ( transform_table ) then
-			for i, para in ipairs( paras ) do
-				local para_need_type = 'none'
+	if ( transform_table ) then
+		for i, para in ipairs( paras ) do
+			local para_need_type = 'none'
 			if ( transform_table and #transform_table > 0 ) then
 				if ( i <= #transform_table ) then
 					para_need_type = transform_table[ i ]
@@ -2004,8 +2569,7 @@ function build_delayed_expression( para_expr, pattern, para_need_type, shooter, 
 		return nil, false
 	end
 
-	local result_parts = { }
-	local expecting_operator = false
+	local result_parts, expecting_operator = { }, false
 
 	for i, token in ipairs( para_expr ) do
 		if ( token.type == 'NUMBER' ) then
@@ -2137,19 +2701,15 @@ end
 ---@param shooter number
 ---@param tar_x number
 ---@param tar_y number
----@return number|number[]|nil result
+---@return string|number|number[]|nil result
 ---@return boolean is_correct
 function parse_and_execute_function( func_name, params_str, pattern, shooter, tar_x, tar_y )
-	if ( not empty_command_functions[ func_name ] ) then
-		GamePrint( 'evaluate_delayed_expression: ' .. GameTextGet( '$empty_command_error_unknown_function', tostring( func_name ) ) )
+	if ( not e_cmd_funcs[ func_name ] ) then
+		command_print( 'evaluate_delayed_expression', '$empty_command_error_unknown_function', tostring( func_name ) )
 		return nil, false
 	end
 
-	-- 解析参数字符串为参数列表
-	local paras = { }
-	local current_param = { }
-	local paren_depth = 0
-	local i = 1
+	local paras, current_param, paren_depth, i = { }, { }, 0, 1
 	local len = #params_str
 
 	while ( i <= len ) do
@@ -2211,7 +2771,6 @@ function parse_and_execute_function( func_name, params_str, pattern, shooter, ta
 		elseif ( string.match( char, '%s' ) ) then
 			i = i + 1
 		elseif ( string.match( char, '[%a_]' ) ) then
-			-- 可能是函数名
 			local j = i
 			while ( j <= len and string.match( string.sub( params_str, j, j ), '[%a_0-9]' ) ) do
 				j = j + 1
@@ -2334,21 +2893,34 @@ function parse_and_execute_function( func_name, params_str, pattern, shooter, ta
 		table.insert( param_values, param_value )
 	end
 
-	local func_result = nil
-	if ( #param_values == 1 and empty_command_functions[ func_name ].action_1_paras ) then
-		func_result = empty_command_functions[ func_name ].action_1_paras( { }, true, shooter, param_values[ 1 ] )
-	elseif ( #param_values == 2 and empty_command_functions[ func_name ].action_2_paras ) then
-		func_result = empty_command_functions[ func_name ].action_2_paras( { }, true, shooter, param_values[ 1 ], param_values[ 2 ] )
-	elseif ( #param_values == 3 and empty_command_functions[ func_name ].action_3_paras ) then
-		func_result = empty_command_functions[ func_name ].action_3_paras( { }, true, shooter, param_values[ 1 ], param_values[ 2 ], param_values[ 3 ] )
-	else
-		GamePrint( func_name .. '( : ' .. GameTextGet( '$empty_command_error_paras_overflow', tostring( #param_values ), tostring( 3 ) ) )
+	local func_result, max_paras = nil, e_cmd_funcs[ func_name ].max_paras
+
+	if ( #param_values > max_paras ) then
+		command_print( func_name .. '(', '$empty_command_error_paras_overflow', tostring( #param_values ), tostring( max_paras ) )
 		return nil, false
+	end
+
+	if ( #param_values == 1 and e_cmd_funcs[ func_name ].action_1_paras ) then
+		func_result = e_cmd_funcs[ func_name ].action_1_paras( { }, true, shooter, param_values[ 1 ] )
+	elseif ( #param_values == 2 and e_cmd_funcs[ func_name ].action_2_paras ) then
+		func_result = e_cmd_funcs[ func_name ].action_2_paras( { }, true, shooter, param_values[ 1 ], param_values[ 2 ] )
+	elseif ( #param_values == 3 and e_cmd_funcs[ func_name ].action_3_paras ) then
+		func_result = e_cmd_funcs[ func_name ].action_3_paras( { }, true, shooter, param_values[ 1 ], param_values[ 2 ], param_values[ 3 ] )
+	elseif ( #param_values == 4 and e_cmd_funcs[ func_name ].action_4_paras ) then
+		func_result = e_cmd_funcs[ func_name ].action_4_paras( { }, true, shooter, param_values[ 1 ], param_values[ 2 ], param_values[ 3 ], param_values[ 4 ] )
 	end
 
 	return func_result, true
 end
 
+---处理延迟表达式
+---@param expr_string string
+---@param pattern string
+---@param shooter number
+---@param tar_x number
+---@param tar_y number
+---@return string|number|number[]|nil result
+---@return boolean is_correct
 function evaluate_delayed_expression( expr_string, pattern, shooter, tar_x, tar_y )
 	if ( not expr_string or expr_string == '' ) then
 		return nil, false
@@ -2388,9 +2960,9 @@ function evaluate_delayed_expression( expr_string, pattern, shooter, tar_x, tar_
 
 			local para_count_key = 'para_' .. param_count
 			local para_names = nil
-			if ( empty_command_functions[ func_name ].para_names and
-			     empty_command_functions[ func_name ].para_names[ para_count_key ] ) then
-				para_names = empty_command_functions[ func_name ].para_names[ para_count_key ]
+			if ( e_cmd_funcs[ func_name ].para_names and
+			     e_cmd_funcs[ func_name ].para_names[ para_count_key ] ) then
+				para_names = e_cmd_funcs[ func_name ].para_names[ para_count_key ]
 			end
 			if ( not para_names ) then
 				return nil, false
@@ -2405,14 +2977,21 @@ function evaluate_delayed_expression( expr_string, pattern, shooter, tar_x, tar_
 				end
 			end
 
-			local func_result = nil
+			local func_result, max_paras = nil, e_cmd_funcs[ func_name ].max_paras
 
-			if ( #paras == 1 and empty_command_functions[ func_name ].action_1_paras ) then
-				func_result = empty_command_functions[ func_name ].action_1_paras( { }, true, shooter, paras[ 1 ] )
-			elseif ( #paras == 2 and empty_command_functions[ func_name ].action_2_paras ) then
-				func_result = empty_command_functions[ func_name ].action_2_paras( { }, true, shooter, paras[ 1 ], paras[ 2 ] )
-			elseif ( #paras == 3 and empty_command_functions[ func_name ].action_3_paras ) then
-				func_result = empty_command_functions[ func_name ].action_3_paras( { }, true, shooter, paras[ 1 ], paras[ 2 ], paras[ 3 ] )
+			if ( #paras > max_paras ) then
+				command_print( func_name .. '(', '$empty_command_error_paras_overflow', tostring( #paras ), tostring( max_paras ) )
+				return nil, false
+			end
+
+			if ( #paras == 1 and e_cmd_funcs[ func_name ].action_1_paras ) then
+				func_result = e_cmd_funcs[ func_name ].action_1_paras( { }, true, shooter, paras[ 1 ] )
+			elseif ( #paras == 2 and e_cmd_funcs[ func_name ].action_2_paras ) then
+				func_result = e_cmd_funcs[ func_name ].action_2_paras( { }, true, shooter, paras[ 1 ], paras[ 2 ] )
+			elseif ( #paras == 3 and e_cmd_funcs[ func_name ].action_3_paras ) then
+				func_result = e_cmd_funcs[ func_name ].action_3_paras( { }, true, shooter, paras[ 1 ], paras[ 2 ], paras[ 3 ] )
+			elseif ( #paras == 4 and e_cmd_funcs[ func_name ].action_4_paras ) then
+				func_result = e_cmd_funcs[ func_name ].action_4_paras( { }, true, shooter, paras[ 1 ], paras[ 2 ], paras[ 3 ], paras[ 4 ] )
 			else
 				return nil, false
 			end
@@ -2510,21 +3089,7 @@ function evaluate_delayed_expression( expr_string, pattern, shooter, tar_x, tar_
 			return nil, false
 		end
 	end
---[[
-	if ( #tokens == 1 and ( tokens[ 1 ].type == 'SELECTOR' or tokens[ 1 ].type == 'TILDE' ) ) then
-		local selector_value = nil
-		if ( tokens[ 1 ].type == 'SELECTOR' ) then
-			selector_value = command_at_handler( tokens[ 1 ].value, 'none', shooter, tar_x, tar_y )
-		else
-			selector_value = command_at_handler( '~', tokens[ 1 ].value, shooter, tar_x, tar_y )
-		end
-		if ( selector_value ~= nil ) then
-			return selector_value, true
-		else
-			return nil, false
-		end
-	end
-]]--
+
 	local result, num_to_operate, current_operator, is_correct = nil, nil, nil, true
 
 	for _, token in ipairs( tokens ) do

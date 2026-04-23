@@ -1,7 +1,7 @@
 <Entity>
 
 	<LuaComponent
-		_tags="empty_lifetime_set_dupli"
+		_tags="lifetime_set_dupli"
 		script_source_file="mods/empty_the_blackhole_catgirl/files/scripts/projectiles/command/lifetime_set.lua"
 		execute_on_added="1"
 	></LuaComponent>

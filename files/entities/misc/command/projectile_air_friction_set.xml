@@ -1,7 +1,7 @@
 <Entity>
 
 	<LuaComponent
-		_tags="empty_projectile_air_friction_set_dupli"
+		_tags="projectile_air_friction_set_dupli"
 		script_source_file="mods/empty_the_blackhole_catgirl/files/scripts/projectiles/command/projectile_air_friction_set.lua"
 		execute_on_added="1"
 	></LuaComponent>

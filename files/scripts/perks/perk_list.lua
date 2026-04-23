@@ -66,10 +66,10 @@ local new_perks =
 		usable_by_enemies = false,
 		func = function( entity_perk_empty_item, entity_who_picked, item_name )
 			local reroll_count = tonumber( GlobalsGetValue( 'TEMPLE_PERK_REROLL_COUNT', '0' ) ) or 0
-			GamePrint( 'reroll_count = ' .. tostring( reroll_count ) )
+
 			reroll_count = reroll_count - 3
+
 			GlobalsSetValue( 'TEMPLE_PERK_REROLL_COUNT', tostring( reroll_count ) )
-			GamePrint( 'reroll_count = ' .. tostring( reroll_count ) )
 		end,
 	},
 	{
@@ -786,12 +786,47 @@ local new_perks =
 
 			for i, tag in ipairs( comps_to_remove ) do
 				local comp = EntityGetComponentIncludingDisabled( entity_who_picked, 'LuaComponent', tag )
-				for _, each in ipairs( comp or {} ) do
+				for _, each in ipairs( comp or { } ) do
 					EntityRemoveComponent( entity_who_picked, each )
 				end
 			end
 		end,
+	},--[[
+	{
+		info = 'dewborne_breeze',
+		stackable = STACKABLE_NO,
+		usable_by_enemies = true,
+		func = function ( entity_perk_empty_item, entity_who_picked, item_name )
+			--
+		end,
+		func_remove = function ( entity_who_picked )
+			--
+		end,
 	},
+	{
+		info = 'flesh_and_flame',
+		stackable = STACKABLE_NO,
+		usable_by_enemies = true,
+		func = function ( entity_perk_empty_item, entity_who_picked, item_name )
+			--
+		end,
+		func_remove = function ( entity_who_picked )
+			--
+		end,
+	},
+	{
+		info = 'random_neurotic_wand',
+		stackable = STACKABLE_YES,
+		usable_by_enemies = false,
+		func = function ( entity_perk_empty_item, entity_who_picked, item_name )
+			local x, y = EntityGetTransform( entity_who_picked )
+
+			local wand = generate_neurotic_gun( nil, 10 )
+		end,
+		func_remove = function ( entity_who_picked )
+			--
+		end,
+	},]]--
 --[[
 	{
 		info = 'curse_illiterate',

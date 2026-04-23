@@ -1,20 +1,19 @@
 dofile_once( 'data/scripts/lib/utilities.lua' )
 dofile_once( 'mods/empty_the_blackhole_catgirl/files/scripts/empty/empty_command_utility.lua' )
 
-print( 'explode.lua: run' )
-
 local entity = EntityGetRootEntity( GetUpdatedEntityID( ) )
+local command = 'explode'
 
 if ( entity ~= NULL_ENTITY ) then
-	local paras = parse_and_evaluate_command_paras( 'empty_explode', entity, { 'radius', 'tar', 'x', 'y' } )
+	local paras = parse_and_evaluate_command_paras( command, entity, e_cmd_funcs[ command ].para_names.all )
 
 	if ( paras ) then
 		if ( paras.tar ) then
-			empty_command_functions[ 'explode' ].action_2_paras( { }, true, paras.shooter, paras.radius, paras.tar )
+			e_cmd_funcs[ command ].action_2_paras( { }, true, paras.shooter, paras.radius, paras.tar )
 		end
 
 		if ( paras.x and paras.y ) then
-			empty_command_functions[ 'explode' ].action_3_paras( { }, true, paras.shooter, paras.radius, paras.x, paras.y )
+			e_cmd_funcs[ command ].action_3_paras( { }, true, paras.shooter, paras.radius, paras.x, paras.y )
 		end
 	end
 

@@ -2,9 +2,10 @@ dofile_once( 'data/scripts/lib/utilities.lua' )
 dofile_once( 'mods/empty_the_blackhole_catgirl/files/scripts/empty/empty_utility.lua' )
 
 local entity = EntityGetRootEntity( GetUpdatedEntityID( ) )
+local command_reflect = 'projectile_arc_set_reflect'
 
 if ( entity ~= NULL_ENTITY ) then
-	local v_comp = EntityGetFirstComponent( entity, 'VariableStorageComponent', 'projectile_arc_set_reflect' )
+	local v_comp = EntityGetFirstComponent( entity, 'VariableStorageComponent', command_reflect )
 
 	if ( v_comp ) then
 		local paras = {

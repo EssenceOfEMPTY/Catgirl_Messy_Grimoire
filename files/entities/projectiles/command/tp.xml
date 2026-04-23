@@ -1,4 +1,4 @@
-<Entity tags="command" >
+<Entity tags="command">
 
 	<Base file="data/entities/base_projectile.xml" >
 

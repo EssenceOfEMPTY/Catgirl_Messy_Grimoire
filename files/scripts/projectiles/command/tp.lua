@@ -8,11 +8,11 @@ if ( entity ~= NULL_ENTITY ) then
 
 	if ( paras ) then
 		if ( paras.tar ) then
-			empty_command_functions[ 'tp' ].action_2_paras( { }, true, paras.shooter, paras.tp_entities, paras.tar )
+			e_cmd_funcs[ 'tp' ].action_2_paras( { }, true, paras.shooter, paras.tp_entities, paras.tar )
 		end
 
 		if ( paras.x and paras.y ) then
-			empty_command_functions[ 'tp' ].action_3_paras( { }, true, paras.shooter, paras.tp_entities, paras.x, paras.y )
+			e_cmd_funcs[ 'tp' ].action_3_paras( { }, true, paras.shooter, paras.tp_entities, paras.x, paras.y )
 		end
 	end
 end

@@ -149,8 +149,11 @@ function remove_speed_limit( v_comps )
 	end
 
 	for _, v_comp in ipairs( v_comps or { } ) do
-		ComponentSetValue2( v_comp, 'apply_terminal_velocity', false )
-		ComponentSetValue2( v_comp, 'limit_to_max_velocity', false )
+		if ( v_comp ~= 0 ) then
+			ComponentSetValue2( v_comp, 'terminal_velocity', math.huge )
+			ComponentSetValue2( v_comp, 'apply_terminal_velocity', false )
+			ComponentSetValue2( v_comp, 'limit_to_max_velocity', false )
+		end
 	end
 end
 
@@ -360,7 +363,8 @@ function ensure_table( check, keys )
 	return check
 end
 
----从 random_table 中随机选取 count 项; count 或 random_table 的长度小于 1 时返回空表;
+---从 random_table 中随机选取 count 项; 
+---count 或 random_table 的长度小于 1 时返回空表;
 ---count 大于 random_table 的长度时变作与 random_table 的长度相同
 ---@param random_table table
 ---@param count number
@@ -642,11 +646,11 @@ function trans_table_to_format( values, pattern )
 	local result_parts = { }
 
 	for key, value in pairs( values ) do
-		local value_str = tostring( value )
-		if ( string.find( value_str, ',' ) or string.find( value_str, '=' ) ) then
-			value_str = '\'' .. value_str .. '\''
+		local value_string = tostring( value )
+		if ( string.find( value_string, ',' ) or string.find( value_string, '=' ) ) then
+			value_string = '\'' .. value_string .. '\''
 		end
-		table.insert( result_parts, key .. '=' .. value_str )
+		table.insert( result_parts, key .. '=' .. value_string )
 	end
 
 	return pattern .. table.concat( result_parts, ',' ) .. pattern
@@ -874,13 +878,15 @@ function merge_table_by_id( str, id, values, pattern )
 				end
 
 				local new_kv_parts = { }
+
 				for key, value in pairs( original_table ) do
-					local value_str = tostring( value )
-					if ( string.find( value_str, ',' ) or string.find( value_str, '=' ) ) then
-						value_str = '\'' .. value_str .. '\''
+					local value_string = tostring( value )
+					if ( string.find( value_string, ',' ) or string.find( value_string, '=' ) ) then
+						value_string = '\'' .. value_string .. '\''
 					end
-					table.insert( new_kv_parts, key .. '=' .. value_str )
+					table.insert( new_kv_parts, key .. '=' .. value_string )
 				end
+
 				local new_content = table.concat( new_kv_parts, ',' )
 				local new_block = pattern .. new_content .. pattern
 
