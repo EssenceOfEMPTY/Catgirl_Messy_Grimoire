@@ -5243,7 +5243,7 @@ local new_actions =
 				if ( #paras == 1 ) then
 					e_cmd_funcs[ command ].action_1_paras( c, false, shooter, paras[ 1 ] )
 				elseif ( #paras == 2 ) then
-					e_cmd_funcs[ command ].action_1_paras( c, false, shooter, paras[ 1 ], paras[ 2 ] )
+					e_cmd_funcs[ command ].action_2_paras( c, false, shooter, paras[ 1 ], paras[ 2 ] )
 				else
 					command_print( command .. '(', '$empty_command_error_lack_paras', '1', to_string( #paras ) )
 					return
@@ -5349,7 +5349,7 @@ local new_actions =
 				if ( #paras == 1 ) then
 					e_cmd_funcs[ command ].action_1_paras( c, false, shooter, paras[ 1 ] )
 				elseif ( #paras == 2 ) then
-					e_cmd_funcs[ command ].action_1_paras( c, false, shooter, paras[ 1 ], paras[ 2 ] )
+					e_cmd_funcs[ command ].action_2_paras( c, false, shooter, paras[ 1 ], paras[ 2 ] )
 				else
 					command_print( command .. '(', '$empty_command_error_lack_paras', '1', to_string( #paras ) )
 					return
@@ -5385,7 +5385,7 @@ local new_actions =
 				if ( #paras == 1 ) then
 					e_cmd_funcs[ command ].action_1_paras( c, false, shooter, paras[ 1 ] )
 				elseif ( #paras == 2 ) then
-					e_cmd_funcs[ command ].action_1_paras( c, false, shooter, paras[ 1 ], paras[ 2 ] )
+					e_cmd_funcs[ command ].action_2_paras( c, false, shooter, paras[ 1 ], paras[ 2 ] )
 				else
 					command_print( command .. '(', '$empty_command_error_lack_paras', '1', to_string( #paras ) )
 					return
@@ -5485,7 +5485,7 @@ local new_actions =
 		price = 500,
 		mana = 125,
 		action		= function ( recursion_level, iteration, copy_series, copy_specific )
-			local shooter, command = GetUpdatedEntityID( )'projectile_arc_set'
+			local shooter, command = GetUpdatedEntityID( ), 'projectile_arc_set'
 			local tar_x, tar_y = EntityGetTransform( shooter )
 			local paras, command_count, is_correct = from_table_get_paras( c, command, deck, '#', shooter, tar_x, tar_y )
 
@@ -5559,24 +5559,26 @@ local new_actions =
 		mana = 360,
 		max_uses	= 3,
 		action		= function ( recursion_level, iteration, copy_series, copy_specific )
-			local shooter, command = GetUpdatedEntityID( ), 'tp'
-			local tar_x, tar_y = EntityGetTransform( shooter )
-			local paras, command_count, is_correct = from_table_get_paras( c, command, deck, '#', shooter, tar_x, tar_y )
+			if ( not reflecting ) then
+				local shooter, command = GetUpdatedEntityID( ), 'tp'
+				local tar_x, tar_y = EntityGetTransform( shooter )
+				local paras, command_count, is_correct = from_table_get_paras( c, command, deck, '#', shooter, tar_x, tar_y )
 
-			if ( is_correct ) then
-				if ( #paras == 2 ) then
-					e_cmd_funcs[ command ].action_2_paras( c, false, shooter, paras[ 1 ], paras[ 2 ] )
-				elseif ( #paras == 3 ) then
-					e_cmd_funcs[ command ].action_3_paras( c, false, shooter, paras[ 1 ], paras[ 2 ], paras[ 3 ] )
-				else
-					command_print( command .. '(', '$empty_command_error_lack_paras', '2', to_string( #paras ) )
-					return
-				end
+				if ( is_correct ) then
+					if ( #paras == 2 ) then
+						e_cmd_funcs[ command ].action_2_paras( c, false, shooter, paras[ 1 ], paras[ 2 ] )
+					elseif ( #paras == 3 ) then
+						e_cmd_funcs[ command ].action_3_paras( c, false, shooter, paras[ 1 ], paras[ 2 ], paras[ 3 ] )
+					else
+						command_print( command .. '(', '$empty_command_error_lack_paras', '2', to_string( #paras ) )
+						return
+					end
 
-				add_projectile( empty_path .. 'entities/projectiles/command/tp.xml' )
+					add_projectile( empty_path .. 'entities/projectiles/command/tp.xml' )
 
-				if ( command_count > 0 and recursion_level == nil and iteration == nil ) then
-					add_table_count( deck, hand, command_count )
+					if ( command_count > 0 and recursion_level == nil and iteration == nil ) then
+						add_table_count( deck, hand, command_count )
+					end
 				end
 			end
 		end
@@ -7166,14 +7168,32 @@ end
 replace_table( actions, changed_actions, true )
 add_table( actions, new_actions, false, false )
 
+local template, need_replace = { }, false
+
+if ( ModSettingGet( 'empty_the_blackhole_catgirl.UNLOCK_ALL_SPELL' ) ) then
+	template.spawn_requires_flag = nil
+
+	need_replace = true
+end
+
 if ( ModSettingGet( 'empty_the_blackhole_catgirl.SPELL_ALL_EQUAL' ) ) then
-	for _, action in pairs( actions ) do
-		action.spawn_requires_flag = nil
-		action.spawn_level = '0,1,2,3,4,5,6,7,8,9,10'
-		action.spawn_probability = '4,4,4,4,4,4,4,4,4,4,4'
-	end
-else
-	for _, action in pairs( actions ) do
-		action.spawn_requires_flag = nil
+	template.spawn_level = '0,1,2,3,4,5,6,7,8,9,10'
+	template.spawn_probability = '4,4,4,4,4,4,4,4,4,4,4'
+
+	need_replace = true
+end
+
+if ( ModSettingGet( 'empty_the_blackhole_catgirl.UNLIMITED_SPELLS' ) ) then
+	template.max_uses = nil
+	template.never_unlimited = nil
+
+	need_replace = true
+end
+
+if ( need_replace ) then
+	for _, action in ipairs( actions or { } ) do
+		for key, value in pairs( template ) do
+			action[ key ] = value
+		end
 	end
 end

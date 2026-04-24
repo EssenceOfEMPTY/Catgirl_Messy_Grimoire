@@ -15,7 +15,20 @@ dofile_once( 'mods/empty_the_blackhole_catgirl/files/scripts/empty/empty_utility
 --end
 
 local translation = ModTextFileGetContent( 'data/translations/common.csv' )
-	.. ModTextFileGetContent( empty_path .. 'translations/empty_translation.csv' )
+local add_str = ''
+
+if ( translation: sub( -1 ) == '\n' ) then
+	add_str = ModTextFileGetContent( empty_path .. 'translations/empty_translation.csv' )
+else
+	add_str = '\n' .. ModTextFileGetContent( empty_path .. 'translations/empty_translation.csv' )
+end
+
+translation = translation .. add_str
+
+if ( ModSettingGet( 'empty_the_blackhole_catgirl.YIFULINNA_TRANSLATION' ) ) then
+	translation = translation .. '\n' .. ModTextFileGetContent( empty_path .. 'translations/yifulinna_translation.csv' )
+end
+
 ModTextFileSetContent( 'data/translations/common.csv', translation )
 
 ModMagicNumbersFileAdd( empty_path .. 'magic_numbers/default.xml' )

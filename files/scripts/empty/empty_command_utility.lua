@@ -944,8 +944,8 @@ e_cmd_funcs = {
 				command_print( command .. '(', '$empty_command_error_wrong_para_type', 'NUMBER', upper_type( angle ) )
 				return { 0, 0 }
 			end
-			if ( type( angle ) ~= 'number' and type( angle ) ~= 'string' ) then
-				command_print( command .. '(', '$empty_command_error_wrong_para_type', 'NUMBER', upper_type( angle ) )
+			if ( type( delay ) ~= 'number' and type( delay ) ~= 'string' ) then
+				command_print( command .. '(', '$empty_command_error_wrong_para_type', 'NUMBER', upper_type( delay ) )
 				return { 0, 0 }
 			end
 
@@ -1077,8 +1077,8 @@ e_cmd_funcs = {
 				command_print( command .. '(', '$empty_command_error_wrong_para_type', 'NUMBER', upper_type( angle ) )
 				return { 0, 0 }
 			end
-			if ( type( angle ) ~= 'number' and type( angle ) ~= 'string' ) then
-				command_print( command .. '(', '$empty_command_error_wrong_para_type', 'NUMBER', upper_type( angle ) )
+			if ( type( delay ) ~= 'number' and type( delay ) ~= 'string' ) then
+				command_print( command .. '(', '$empty_command_error_wrong_para_type', 'NUMBER', upper_type( delay ) )
 				return { 0, 0 }
 			end
 
