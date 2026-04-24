@@ -2009,6 +2009,7 @@ local new_actions =
 			[ 'copy_all' ] = true,
 			[ 'ori_copy_all' ] = true,
 		},
+		spawn_requires_flag = 'card_unlocked_mestari',
 		type		= ACTION_TYPE_OTHER,
 		recursive	= true,
 		spawn_level						= '5,6,10', -- EMPTY_X2
@@ -2051,6 +2052,7 @@ local new_actions =
 			[ 'copy_all' ] = true,
 			[ 'ori_copy_all' ] = true,
 		},
+		spawn_requires_flag = 'card_unlocked_mestari',
 		type		= ACTION_TYPE_OTHER,
 		recursive	= true,
 		spawn_level						= '5,6,10', -- EMPTY_ARRIVAL
@@ -2093,6 +2095,7 @@ local new_actions =
 			[ 'copy_all' ] = true,
 			[ 'ori_copy_all' ] = true,
 		},
+		spawn_requires_flag = 'card_unlocked_mestari',
 		type		= ACTION_TYPE_OTHER,
 		recursive	= true,
 		spawn_level						= '5,6,10', -- EMPTY_DEPARTURE
@@ -2135,6 +2138,7 @@ local new_actions =
 			[ 'copy_all' ] = true,
 			[ 'ori_copy_all' ] = true,
 		},
+		spawn_requires_flag = 'card_unlocked_mestari',
 		type		= ACTION_TYPE_OTHER,
 		recursive	= true,
 		spawn_level						= '6,7,8,9,10', -- EMPTY_RETURN
@@ -2703,6 +2707,7 @@ local new_actions =
 			[ '+' ] = true,
 			[ 'greek_letter+' ] = true,
 		},
+		spawn_requires_flag = 'card_unlocked_duplicate',
 		type		= ACTION_TYPE_OTHER,
 		recursive	= true,
 		spawn_level						= '5,6,10', -- EMPTY_CHI+
@@ -2747,6 +2752,7 @@ local new_actions =
 			[ '+' ] = true,
 			[ 'greek_letter+' ] = true,
 		},
+		spawn_requires_flag = 'card_unlocked_duplicate',
 		type		= ACTION_TYPE_OTHER,
 		recursive	= true,
 		spawn_level						= '5,6,10', -- EMPTY_THETA+
@@ -2792,6 +2798,7 @@ local new_actions =
 			[ '+' ] = true,
 			[ 'greek_letter+' ] = true,
 		},
+		spawn_requires_flag = 'card_unlocked_duplicate',
 		type		= ACTION_TYPE_OTHER,
 		recursive	= true,
 		spawn_level						= '5,6,10', -- EMPTY_OMICRON+
@@ -3280,6 +3287,7 @@ local new_actions =
 			[ '-' ] = true,
 			[ 'greek_letter-' ] = true,
 		},
+		spawn_requires_flag = 'card_unlocked_duplicate',
 		type		= ACTION_TYPE_OTHER,
 		recursive	= true,
 		spawn_level						= '5,6,10', -- EMPTY_CHI-
@@ -3360,6 +3368,7 @@ local new_actions =
 			[ '-' ] = true,
 			[ 'greek_letter-' ] = true,
 		},
+		spawn_requires_flag = 'card_unlocked_duplicate',
 		type		= ACTION_TYPE_OTHER,
 		recursive	= true,
 		spawn_level						= '5,6,10', -- EMPTY_THETA-
@@ -3448,6 +3457,7 @@ local new_actions =
 			[ '-' ] = true,
 			[ 'greek_letter-' ] = true,
 		},
+		spawn_requires_flag = 'card_unlocked_duplicate',
 		type		= ACTION_TYPE_OTHER,
 		recursive	= true,
 		spawn_level						= '5,6,10', -- EMPTY_OMICRON-
@@ -5399,8 +5409,6 @@ local new_actions =
 			end
 		end
 	},
-	--[[
-	]]--
 	{
 		info = 'command_function_projectile_spread_set',
 		series = {
@@ -5458,6 +5466,10 @@ local new_actions =
 					e_cmd_funcs[ command ].action_1_paras( c, false, shooter, paras[ 1 ] )
 				elseif ( #paras == 2 ) then
 					e_cmd_funcs[ command ].action_2_paras( c, false, shooter, paras[ 1 ], paras[ 2 ] )
+				elseif ( #paras == 3 ) then
+					e_cmd_funcs[ command ].action_3_paras( c, false, shooter, paras[ 1 ], paras[ 2 ], paras[ 3 ] )
+				elseif ( #paras == 4 ) then
+					e_cmd_funcs[ command ].action_4_paras( c, false, shooter, paras[ 1 ], paras[ 2 ], paras[ 3 ], paras[ 4 ] )
 				else
 					command_print( command .. '(', '$empty_command_error_lack_paras', '1', to_string( #paras ) )
 					return
@@ -5494,6 +5506,10 @@ local new_actions =
 					e_cmd_funcs[ command ].action_1_paras( c, false, shooter, paras[ 1 ] )
 				elseif ( #paras == 2 ) then
 					e_cmd_funcs[ command ].action_2_paras( c, false, shooter, paras[ 1 ], paras[ 2 ] )
+				elseif ( #paras == 3 ) then
+					e_cmd_funcs[ command ].action_3_paras( c, false, shooter, paras[ 1 ], paras[ 2 ], paras[ 3 ] )
+				elseif ( #paras == 4 ) then
+					e_cmd_funcs[ command ].action_4_paras( c, false, shooter, paras[ 1 ], paras[ 2 ], paras[ 3 ], paras[ 4 ] )
 				else
 					command_print( command .. '(', '$empty_command_error_lack_paras', '1', to_string( #paras ) )
 					return
@@ -5590,6 +5606,7 @@ local new_actions =
 			[ 'copy_all' ] = true,
 			[ 'colorful_copy_all' ] = true,
 		},
+		spawn_requires_flag = 'card_unlocked_mestari',
 		type		= ACTION_TYPE_OTHER,
 		recursive	= true,
 		spawn_level						= '10', -- EMPTY_COLORFUL_X2
@@ -5638,6 +5655,7 @@ local new_actions =
 			[ 'copy_all' ] = true,
 			[ 'colorful_copy_all' ] = true,
 		},
+		spawn_requires_flag = 'card_unlocked_mestari',
 		type		= ACTION_TYPE_OTHER,
 		recursive	= true,
 		spawn_level						= '10', -- EMPTY_COLORFUL_ARRIVAL
@@ -5686,6 +5704,7 @@ local new_actions =
 			[ 'copy_all' ] = true,
 			[ 'colorful_copy_all' ] = true,
 		},
+		spawn_requires_flag = 'card_unlocked_mestari',
 		type		= ACTION_TYPE_OTHER,
 		recursive	= true,
 		spawn_level						= '10', -- EMPTY_COLORFUL_DEPARTURE
@@ -5734,6 +5753,7 @@ local new_actions =
 			[ 'copy_all' ] = true,
 			[ 'colorful_copy_all' ] = true,
 		},
+		spawn_requires_flag = 'card_unlocked_mestari',
 		type		= ACTION_TYPE_OTHER,
 		recursive	= true,
 		spawn_level						= '10', -- EMPTY_COLORFUL_RETURN

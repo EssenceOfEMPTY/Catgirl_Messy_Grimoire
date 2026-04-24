@@ -9,10 +9,12 @@ if ( entity ~= NULL_ENTITY ) then
 
 	if ( paras ) then
 		if ( paras.duration and paras.duration > 0 ) then
-			e_cmd_funcs[ command ].action_4_paras( { }, true, paras.shooter, paras.angle, paras.inc, paras.delay, paras.duration )
-		elseif ( paras.delay and paras.delay >= 0 ) then
-			e_cmd_funcs[ command ].action_3_paras( { }, true, paras.shooter, paras.angle, paras.inc, paras.delay )
-		elseif ( paras.inc and paras.inc ~= 0 ) then
+			e_cmd_funcs[ command ].action_4_paras( { }, true, paras.shooter, paras.angle_delay, paras.inc_delay, paras.delay, paras.duration )
+		elseif ( paras.delay and paras.delay > 0 ) then
+			e_cmd_funcs[ command ].action_3_paras( { }, true, paras.shooter, paras.angle_delay, paras.inc_delay, paras.delay )
+		end
+
+		if ( paras.inc and paras.inc ~= 0 ) then
 			e_cmd_funcs[ command ].action_2_paras( { }, true, paras.shooter, paras.angle, paras.inc )
 		elseif ( paras.angle and paras.angle ~= 0 ) then
 			e_cmd_funcs[ command ].action_1_paras( { }, true, paras.shooter, paras.angle )

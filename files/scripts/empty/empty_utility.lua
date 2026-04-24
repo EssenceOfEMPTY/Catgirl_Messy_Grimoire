@@ -32,6 +32,12 @@ function command_print( name, ... )
 	GamePrint( name .. ' : ' .. GameTextGet( ... ) )
 end
 
+if ( not ModSettingGet( 'empty_the_blackhole_catgirl.COMMAND_FEEDBACK' ) ) then
+	command_print = function ( name, ... )
+		--
+	end
+end
+
 ---返回关于时间的3个数, 主要作为随机种子使用
 ---@return number year_day_min
 ---@return number mon_hour_sec

@@ -14,7 +14,7 @@ mod_settings = {
 		id = '',
 		ui_name = '',
 		ui_description = '',
-		value_default = true | false,
+		value_default = nil,
 		scope = MOD_SETTING_SCOPE_NEW_GAME | MOD_SETTING_SCOPE_RUNTIME | MOD_SETTING_SCOPE_RUNTIME_RESTART,
 	},
 ]]--
@@ -132,9 +132,17 @@ if ( language:find( '中文' ) or language:find( '汉化' ) ) then
 		},
 		{
 			id = 'UNLIMITED_SPELLS',
+			ui_name = '[ 无限法术 ] 力量解放',
 			ui_description = '令 [ 无限法术 ] 天赋对此模组、位于此模组加载前加载的模组以及原版 Noita 中包含的所有法术均生效',
 			value_default = false,
 			scope = MOD_SETTING_SCOPE_NEW_GAME,
+		},
+		{
+			id = 'COMMAND_FEEDBACK',
+			ui_name = '命令反馈',
+			ui_description = '命令法术将会在左下角反馈执行状态',
+			value_default = true,
+			scope = MOD_SETTING_SCOPE_RUNTIME_RESTART,
 		},
 		{
 			id = 'NO_KUMMITUS',
@@ -155,7 +163,7 @@ if ( language:find( '中文' ) or language:find( '汉化' ) ) then
 			ui_name = '翻译: 伊芙琳娜',
 			ui_description = '将部分生物的名称替换为与 伊芙琳娜 相关的文本',
 			value_default = true,
-			scope = MOD_SETTING_SCOPE_NEW_GAME,
+			scope = MOD_SETTING_SCOPE_RUNTIME_RESTART,
 		},
 	}
 else
@@ -261,9 +269,17 @@ else
 		},
 		{
 			id = 'UNLIMITED_SPELLS',
+			ui_name = 'True Power of [ Unlimited Spells ]',
 			ui_description = 'Make [ Unlimited Spells ] perk effective for all spells in this mod, mods loaded before this mod, and vanilla Noita',
 			value_default = false,
 			scope = MOD_SETTING_SCOPE_NEW_GAME,
+		},
+		{
+			id = 'COMMAND_FEEDBACK',
+			ui_name = 'Command Feedback',
+			ui_description = 'Command spells will display execution feedback at bottom-left',
+			value_default = false,
+			scope = MOD_SETTING_SCOPE_RUNTIME_RESTART,
 		},
 		{
 			id = 'NO_KUMMITUS',
@@ -278,6 +294,13 @@ else
 			ui_description = 'Enemy spawn rate is greatly increased',
 			value_default = false,
 			scope = MOD_SETTING_SCOPE_NEW_GAME,
+		},
+		{
+			id = 'YIFULINNA_TRANSLATION',
+			ui_name = 'No',
+			ui_description = 'This setting is useless for you',
+			value_default = false,
+			scope = MOD_SETTING_SCOPE_ONLY_SET_DEFAULT,
 		},
 	}
 end

@@ -1,12 +1,12 @@
 dofile_once( 'data/scripts/lib/utilities.lua' )
-dofile_once( 'mods/empty_the_blackhole_catgirl/files/scripts/empty/empty_utility.lua' )
+dofile_once( 'mods/empty_the_blackhole_catgirl/files/scripts/empty/empty_command_utility.lua' )
 
 local entity = EntityGetRootEntity( GetUpdatedEntityID( ) )
 local command = 'projectile_arc_add'
-local command_reflect = command .. '_reflect'
+local command_delay = command .. '_delay'
 
 if ( entity ~= NULL_ENTITY ) then
-	local v_comp = EntityGetFirstComponent( entity, 'VariableStorageComponent', command_reflect )
+	local v_comp = EntityGetFirstComponent( entity, 'VariableStorageComponent', command_delay )
 
 	if ( v_comp ) then
 		local paras = {

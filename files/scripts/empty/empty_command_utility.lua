@@ -860,13 +860,14 @@ e_cmd_funcs = {
 		para_names = {
 			all = {
 				'angle',
+				'angle_delay',
 				'delay',
 			},
 			para_1 = {
 				'angle',
 			},
 			para_2 = {
-				'angle',
+				'angle_delay',
 				'delay',
 			},
 		},
@@ -933,15 +934,15 @@ e_cmd_funcs = {
 		---@param c table
 		---@param reflect boolean
 		---@param shooter number
-		---@param angle string|number
+		---@param angle_delay string|number
 		---@param delay string|number
 		---@return table angle_delay
-		action_2_paras = function ( c, reflect, shooter, angle, delay )
+		action_2_paras = function ( c, reflect, shooter, angle_delay, delay )
 			local command = 'projectile_shoot_angle_add'
 			local command_delay = command .. '_delay'
 
-			if ( type( angle ) ~= 'number' and type( angle ) ~= 'string' ) then
-				command_print( command .. '(', '$empty_command_error_wrong_para_type', 'NUMBER', upper_type( angle ) )
+			if ( type( angle_delay ) ~= 'number' and type( angle_delay ) ~= 'string' ) then
+				command_print( command .. '(', '$empty_command_error_wrong_para_type', 'NUMBER', upper_type( angle_delay ) )
 				return { 0, 0 }
 			end
 			if ( type( delay ) ~= 'number' and type( delay ) ~= 'string' ) then
@@ -950,8 +951,8 @@ e_cmd_funcs = {
 			end
 
 			if ( reflect ) then
-				if ( type( angle ) ~= 'number' ) then
-					angle = 0
+				if ( type( angle_delay ) ~= 'number' ) then
+					angle_delay = 0
 				end
 				if ( type( delay ) ~= 'number' ) then
 					delay = 0
@@ -963,14 +964,13 @@ e_cmd_funcs = {
 
 				EntityAddComponent2( entity, 'VariableStorageComponent', {
 					_tags = command_delay,
-					value_float = angle,
+					value_float = angle_delay,
 				} )
 
 				EntityAddComponent2( entity, 'LuaComponent', {
 					_tags = command_delay,
 					script_source_file = empty_path .. 'scripts/projectiles/command/' .. command_delay .. '.lua',
-					execute_every_n_frame = delay - 1,
-					remove_after_executed = true,
+					execute_every_n_frame = delay,
 				} )
 			else
 				add_desc_by_info( c, {
@@ -980,12 +980,12 @@ e_cmd_funcs = {
 				}, {
 					id = command,
 					shooter = shooter,
-					angle = angle,
+					angle_delay = angle_delay,
 					delay = delay,
 				}, empty_path .. 'entities/misc/command/' .. command .. '.xml,', '$' )
 			end
 
-			return { angle, delay }
+			return { angle_delay, delay }
 		end,
 	},
 	projectile_shoot_angle_set = {
@@ -993,13 +993,14 @@ e_cmd_funcs = {
 		para_names = {
 			all = {
 				'angle',
+				'angle_delay',
 				'delay',
 			},
 			para_1 = {
 				'angle',
 			},
 			para_2 = {
-				'angle',
+				'angle_delay',
 				'delay',
 			},
 		},
@@ -1066,15 +1067,15 @@ e_cmd_funcs = {
 		---@param c table
 		---@param reflect boolean
 		---@param shooter number
-		---@param angle string|number
+		---@param angle_delay string|number
 		---@param delay string|number
 		---@return table angle_delay
-		action_2_paras = function ( c, reflect, shooter, angle, delay )
+		action_2_paras = function ( c, reflect, shooter, angle_delay, delay )
 			local command = 'projectile_shoot_angle_set'
 			local command_delay = command .. '_delay'
 
-			if ( type( angle ) ~= 'number' and type( angle ) ~= 'string' ) then
-				command_print( command .. '(', '$empty_command_error_wrong_para_type', 'NUMBER', upper_type( angle ) )
+			if ( type( angle_delay ) ~= 'number' and type( angle_delay ) ~= 'string' ) then
+				command_print( command .. '(', '$empty_command_error_wrong_para_type', 'NUMBER', upper_type( angle_delay ) )
 				return { 0, 0 }
 			end
 			if ( type( delay ) ~= 'number' and type( delay ) ~= 'string' ) then
@@ -1083,8 +1084,8 @@ e_cmd_funcs = {
 			end
 
 			if ( reflect ) then
-				if ( type( angle ) ~= 'number' ) then
-					angle = 0
+				if ( type( angle_delay ) ~= 'number' ) then
+					angle_delay = 0
 				end
 				if ( type( delay ) ~= 'number' ) then
 					delay = 0
@@ -1096,14 +1097,13 @@ e_cmd_funcs = {
 
 				EntityAddComponent2( entity, 'VariableStorageComponent', {
 					_tags = command_delay,
-					value_float = angle,
+					value_float = angle_delay,
 				} )
 
 				EntityAddComponent2( entity, 'LuaComponent', {
 					_tags = command_delay,
 					script_source_file = empty_path .. 'scripts/projectiles/command/' .. command_delay .. '.lua',
-					execute_every_n_frame = delay - 1,
-					remove_after_executed = true,
+					execute_every_n_frame = delay,
 				} )
 			else
 				add_desc_by_info( c, {
@@ -1113,12 +1113,12 @@ e_cmd_funcs = {
 				}, {
 					id = command,
 					shooter = shooter,
-					angle = angle,
+					angle_delay = angle_delay,
 					delay = delay,
 				}, empty_path .. 'entities/misc/command/' .. command .. '.xml,', '$' )
 			end
 
-			return { angle, delay }
+			return { angle_delay, delay }
 		end,
 	},
 	projectile_spread_set = {
@@ -1189,8 +1189,10 @@ e_cmd_funcs = {
 			all = {
 				'angle',
 				'inc',
-				'start',
-				'end',
+				'angle_delay',
+				'inc_delay',
+				'delay',
+				'duration',
 			},
 			para_1 = {
 				'angle',
@@ -1200,13 +1202,13 @@ e_cmd_funcs = {
 				'inc',
 			},
 			para_3 = {
-				'angle',
-				'inc',
+				'angle_delay',
+				'inc_delay',
 				'delay',
 			},
 			para_4 = {
-				'angle',
-				'inc',
+				'angle_delay',
+				'inc_delay',
 				'delay',
 				'duration',
 			},
@@ -1301,6 +1303,7 @@ e_cmd_funcs = {
 
 			return angle
 		end,
+		---在不更改速度大小的状态下将速度方向在原基础上每帧逆时针旋转 ( angle + 生效帧数 * inc )°
 		---@param c table
 		---@param reflect boolean
 		---@param shooter number
@@ -1379,6 +1382,219 @@ e_cmd_funcs = {
 
 			return { angle, inc }
 		end,
+		---经过 delay 帧的延迟后, 在不更改速度大小的状态下将速度方向在正右方基础上每帧逆时针旋转 ( angle_delay + 生效帧数 * inc_delay )°
+		---@param c table
+		---@param reflect boolean
+		---@param shooter number
+		---@param angle_delay string|number
+		---@param inc_delay string|number
+		---@param delay string|number
+		---@return table angle_inc_delay
+		action_3_paras = function ( c, reflect, shooter, angle_delay, inc_delay, delay )
+			local command = 'projectile_arc_add'
+			local command_delay = command .. '_delay'
+			local command_trigger = command_delay .. '_trigger'
+
+			if ( type( angle_delay ) ~= 'number' and type( angle_delay ) ~= 'string' ) then
+				command_print( command .. '(', '$empty_command_error_wrong_para_type', 'NUMBER', upper_type( angle_delay ) )
+				return { 0, 0, 0 }
+			end
+			if ( type( inc_delay ) ~= 'number' and type( inc_delay ) ~= 'string' ) then
+				command_print( command .. '(', '$empty_command_error_wrong_para_type', 'NUMBER', upper_type( inc_delay ) )
+				return { 0, 0, 0 }
+			end
+			if ( type( delay ) ~= 'number' and type( delay ) ~= 'string' ) then
+				command_print( command .. '(', '$empty_command_error_wrong_para_type', 'NUMBER', upper_type( delay ) )
+				return { 0, 0, 0 }
+			end
+
+			if ( reflect ) then
+				if ( type( angle_delay ) ~= 'number' ) then
+					angle_delay = 0
+				end
+				if ( type( inc_delay ) ~= 'number' ) then
+					inc_delay = 0
+				end
+				if ( type( delay ) ~= 'number' ) then
+					delay = 0
+				elseif ( delay % 1 ~= 0 ) then
+					delay = math.floor( delay )
+				end
+
+				local entity = EntityGetRootEntity( GetUpdatedEntityID( ) )
+				local v_comps = EntityGetComponent( entity, 'VariableStorageComponent', command_delay )
+
+				if ( not v_comps ) then
+					EntityAddComponent2( entity, 'VariableStorageComponent', {
+						_tags = command_delay,
+						value_int = 0,
+						value_string = tostring( angle_delay ),
+						value_float = inc_delay,
+					} )
+				else
+					for _, v_comp in ipairs( v_comps or { } ) do
+						if ( _ == 1 ) then
+							ComponentSetValue2( v_comp, 'value_int', 0 )
+							ComponentSetValue2( v_comp, 'value_string', tostring( angle_delay ) )
+							ComponentSetValue2( v_comp, 'value_float', inc_delay )
+						else
+							EntityRemoveComponent( entity, v_comp )
+						end
+					end
+				end
+
+				local l_comps = EntityGetComponent( entity, 'LuaComponent', command_trigger )
+
+				if ( not l_comps ) then
+					EntityAddComponent2( entity, 'LuaComponent', {
+						_tags = command_trigger,
+						script_source_file = empty_path .. 'scripts/projectiles/command/' .. command_trigger .. '.lua',
+						execute_every_n_frame = delay,
+					} )
+				else
+					for _, l_comp in ipairs( l_comps or { } ) do
+						if ( _ > 1 ) then
+							EntityRemoveComponent( entity, l_comp )
+						end
+					end
+				end
+			else
+				add_desc_by_info( c, {
+					replace = true,
+					update = true,
+					merge = false,
+				}, {
+					id = command,
+					shooter = shooter,
+					angle_delay = angle_delay,
+					inc_delay = inc_delay,
+					delay = delay,
+				}, empty_path .. 'entities/misc/command/' .. command .. '.xml,', '$' )
+			end
+
+			return { angle_delay, inc_delay, delay }
+		end,
+		---经过 delay 帧的延迟后, 在不更改速度大小的状态下将速度方向在正右方基础上每帧逆时针旋转 ( angle_delay + 生效帧数 * inc_delay )°; 
+		---此效果持续 duration 帧
+		---@param c table
+		---@param reflect boolean
+		---@param shooter number
+		---@param angle_delay string|number
+		---@param inc_delay string|number
+		---@param delay string|number
+		---@param duration string|number
+		---@return table angle_inc_delay_duration
+		action_4_paras = function ( c, reflect, shooter, angle_delay, inc_delay, delay, duration )
+			local command = 'projectile_arc_add'
+			local command_delay = command .. '_delay'
+			local command_trigger = command_delay .. '_trigger'
+			local command_death = command_delay .. '_death'
+
+			if ( type( angle_delay ) ~= 'number' and type( angle_delay ) ~= 'string' ) then
+				command_print( command .. '(', '$empty_command_error_wrong_para_type', 'NUMBER', upper_type( angle_delay ) )
+				return { 0, 0, 0, 0 }
+			end
+			if ( type( inc_delay ) ~= 'number' and type( inc_delay ) ~= 'string' ) then
+				command_print( command .. '(', '$empty_command_error_wrong_para_type', 'NUMBER', upper_type( inc_delay ) )
+				return { 0, 0, 0, 0 }
+			end
+			if ( type( delay ) ~= 'number' and type( delay ) ~= 'string' ) then
+				command_print( command .. '(', '$empty_command_error_wrong_para_type', 'NUMBER', upper_type( delay ) )
+				return { 0, 0, 0, 0 }
+			end
+			if ( type( duration ) ~= 'number' and type( duration ) ~= 'string' ) then
+				command_print( command .. '(', '$empty_command_error_wrong_para_type', 'NUMBER', upper_type( duration ) )
+				return { 0, 0, 0, 0 }
+			end
+
+			if ( reflect ) then
+				if ( type( angle_delay ) ~= 'number' ) then
+					angle_delay = 0
+				end
+				if ( type( inc_delay ) ~= 'number' ) then
+					inc_delay = 0
+				end
+				if ( type( delay ) ~= 'number' ) then
+					delay = 0
+				elseif ( delay % 1 ~= 0 ) then
+					delay = math.floor( delay )
+				end
+				if ( type( duration ) ~= 'number' ) then
+					duration = 0
+				elseif ( duration % 1 ~= 0 ) then
+					duration = math.floor( duration )
+				end
+
+				local entity = EntityGetRootEntity( GetUpdatedEntityID( ) )
+				local v_comps = EntityGetComponent( entity, 'VariableStorageComponent', command_delay )
+
+				if ( not v_comps ) then
+					EntityAddComponent2( entity, 'VariableStorageComponent', {
+						_tags = command_delay,
+						value_int = 0,
+						value_string = tostring( angle_delay ),
+						value_float = inc_delay,
+					} )
+				else
+					for _, v_comp in ipairs( v_comps or { } ) do
+						if ( _ == 1 ) then
+							ComponentSetValue2( v_comp, 'value_int', 0 )
+							ComponentSetValue2( v_comp, 'value_string', tostring( angle_delay ) )
+							ComponentSetValue2( v_comp, 'value_float', inc_delay )
+						else
+							EntityRemoveComponent( entity, v_comp )
+						end
+					end
+				end
+
+				local l_comps = EntityGetComponent( entity, 'LuaComponent', command_trigger )
+
+				if ( not l_comps ) then
+					EntityAddComponent2( entity, 'LuaComponent', {
+						_tags = command_trigger,
+						script_source_file = empty_path .. 'scripts/projectiles/command/' .. command_trigger .. '.lua',
+						execute_every_n_frame = delay,
+					} )
+				else
+					for _, l_comp in ipairs( l_comps or { } ) do
+						if ( _ > 1 ) then
+							EntityRemoveComponent( entity, l_comp )
+						end
+					end
+				end
+
+				l_comps = EntityGetComponent( entity, 'LuaComponent', command_death )
+
+				if ( not l_comps ) then
+					EntityAddComponent2( entity, 'LuaComponent', {
+						_tags = command_death,
+						script_source_file = empty_path .. 'scripts/projectiles/command/' .. command_death .. '.lua',
+						execute_every_n_frame = delay + duration,
+					} )
+				else
+					for _, l_comp in ipairs( l_comps or { } ) do
+						if ( _ > 1 ) then
+							EntityRemoveComponent( entity, l_comp )
+						end
+					end
+				end
+			else
+				add_desc_by_info( c, {
+					replace = true,
+					update = true,
+					merge = false,
+				}, {
+					id = command,
+					shooter = shooter,
+					angle_delay = angle_delay,
+					inc_delay = inc_delay,
+					delay = delay,
+					duration = duration,
+				}, empty_path .. 'entities/misc/command/' .. command .. '.xml,', '$' )
+			end
+
+			return { angle_delay, inc_delay, delay, duration }
+		end,
 	},
 	projectile_arc_set = {
 		max_paras = 4,
@@ -1386,8 +1602,10 @@ e_cmd_funcs = {
 			all = {
 				'angle',
 				'inc',
-				'start',
-				'end',
+				'angle_delay',
+				'inc_delay',
+				'delay',
+				'duration',
 			},
 			para_1 = {
 				'angle',
@@ -1397,13 +1615,13 @@ e_cmd_funcs = {
 				'inc',
 			},
 			para_3 = {
-				'angle',
-				'inc',
+				'angle_delay',
+				'inc_delay',
 				'delay',
 			},
 			para_4 = {
-				'angle',
-				'inc',
+				'angle_delay',
+				'inc_delay',
 				'delay',
 				'duration',
 			},
@@ -1578,33 +1796,38 @@ e_cmd_funcs = {
 
 			return { angle, inc }
 		end,
-		---经过 delay 帧的延迟后, 在不更改速度大小的状态下将速度方向在正右方基础上每帧逆时针旋转 ( angle + 生效帧数 * inc )°
+		---经过 delay 帧的延迟后, 在不更改速度大小的状态下将速度方向在正右方基础上每帧逆时针旋转 ( angle_delay + 生效帧数 * inc_delay )°
 		---@param c table
 		---@param reflect boolean
 		---@param shooter number
-		---@param angle string|number
-		---@param inc string|number
+		---@param angle_delay string|number
+		---@param inc_delay string|number
 		---@param delay string|number
-		---@return table angle
-		action_3_paras = function ( c, reflect, shooter, angle, inc, delay )
+		---@return table angle_inc_delay
+		action_3_paras = function ( c, reflect, shooter, angle_delay, inc_delay, delay )
 			local command = 'projectile_arc_set'
-			local command_reflect = command .. '_reflect'
+			local command_delay = command .. '_delay'
+			local command_trigger = command_delay .. '_trigger'
 
-			if ( type( angle ) ~= 'number' and type( angle ) ~= 'string' ) then
-				command_print( command .. '(', '$empty_command_error_wrong_para_type', 'NUMBER', upper_type( angle ) )
-				return { 0, 0 }
+			if ( type( angle_delay ) ~= 'number' and type( angle_delay ) ~= 'string' ) then
+				command_print( command .. '(', '$empty_command_error_wrong_para_type', 'NUMBER', upper_type( angle_delay ) )
+				return { 0, 0, 0 }
 			end
-			if ( type( inc ) ~= 'number' and type( inc ) ~= 'string' ) then
-				command_print( command .. '(', '$empty_command_error_wrong_para_type', 'NUMBER', upper_type( inc ) )
-				return { 0, 0 }
+			if ( type( inc_delay ) ~= 'number' and type( inc_delay ) ~= 'string' ) then
+				command_print( command .. '(', '$empty_command_error_wrong_para_type', 'NUMBER', upper_type( inc_delay ) )
+				return { 0, 0, 0 }
+			end
+			if ( type( delay ) ~= 'number' and type( delay ) ~= 'string' ) then
+				command_print( command .. '(', '$empty_command_error_wrong_para_type', 'NUMBER', upper_type( delay ) )
+				return { 0, 0, 0 }
 			end
 
 			if ( reflect ) then
-				if ( type( angle ) ~= 'number' ) then
-					angle = 0
+				if ( type( angle_delay ) ~= 'number' ) then
+					angle_delay = 0
 				end
-				if ( type( inc ) ~= 'number' ) then
-					inc = 0
+				if ( type( inc_delay ) ~= 'number' ) then
+					inc_delay = 0
 				end
 				if ( type( delay ) ~= 'number' ) then
 					delay = 0
@@ -1613,34 +1836,34 @@ e_cmd_funcs = {
 				end
 
 				local entity = EntityGetRootEntity( GetUpdatedEntityID( ) )
-				local v_comps = EntityGetComponent( entity, 'VariableStorageComponent', command_reflect )
+				local v_comps = EntityGetComponent( entity, 'VariableStorageComponent', command_delay )
 
 				if ( not v_comps ) then
 					EntityAddComponent2( entity, 'VariableStorageComponent', {
-						_tags = command_reflect,
+						_tags = command_delay,
 						value_int = 0,
-						value_string = tostring( angle ),
-						value_float = inc,
+						value_string = tostring( angle_delay ),
+						value_float = inc_delay,
 					} )
 				else
 					for _, v_comp in ipairs( v_comps or { } ) do
 						if ( _ == 1 ) then
 							ComponentSetValue2( v_comp, 'value_int', 0 )
-							ComponentSetValue2( v_comp, 'value_string', tostring( angle ) )
-							ComponentSetValue2( v_comp, 'value_float', inc )
+							ComponentSetValue2( v_comp, 'value_string', tostring( angle_delay ) )
+							ComponentSetValue2( v_comp, 'value_float', inc_delay )
 						else
 							EntityRemoveComponent( entity, v_comp )
 						end
 					end
 				end
 
-				local l_comps = EntityGetComponent( entity, 'LuaComponent', command_reflect )
+				local l_comps = EntityGetComponent( entity, 'LuaComponent', command_trigger )
 
 				if ( not l_comps ) then
 					EntityAddComponent2( entity, 'LuaComponent', {
-						_tags = command_reflect,
-						script_source_file = empty_path .. 'scripts/projectiles/command/' .. command_reflect .. '_delay.lua',
-						execute_every_n_frame = delay - 1,
+						_tags = command_trigger,
+						script_source_file = empty_path .. 'scripts/projectiles/command/' .. command_trigger .. '.lua',
+						execute_every_n_frame = delay,
 					} )
 				else
 					for _, l_comp in ipairs( l_comps or { } ) do
@@ -1657,12 +1880,134 @@ e_cmd_funcs = {
 				}, {
 					id = command,
 					shooter = shooter,
-					angle = angle,
-					inc = inc,
+					angle_delay = angle_delay,
+					inc_delay = inc_delay,
+					delay = delay,
 				}, empty_path .. 'entities/misc/command/' .. command .. '.xml,', '$' )
 			end
 
-			return { angle, inc }
+			return { angle_delay, inc_delay, delay }
+		end,
+		---经过 delay 帧的延迟后, 在不更改速度大小的状态下将速度方向在正右方基础上每帧逆时针旋转 ( angle_delay + 生效帧数 * inc_delay )°; 
+		---此效果持续 duration 帧
+		---@param c table
+		---@param reflect boolean
+		---@param shooter number
+		---@param angle_delay string|number
+		---@param inc_delay string|number
+		---@param delay string|number
+		---@param duration string|number
+		---@return table angle_inc_delay_duration
+		action_4_paras = function ( c, reflect, shooter, angle_delay, inc_delay, delay, duration )
+			local command = 'projectile_arc_set'
+			local command_delay = command .. '_delay'
+			local command_trigger = command_delay .. '_trigger'
+			local command_death = command_delay .. '_death'
+
+			if ( type( angle_delay ) ~= 'number' and type( angle_delay ) ~= 'string' ) then
+				command_print( command .. '(', '$empty_command_error_wrong_para_type', 'NUMBER', upper_type( angle_delay ) )
+				return { 0, 0, 0, 0 }
+			end
+			if ( type( inc_delay ) ~= 'number' and type( inc_delay ) ~= 'string' ) then
+				command_print( command .. '(', '$empty_command_error_wrong_para_type', 'NUMBER', upper_type( inc_delay ) )
+				return { 0, 0, 0, 0 }
+			end
+			if ( type( delay ) ~= 'number' and type( delay ) ~= 'string' ) then
+				command_print( command .. '(', '$empty_command_error_wrong_para_type', 'NUMBER', upper_type( delay ) )
+				return { 0, 0, 0, 0 }
+			end
+			if ( type( duration ) ~= 'number' and type( duration ) ~= 'string' ) then
+				command_print( command .. '(', '$empty_command_error_wrong_para_type', 'NUMBER', upper_type( duration ) )
+				return { 0, 0, 0, 0 }
+			end
+
+			if ( reflect ) then
+				if ( type( angle_delay ) ~= 'number' ) then
+					angle_delay = 0
+				end
+				if ( type( inc_delay ) ~= 'number' ) then
+					inc_delay = 0
+				end
+				if ( type( delay ) ~= 'number' ) then
+					delay = 0
+				elseif ( delay % 1 ~= 0 ) then
+					delay = math.floor( delay )
+				end
+				if ( type( duration ) ~= 'number' ) then
+					duration = 0
+				elseif ( duration % 1 ~= 0 ) then
+					duration = math.floor( duration )
+				end
+
+				local entity = EntityGetRootEntity( GetUpdatedEntityID( ) )
+				local v_comps = EntityGetComponent( entity, 'VariableStorageComponent', command_delay )
+
+				if ( not v_comps ) then
+					EntityAddComponent2( entity, 'VariableStorageComponent', {
+						_tags = command_delay,
+						value_int = 0,
+						value_string = tostring( angle_delay ),
+						value_float = inc_delay,
+					} )
+				else
+					for _, v_comp in ipairs( v_comps or { } ) do
+						if ( _ == 1 ) then
+							ComponentSetValue2( v_comp, 'value_int', 0 )
+							ComponentSetValue2( v_comp, 'value_string', tostring( angle_delay ) )
+							ComponentSetValue2( v_comp, 'value_float', inc_delay )
+						else
+							EntityRemoveComponent( entity, v_comp )
+						end
+					end
+				end
+
+				local l_comps = EntityGetComponent( entity, 'LuaComponent', command_trigger )
+
+				if ( not l_comps ) then
+					EntityAddComponent2( entity, 'LuaComponent', {
+						_tags = command_trigger,
+						script_source_file = empty_path .. 'scripts/projectiles/command/' .. command_trigger .. '.lua',
+						execute_every_n_frame = delay,
+					} )
+				else
+					for _, l_comp in ipairs( l_comps or { } ) do
+						if ( _ > 1 ) then
+							EntityRemoveComponent( entity, l_comp )
+						end
+					end
+				end
+
+				l_comps = EntityGetComponent( entity, 'LuaComponent', command_death )
+
+				if ( not l_comps ) then
+					EntityAddComponent2( entity, 'LuaComponent', {
+						_tags = command_death,
+						script_source_file = empty_path .. 'scripts/projectiles/command/' .. command_death .. '.lua',
+						execute_every_n_frame = delay + duration,
+					} )
+				else
+					for _, l_comp in ipairs( l_comps or { } ) do
+						if ( _ > 1 ) then
+							EntityRemoveComponent( entity, l_comp )
+						end
+					end
+				end
+			else
+				add_desc_by_info( c, {
+					replace = true,
+					update = true,
+					merge = false,
+				}, {
+					id = command,
+					shooter = shooter,
+					angle_delay = angle_delay,
+					inc_delay = inc_delay,
+					delay = delay,
+					duration = duration,
+				}, empty_path .. 'entities/misc/command/' .. command .. '.xml,', '$' )
+			end
+
+			return { angle_delay, inc_delay, delay, duration }
 		end,
 	},
 	explode = {

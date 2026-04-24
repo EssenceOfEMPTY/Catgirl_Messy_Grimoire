@@ -8,10 +8,12 @@ if ( entity ~= NULL_ENTITY ) then
 	local paras = parse_and_evaluate_command_paras( command, entity, e_cmd_funcs[ command ].para_names.all )
 
 	if ( paras ) then
-		if ( not paras.delay or paras.delay < 2 ) then
+		if ( paras.angle_delay and ( paras.delay and paras.delay > 0 ) ) then
+			e_cmd_funcs[ command ].action_2_paras( { }, true, paras.shooter, paras.angle_delay, paras.delay )
+		end
+
+		if ( paras.angle ) then
 			e_cmd_funcs[ command ].action_1_paras( { }, true, paras.shooter, paras.angle )
-		else
-			e_cmd_funcs[ command ].action_2_paras( { }, true, paras.shooter, paras.angle, paras.delay )
 		end
 	end
 

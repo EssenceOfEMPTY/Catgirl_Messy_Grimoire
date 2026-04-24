@@ -8,7 +8,7 @@ local command_delay = command .. '_delay'
 if ( entity ~= NULL_ENTITY ) then
 	local varia_comps = EntityGetComponent( entity, 'VariableStorageComponent', command_delay )
 
-	for _, varia_comp in ipairs( varia_comps or { } ) do
+	for i, varia_comp in ipairs( varia_comps or { } ) do
 		local angle = ComponentGetValue2( varia_comp, 'value_float' )
 
 		local v_comps = EntityGetComponent( entity, 'VelocityComponent' ) or { }
