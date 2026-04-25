@@ -2,12 +2,16 @@
 empty_path = 'mods/empty_the_blackhole_catgirl/files/'
 p2 = 2 * math.pi
 
----打印一切信息
+---打印一切信息, 此函数仅用于调试
 ---@param info any
 ---@param key string|nil
-function info_print( info, key )
+---@param tab_count number|nil
+function info_print( info, key, tab_count )
 	if ( key == nil ) then
 		key = ''
+	end
+	if ( tab_count == nil ) then
+		tab_count = 0
 	end
 
 	local typ = type( info )
@@ -16,13 +20,34 @@ function info_print( info, key )
 		print( '< ' .. typ .. ' > ' .. key .. ': {' )
 
 		for i, _ in pairs( info or { } ) do
-			info_print( _, i )
+			info_print( _, i, tab_count + 1 )
 		end
 
 		print( '}' )
 	else
-		print( '< ' .. typ .. ' > ' .. key .. ': ' .. tostring( info ) )
+		if ( tab_count == 0 ) then
+			print( '< ' .. typ .. ' > ' .. key .. ': ' .. tostring( info ) )
+		else
+			print( string.rep( '\t', tab_count ) .. '< ' .. typ .. ' > ' .. key .. ': ' .. tostring( info ) )
+		end
 	end
+end
+
+---打印关于 loc 的 id 信息, 此函数仅用于调试
+---@param loc table
+---@param key string|nil
+function loc_print( loc, key )
+	if ( key == nil ) then
+		key = ''
+	end
+
+	print( key .. ': {' )
+
+	for _, data in ipairs( loc or { } ) do
+		print( '\t' .. tostring( _ ) .. ': '  .. data.id )
+	end
+
+	print( '}' )
 end
 
 ---发送提示信息
@@ -55,6 +80,22 @@ function time_for_vec3( )
 		( sec1 or 0 ) + ( sec2 or 0 )
 
 	return ( year + day + min ), ( mon + hour + sec ), GameGetFrameNum( )
+end
+
+---在不更改速度方向的状态下将速度大小变为 speed
+---@param vel_x number
+---@param vel_y number
+---@param speed number
+---@return number vel_x
+---@return number vel_y
+function change_vel( vel_x, vel_y, speed )
+	if ( vel_x == 0 and vel_y == 0 ) then
+		return 0, 0
+	else
+		vel_x, vel_y = vec_normalize( vel_x, vel_y )
+
+		return vel_x * speed, vel_y * speed
+	end
 end
 
 ---将角度 deg 转换为弧度 rad
@@ -106,22 +147,6 @@ function abs_rot_vel( vel_x, vel_y, angle )
 	end
 end
 
----在不更改速度方向的状态下将速度大小变为 speed
----@param vel_x number
----@param vel_y number
----@param speed number
----@return number vel_x
----@return number vel_y
-function change_vel( vel_x, vel_y, speed )
-	if ( vel_x == 0 and vel_y == 0 ) then
-		return 0, 0
-	else
-		vel_x, vel_y = vec_normalize( vel_x, vel_y )
-
-		return vel_x * speed, vel_y * speed
-	end
-end
-
 ---获取 NG+ 数
 ---@return number NG_count
 function get_ng_num( )
@@ -148,19 +173,95 @@ function get_money( entity )
 end
 
 ---移除投射物速度组件的速度上限
----@param v_comps number|number[]|nil
-function remove_speed_limit( v_comps )
-	if ( type( v_comps ) == 'number' ) then
-		v_comps = { v_comps }
+---@param projectile number|number[]|nil
+function remove_speed_limit( projectile )
+	if ( type( projectile ) == 'number' ) then
+		projectile = { projectile }
 	end
 
-	for _, v_comp in ipairs( v_comps or { } ) do
-		if ( v_comp ~= 0 ) then
-			ComponentSetValue2( v_comp, 'terminal_velocity', math.huge )
-			ComponentSetValue2( v_comp, 'apply_terminal_velocity', false )
-			ComponentSetValue2( v_comp, 'limit_to_max_velocity', false )
+	for _, proj in ipairs( projectile or { } ) do
+		local v_comps = EntityGetComponent( proj, 'VelocityComponent' ) or { }
+
+		for _, v_comp in ipairs( v_comps or { } ) do
+			if ( v_comp ~= 0 ) then
+				ComponentSetValue2( v_comp, 'terminal_velocity', math.huge )
+				ComponentSetValue2( v_comp, 'apply_terminal_velocity', false )
+				ComponentSetValue2( v_comp, 'limit_to_max_velocity', false )
+			end
 		end
 	end
+end
+
+---为 entity 增加类型为 comp_type 的以 comp_table 构建的组件, 返回影响组件的数量; 
+---会删除多余的组件
+---@param entity number
+---@param comp_type string
+---@param tag string|nil
+---@param comp_table table
+---@return number count
+function add_comp_remove_dupli( entity, comp_type, tag, comp_table )
+	local comps, count = nil, 0
+
+	if ( type( tag ) == 'string' ) then
+		comps = EntityGetComponent( entity, comp_type, tag )
+	else
+		comps = EntityGetComponent( entity, comp_type )
+	end
+
+	if ( not comps ) then
+		count = 1
+
+		EntityAddComponent2( entity, comp_type, comp_table )
+	else
+		count = #comps
+
+		for _, comp in ipairs( comps ) do
+			if ( _ == 1 ) then
+				for k, v in pairs( comp_table ) do
+					ComponentSetValue2( comp, k, v )
+				end
+			else
+				EntityRemoveComponent( entity, comp )
+			end
+		end
+	end
+
+	return count
+end
+
+---将 entity 所有类型为 comp_type 的组件的值按照 value_table 设置, 返回设置组件的数量
+---@param entity number
+---@param comp_type string
+---@param tag string|nil
+---@param value_table table|nil
+---@param func function|nil?
+---@return integer
+function set_comp_value( entity, comp_type, tag, value_table, func )
+	local comps = nil
+
+	if ( type( tag ) == 'string' ) then
+		comps = EntityGetComponent( entity, comp_type, tag ) or { }
+	else
+		comps = EntityGetComponent( entity, comp_type ) or { }
+	end
+
+	if ( func ) then
+		for _, comp in ipairs( comps ) do
+			func( comp )
+		end
+	else
+		for _, comp in ipairs( comps ) do
+			for k, v in pairs( value_table or { } ) do
+				if ( type( v ) == 'table' ) then
+					ComponentSetValue2( comp, k, unpack( v ) )
+				else
+					ComponentSetValue2( comp, k, v )
+				end
+			end
+		end
+	end
+
+	return #comps
 end
 
 ---返回任意数据的全大写数据类型
@@ -188,8 +289,8 @@ end
 ---可在加入前清空 main 或在加入后清空 merge
 ---@param main table
 ---@param merge table
----@param is_clean_main boolean|nil --默认为 false
----@param is_clean_merge boolean|nil --默认为 true
+---@param is_clean_main boolean|nil? --默认为 false
+---@param is_clean_merge boolean|nil? --默认为 true
 function add_table( main, merge, is_clean_main, is_clean_merge )
 	if ( is_clean_main == nil ) then
 		is_clean_main = false
@@ -223,7 +324,7 @@ end
 ---可在替换后清空 replace
 ---@param main table
 ---@param replace table
----@param is_clean_replace boolean|nil --默认为 true
+---@param is_clean_replace boolean|nil? --默认为 true
 function replace_table( main, replace, is_clean_replace )
 	if ( is_clean_replace == nil ) then
 		is_clean_replace = true
@@ -251,7 +352,7 @@ end
 ---将 main 逆序并返回;
 ---可修改 main
 ---@param main table
----@param is_change_main boolean|nil --默认为 true
+---@param is_change_main boolean|nil? --默认为 true
 ---@return table reversed_table
 function reverse_table( main, is_change_main )
 	if ( is_change_main == nil ) then
@@ -287,8 +388,8 @@ end
 ---将 from 中第 pos_from 项移动至 to 中 pos_to 位置
 ---@param from table
 ---@param to table
----@param pos_from integer|nil --默认为 1
----@param pos_to integer|nil --默认为 #to + 1
+---@param pos_from integer|nil? --默认为 1
+---@param pos_to integer|nil? --默认为 #to + 1
 function add_table_1( from, to, pos_from, pos_to )
 	if ( pos_from == nil ) then
 		pos_from = 1
@@ -305,9 +406,9 @@ end
 ---@param from table
 ---@param to table
 ---@param count integer
----@param from_front boolean|nil --默认为 true
----@param to_front boolean|nil --默认为 false
----@param is_reverse_order boolean|nil --默认为 false
+---@param from_front boolean|nil? --默认为 true
+---@param to_front boolean|nil? --默认为 false
+---@param is_reverse_order boolean|nil? --默认为 false
 function add_table_count( from, to, count, from_front, to_front, is_reverse_order )
 	if ( count < 1 ) then
 		return

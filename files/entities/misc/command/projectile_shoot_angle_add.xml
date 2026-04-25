@@ -3,7 +3,7 @@
 	<LuaComponent
 		_tags="projectile_shoot_angle_add_dupli"
 		script_source_file="mods/empty_the_blackhole_catgirl/files/scripts/projectiles/command/projectile_shoot_angle_add.lua"
-		execute_every_n_frame="0"
+		execute_on_added="1"
 	></LuaComponent>
 
 </Entity>

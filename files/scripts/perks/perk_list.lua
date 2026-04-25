@@ -1155,9 +1155,9 @@ local new_perks =
 				[ 'drill' ] = 4.0,
 				[ 'melee' ] = 4.0,
 				[ 'physics_hit' ] = 4.0,
-				[ 'curse' ] = 4.0,
-				[ 'holy' ] = 3.0,
-				[ 'healing' ] = 2.0,
+				[ 'curse' ] = 3.0,
+				[ 'holy' ] = 2.0,
+				[ 'healing' ] = 4.0,
 			}
 
 			if ( EntityHasTag( entity_who_picked, 'player_unit' ) or EntityHasTag( entity_who_picked, 'polymorphed_player' ) ) then
@@ -1225,20 +1225,28 @@ local new_perks =
 			end
 		end,
 	},
-	--[[
 	{
-		info = '',
+		info = 'curse_gravity_free',
 		stackable = STACKABLE_NO,
-		usable_by_enemies = false,
+		usable_by_enemies = true,
 		not_in_default_perk_pool = true,
-		func = function( entity_perk_empty_item, entity_who_picked, item_name )
-			--
+		func = function ( entity_perk_empty_item, entity_who_picked, item_name )
+			set_comp_value( entity_who_picked, 'CharacterPlatformingComponent', nil, {
+				pixel_gravity = 0,
+			}, nil )
+
+			if ( EntityHasTag( entity_who_picked, 'player_unit' ) or EntityHasTag( entity_who_picked, 'polymorphed_player' ) ) then
+				local x, y = EntityGetTransform( entity_who_picked )
+
+				CreateItemActionEntity( 'HOOK', x, y )
+			end
 		end,
-		func_remove = function( entity_who_picked )
-			--
-		end,
+		func_remove = function ( entity_who_picked )
+			set_comp_value( entity_who_picked, 'CharacterPlatformingComponent', nil, {
+				pixel_gravity = 350,
+			}, nil )
+		end
 	},
-	]]--
 }
 
 local changed_perks = {

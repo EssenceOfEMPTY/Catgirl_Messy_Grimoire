@@ -43,7 +43,7 @@ if ( language:find( '中文' ) or language:find( '汉化' ) ) then
 				},
 				{
 					category_id = 'SP_THANKS',
-					ui_name = '特别感谢',
+					ui_name = '特别感谢 ( 排名不分先后 )',
 					foldable = true,
 					_folded = true,
 					settings = {
@@ -67,7 +67,33 @@ if ( language:find( '中文' ) or language:find( '汉化' ) ) then
 							_folded = true,
 							settings = {
 								{
-									ui_name = '为一些神奇实现提供代码支持',
+									ui_name = '为一些神奇实现提供代码帮助',
+									not_setting = true,
+								},
+							},
+							not_setting = true,
+						},
+						{
+							category_id = 'SLPAUS',
+							ui_name = 'SlpAus',
+							foldable = true,
+							_folded = true,
+							settings = {
+								{
+									ui_name = '为一些神奇实现提供代码帮助',
+									not_setting = true,
+								},
+							},
+							not_setting = true,
+						},
+						{
+							category_id = 'IMMORTALDAMNED',
+							ui_name = 'ImmortalDamned',
+							foldable = true,
+							_folded = true,
+							settings = {
+								{
+									ui_name = '为一些神奇实现提供代码帮助',
 									not_setting = true,
 								},
 							},
@@ -159,7 +185,7 @@ if ( language:find( '中文' ) or language:find( '汉化' ) ) then
 			scope = MOD_SETTING_SCOPE_NEW_GAME,
 		},
 		{
-			id = 'YIFULINNA_TRANSLATION',
+			id = 'SVAROG_TRANSLATION',
 			ui_name = '翻译: 伊芙琳娜',
 			ui_description = '将部分生物的名称替换为与 伊芙琳娜 相关的文本',
 			value_default = true,
@@ -176,7 +202,7 @@ else
 			settings = {
 				{
 					category_id = 'SP_THANKS',
-					ui_name = 'Special thanks:',
+					ui_name = 'Special thanks ( rankings are not in particular order )',
 					foldable = true,
 					_folded = false,
 					settings = {
@@ -200,7 +226,33 @@ else
 							_folded = true,
 							settings = {
 								{
-									ui_name = 'Provide code support for some magical implementations',
+									ui_name = 'Provide code help for some magical implementations',
+									not_setting = true,
+								},
+							},
+							not_setting = true,
+						},
+						{
+							category_id = 'SLPAUS',
+							ui_name = 'SlpAus',
+							foldable = true,
+							_folded = true,
+							settings = {
+								{
+									ui_name = 'Provide code help for some magical implementations',
+									not_setting = true,
+								},
+							},
+							not_setting = true,
+						},
+						{
+							category_id = 'IMMORTALDAMNED',
+							ui_name = 'ImmortalDamned',
+							foldable = true,
+							_folded = true,
+							settings = {
+								{
+									ui_name = 'Provide code help for some magical implementations',
 									not_setting = true,
 								},
 							},
@@ -278,7 +330,7 @@ else
 			id = 'COMMAND_FEEDBACK',
 			ui_name = 'Command Feedback',
 			ui_description = 'Command spells will display execution feedback at bottom-left',
-			value_default = false,
+			value_default = true,
 			scope = MOD_SETTING_SCOPE_RUNTIME_RESTART,
 		},
 		{
@@ -296,9 +348,13 @@ else
 			scope = MOD_SETTING_SCOPE_NEW_GAME,
 		},
 		{
-			id = 'YIFULINNA_TRANSLATION',
-			ui_name = 'No',
-			ui_description = 'This setting is useless for you',
+			id = 'SVAROG_TRANSLATION',
+			ui_name = 'Translation: Svarog',
+			ui_description =
+				'Replace some of creatures names with text related to Svarog\n\n'
+				.. 'this setting is useless for you, reason:\n'
+				.. b1 .. 'Svarog is a chinese Noita streamer\n'
+				.. b1 .. 'this setting only replace some of chinese translations of his jokes',
 			value_default = false,
 			scope = MOD_SETTING_SCOPE_ONLY_SET_DEFAULT,
 		},

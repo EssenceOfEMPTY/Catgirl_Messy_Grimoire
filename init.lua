@@ -23,11 +23,11 @@ else
 	add_str = '\n' .. ModTextFileGetContent( empty_path .. 'translations/empty_translation.csv' )
 end
 
-translation = translation .. add_str
-
-if ( ModSettingGet( 'empty_the_blackhole_catgirl.YIFULINNA_TRANSLATION' ) ) then
-	translation = translation .. '\n' .. ModTextFileGetContent( empty_path .. 'translations/yifulinna_translation.csv' )
+if ( ModSettingGet( 'empty_the_blackhole_catgirl.SVAROG_TRANSLATION' ) ) then
+	add_str = add_str .. '\n' .. ModTextFileGetContent( empty_path .. 'translations/yifulinna_translation.csv' )
 end
+
+translation = translation .. add_str
 
 ModTextFileSetContent( 'data/translations/common.csv', translation )
 

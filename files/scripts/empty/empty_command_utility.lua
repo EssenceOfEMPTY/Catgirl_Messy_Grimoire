@@ -426,24 +426,10 @@ e_cmd_funcs = {
 				end
 
 				local entity = EntityGetRootEntity( GetUpdatedEntityID( ) )
-				local l_comps = EntityGetComponent( entity, 'LifetimeComponent' ) or { }
-				local count = #l_comps
 
-				for _, l_comp in ipairs( l_comps ) do
-					if ( lifetime == -1 ) then
-						EntityRemoveComponent( entity, l_comp )
-					else
-						ComponentSetValue2( l_comp, 'lifetime', lifetime )
-					end
-				end
-
-				if ( count < 1 and lifetime ~= -1 ) then
-					EntityAddComponent2( entity, 'LifetimeComponent', {
-						lifetime = lifetime
-					} )
-
-					count = 1
-				end
+				local count = set_comp_value( entity, 'LifetimeComponent', nil, {
+					lifetime = lifetime,
+				}, nil )
 
 				if ( count > 0 ) then
 					command_print( command .. '(', '$empty_command_projectile_change_success', tostring( count ) )
@@ -500,12 +486,10 @@ e_cmd_funcs = {
 				end
 
 				local entity = EntityGetRootEntity( GetUpdatedEntityID( ) )
-				local p_comps = EntityGetComponent( entity, 'ProjectileComponent' ) or { }
-				local count = #p_comps
 
-				for _, p_comp in ipairs( p_comps ) do
-					ComponentSetValue2( p_comp, 'lifetime', lifetime )
-				end
+				local count = set_comp_value( entity, 'ProjectileComponent', nil, {
+					lifetime = lifetime,
+				}, nil )
 
 				if ( count > 0 ) then
 					command_print( command .. '(', '$empty_command_projectile_change_success', tostring( count ) )
@@ -562,6 +546,7 @@ e_cmd_funcs = {
 		---@return string|number speed
 		action_1_paras = function ( c, reflect, shooter, speed )
 			local command = 'projectile_speed_set'
+			local command_shot_speed = command .. '_shot_speed'
 
 			if ( type( speed ) ~= 'number' and type( speed ) ~= 'string' ) then
 				command_print( command .. '(', '$empty_command_error_wrong_para_type', 'NUMBER', upper_type( speed ) )
@@ -574,19 +559,24 @@ e_cmd_funcs = {
 				end
 
 				local entity = EntityGetRootEntity( GetUpdatedEntityID( ) )
-				local v_comps = EntityGetComponent( entity, 'VelocityComponent' ) or { }
 
-				remove_speed_limit( v_comps )
+				remove_speed_limit( entity )
 
-				for _, v_comp in ipairs( v_comps ) do
-					local vel_x, vel_y = ComponentGetValue2( v_comp, 'mVelocity' )
+				local count = set_comp_value( entity, 'VelocityComponent', nil, {
+					speed_min = speed,
+					speed_max = speed,
+				}, nil )
 
-					vel_x, vel_y = change_vel( vel_x, vel_y or 0, speed )
+				add_comp_remove_dupli( entity, 'VariableStorageComponent', command_shot_speed, {
+					_tags = command_shot_speed,
+					value_float = speed,
+				} )
 
-					ComponentSetValue2( v_comp, 'mVelocity', vel_x, vel_y )
-				end
-
-				local count = #v_comps
+				add_comp_remove_dupli( entity, 'LuaComponent', command_shot_speed, {
+					_tags = command_shot_speed,
+					script_shot = empty_path .. 'scripts/projectiles/command/' .. command_shot_speed .. '.lua',
+					remove_after_executed = true,
+				} )
 
 				if ( count > 0 ) then
 					command_print( command .. '(', '$empty_command_projectile_change_success', tostring( count ) )
@@ -616,6 +606,7 @@ e_cmd_funcs = {
 		---@return table vel_xy
 		action_2_paras = function ( c, reflect, shooter, vel_x, vel_y )
 			local command = 'projectile_speed_set'
+			local command_shot_velxy = command .. '_shot_velxy'
 
 			if ( type( vel_x ) ~= 'number' and type( vel_x ) ~= 'string' ) then
 				command_print( command .. '(', '$empty_command_error_wrong_para_type', 'NUMBER', upper_type( vel_x ) )
@@ -635,15 +626,25 @@ e_cmd_funcs = {
 				end
 
 				local entity = EntityGetRootEntity( GetUpdatedEntityID( ) )
-				local v_comps = EntityGetComponent( entity, 'VelocityComponent' ) or { }
+				local speed = math.sqrt( vel_x ^ 2, vel_y ^ 2 )
 
-				remove_speed_limit( v_comps )
+				remove_speed_limit( entity )
 
-				for _, v_comp in ipairs( v_comps ) do
-					ComponentSetValue2( v_comp, 'mVelocity', vel_x, vel_y )
-				end
+				local count = set_comp_value( entity, 'VelocityComponent', nil, {
+					speed_min = speed,
+					speed_max = speed,
+				}, nil )
 
-				local count = #v_comps
+				add_comp_remove_dupli( entity, 'VariableStorageComponent', command_shot_velxy, {
+					_tags = command_shot_velxy,
+					value_float = speed,
+				} )
+
+				add_comp_remove_dupli( entity, 'LuaComponent', command_shot_velxy, {
+					_tags = command_shot_velxy,
+					script_shot = empty_path .. 'scripts/projectiles/command/' .. command_shot_velxy .. '.lua',
+					remove_after_executed = true,
+				} )
 
 				if ( count > 0 ) then
 					command_print( command .. '(', '$empty_command_projectile_change_success', tostring( count ) )
@@ -710,12 +711,10 @@ e_cmd_funcs = {
 				end
 
 				local entity = EntityGetRootEntity( GetUpdatedEntityID( ) )
-				local v_comps = EntityGetComponent( entity, 'VelocityComponent' ) or { }
-				local count = #v_comps
 
-				for _, v_comp in ipairs( v_comps ) do
-					ComponentSetValue2( v_comp, 'gravity_y', gravity_y )
-				end
+				local count = set_comp_value( entity, 'VelocityComponent', nil, {
+					gravity_y = gravity_y,
+				}, nil )
 
 				if ( count > 0 ) then
 					command_print( command .. '(', '$empty_command_projectile_change_success', tostring( count ) )
@@ -764,13 +763,11 @@ e_cmd_funcs = {
 				end
 
 				local entity = EntityGetRootEntity( GetUpdatedEntityID( ) )
-				local v_comps = EntityGetComponent( entity, 'VelocityComponent' ) or { }
-				local count = #v_comps
 
-				for _, v_comp in ipairs( v_comps ) do
-					ComponentSetValue2( v_comp, 'gravity_y', gravity_y )
-					ComponentSetValue2( v_comp, 'gravity_x', gravity_x )
-				end
+				local count = set_comp_value( entity, 'VelocityComponent', nil, {
+					gravity_y = gravity_y,
+					gravity_x = gravity_x,
+				} )
 
 				if ( count > 0 ) then
 					command_print( command .. '(', '$empty_command_projectile_change_success', tostring( count ) )
@@ -828,12 +825,10 @@ e_cmd_funcs = {
 				end
 
 				local entity = EntityGetRootEntity( GetUpdatedEntityID( ) )
-				local v_comps = EntityGetComponent( entity, 'VelocityComponent' ) or { }
-				local count = #v_comps
 
-				for _, v_comp in ipairs( v_comps ) do
-					ComponentSetValue2( v_comp, 'air_friction', air_friction )
-				end
+				local count = set_comp_value( entity, 'VelocityComponent', nil, {
+					air_friction = air_friction,
+				} )
 
 				if ( count > 0 ) then
 					command_print( command .. '(', '$empty_command_projectile_change_success', tostring( count ) )
@@ -888,6 +883,7 @@ e_cmd_funcs = {
 		---@return string|number angle
 		action_1_paras = function ( c, reflect, shooter, angle )
 			local command = 'projectile_shoot_angle_add'
+			local command_shot = command .. '_shot'
 
 			if ( type( angle ) ~= 'number' and type( angle ) ~= 'string' ) then
 				command_print( command .. '(', '$empty_command_error_wrong_para_type', 'NUMBER', upper_type( angle ) )
@@ -900,22 +896,17 @@ e_cmd_funcs = {
 				end
 
 				local entity = EntityGetRootEntity( GetUpdatedEntityID( ) )
-				local v_comps = EntityGetComponent( entity, 'VelocityComponent' ) or { }
-				local count = #v_comps
 
-				for _, v_comp in ipairs( v_comps ) do
-					local vel_x, vel_y = ComponentGetValue2( v_comp, 'mVelocity' )
+				add_comp_remove_dupli( entity, 'VariableStorageComponent', command_shot, {
+					_tags = command_shot,
+					value_float = angle,
+				} )
 
-					vel_x, vel_y = rot_vel( vel_x, vel_y or 0, angle )
-
-					ComponentSetValue2( v_comp, 'mVelocity', vel_x, vel_y )
-				end
-
-				if ( count > 0 ) then
-					command_print( command .. '(', '$empty_command_projectile_change_success', tostring( count ) )
-				else
-					command_print( command .. '(', '$empty_command_error_no_projectile_change' )
-				end
+				add_comp_remove_dupli( entity, 'LuaComponent', command_shot, {
+					_tags = command_shot,
+					script_shot = empty_path .. 'scripts/projectiles/command/' .. command_shot .. '.lua',
+					remove_after_executed = true,
+				} )
 			else
 				add_desc_by_info( c, {
 					replace = true,
@@ -962,15 +953,16 @@ e_cmd_funcs = {
 
 				local entity = EntityGetRootEntity( GetUpdatedEntityID( ) )
 
-				EntityAddComponent2( entity, 'VariableStorageComponent', {
+				add_comp_remove_dupli( entity, 'VariableStorageComponent', command_delay, {
 					_tags = command_delay,
 					value_float = angle_delay,
 				} )
 
-				EntityAddComponent2( entity, 'LuaComponent', {
+				add_comp_remove_dupli( entity, 'LuaComponent', command_delay, {
 					_tags = command_delay,
 					script_source_file = empty_path .. 'scripts/projectiles/command/' .. command_delay .. '.lua',
 					execute_every_n_frame = delay,
+					remove_after_executed = true,
 				} )
 			else
 				add_desc_by_info( c, {
@@ -1021,6 +1013,7 @@ e_cmd_funcs = {
 		---@return string|number angle
 		action_1_paras = function ( c, reflect, shooter, angle )
 			local command = 'projectile_shoot_angle_set'
+			local command_shot = command .. '_shot'
 
 			if ( type( angle ) ~= 'number' and type( angle ) ~= 'string' ) then
 				command_print( command .. '(', '$empty_command_error_wrong_para_type', 'NUMBER', upper_type( angle ) )
@@ -1033,22 +1026,17 @@ e_cmd_funcs = {
 				end
 
 				local entity = EntityGetRootEntity( GetUpdatedEntityID( ) )
-				local v_comps = EntityGetComponent( entity, 'VelocityComponent' ) or { }
-				local count = #v_comps
 
-				for _, v_comp in ipairs( v_comps ) do
-					local vel_x, vel_y = ComponentGetValue2( v_comp, 'mVelocity' )
+				add_comp_remove_dupli( entity, 'VariableStorageComponent', command_shot, {
+					_tags = command_shot,
+					value_float = angle,
+				} )
 
-					vel_x, vel_y = abs_rot_vel( vel_x, vel_y or 0, angle )
-
-					ComponentSetValue2( v_comp, 'mVelocity', vel_x, vel_y )
-				end
-
-				if ( count > 0 ) then
-					command_print( command .. '(', '$empty_command_projectile_change_success', tostring( count ) )
-				else
-					command_print( command .. '(', '$empty_command_error_no_projectile_change' )
-				end
+				add_comp_remove_dupli( entity, 'LuaComponent', command_shot, {
+					_tags = command_shot,
+					script_shot = empty_path .. 'scripts/projectiles/command/' .. command_shot .. '.lua',
+					remove_after_executed = true,
+				} )
 			else
 				add_desc_by_info( c, {
 					replace = true,
@@ -1095,15 +1083,16 @@ e_cmd_funcs = {
 
 				local entity = EntityGetRootEntity( GetUpdatedEntityID( ) )
 
-				EntityAddComponent2( entity, 'VariableStorageComponent', {
+				add_comp_remove_dupli( entity, 'VariableStorageComponent', command_delay, {
 					_tags = command_delay,
 					value_float = angle_delay,
 				} )
 
-				EntityAddComponent2( entity, 'LuaComponent', {
+				add_comp_remove_dupli( entity, 'LuaComponent', command_delay, {
 					_tags = command_delay,
 					script_source_file = empty_path .. 'scripts/projectiles/command/' .. command_delay .. '.lua',
 					execute_every_n_frame = delay,
+					remove_after_executed = true,
 				} )
 			else
 				add_desc_by_info( c, {
@@ -1156,12 +1145,10 @@ e_cmd_funcs = {
 				end
 
 				local entity = EntityGetRootEntity( GetUpdatedEntityID( ) )
-				local p_comps = EntityGetComponent( entity, 'ProjectileComponent' ) or { }
-				local rad, count = deg_to_rad( angle ), #p_comps
 
-				for _, p_comp in ipairs( p_comps ) do
-					ComponentSetValue2( p_comp, 'direction_random_rad', rad )
-				end
+				local count = set_comp_value( entity, 'ProjectileComponent', nil, {
+					direction_random_rad = deg_to_rad( angle ),
+				}, nil )
 
 				if ( count > 0 ) then
 					command_print( command .. '(', '$empty_command_projectile_change_success', tostring( count ) )
@@ -1254,41 +1241,19 @@ e_cmd_funcs = {
 				end
 
 				local entity = EntityGetRootEntity( GetUpdatedEntityID( ) )
-				local v_comps = EntityGetComponent( entity, 'VariableStorageComponent', command_reflect )
 
-				if ( not v_comps ) then
-					EntityAddComponent2( entity, 'VariableStorageComponent', {
-						_tags = command_reflect,
-						value_int = 0,
-						value_string = tostring( angle ),
-						value_float = 0,
-					} )
-				else
-					for _, v_comp in ipairs( v_comps or { } ) do
-						if ( _ == 1 ) then
-							ComponentSetValue2( v_comp, 'value_int', 0 )
-							ComponentSetValue2( v_comp, 'value_string', tostring( angle ) )
-						else
-							EntityRemoveComponent( entity, v_comp )
-						end
-					end
-				end
+				add_comp_remove_dupli( entity, 'VariableStorageComponent', command_reflect, {
+					_tags = command_reflect,
+					value_int = 0,
+					value_string = tostring( angle ),
+					value_float = 0,
+				} )
 
-				local l_comps = EntityGetComponent( entity, 'LuaComponent', command_reflect )
-
-				if ( not l_comps ) then
-					EntityAddComponent2( entity, 'LuaComponent', {
-						_tags = command_reflect,
-						execute_every_n_frame = 0,
-						script_source_file = empty_path .. 'scripts/projectiles/command/' .. command_reflect .. '.lua',
-					} )
-				else
-					for _, l_comp in ipairs( l_comps or { } ) do
-						if ( _ > 1 ) then
-							EntityRemoveComponent( entity, l_comp )
-						end
-					end
-				end
+				add_comp_remove_dupli( entity, 'LuaComponent', command_reflect, {
+					_tags = command_reflect,
+					script_source_file = empty_path .. 'scripts/projectiles/command/' .. command_reflect .. '.lua',
+					execute_every_n_frame = 0,
+				} )
 			else
 				add_desc_by_info( c, {
 					replace = true,
@@ -1331,42 +1296,19 @@ e_cmd_funcs = {
 				end
 
 				local entity = EntityGetRootEntity( GetUpdatedEntityID( ) )
-				local v_comps = EntityGetComponent( entity, 'VariableStorageComponent', command_reflect )
 
-				if ( not v_comps ) then
-					EntityAddComponent2( entity, 'VariableStorageComponent', {
-						_tags = command_reflect,
-						value_int = 0,
-						value_string = tostring( angle ),
-						value_float = inc,
-					} )
-				else
-					for _, v_comp in ipairs( v_comps or { } ) do
-						if ( _ == 1 ) then
-							ComponentSetValue2( v_comp, 'value_int', 0 )
-							ComponentSetValue2( v_comp, 'value_string', tostring( angle ) )
-							ComponentSetValue2( v_comp, 'value_float', inc )
-						else
-							EntityRemoveComponent( entity, v_comp )
-						end
-					end
-				end
+				add_comp_remove_dupli( entity, 'VariableStorageComponent', command_reflect, {
+					_tags = command_reflect,
+					value_int = 0,
+					value_string = tostring( angle ),
+					value_float = inc,
+				} )
 
-				local l_comps = EntityGetComponent( entity, 'LuaComponent', command_reflect )
-
-				if ( not l_comps ) then
-					EntityAddComponent2( entity, 'LuaComponent', {
-						_tags = command_reflect,
-						execute_every_n_frame = 0,
-						script_source_file = empty_path .. 'scripts/projectiles/command/' .. command_reflect .. '.lua',
-					} )
-				else
-					for _, l_comp in ipairs( l_comps or { } ) do
-						if ( _ > 1 ) then
-							EntityRemoveComponent( entity, l_comp )
-						end
-					end
-				end
+				add_comp_remove_dupli( entity, 'LuaComponent', command_reflect, {
+					_tags = command_reflect,
+					script_source_file = empty_path .. 'scripts/projectiles/command/' .. command_reflect .. '.lua',
+					execute_every_n_frame = 0,
+				} )
 			else
 				add_desc_by_info( c, {
 					replace = true,
@@ -1422,42 +1364,19 @@ e_cmd_funcs = {
 				end
 
 				local entity = EntityGetRootEntity( GetUpdatedEntityID( ) )
-				local v_comps = EntityGetComponent( entity, 'VariableStorageComponent', command_delay )
 
-				if ( not v_comps ) then
-					EntityAddComponent2( entity, 'VariableStorageComponent', {
-						_tags = command_delay,
-						value_int = 0,
-						value_string = tostring( angle_delay ),
-						value_float = inc_delay,
-					} )
-				else
-					for _, v_comp in ipairs( v_comps or { } ) do
-						if ( _ == 1 ) then
-							ComponentSetValue2( v_comp, 'value_int', 0 )
-							ComponentSetValue2( v_comp, 'value_string', tostring( angle_delay ) )
-							ComponentSetValue2( v_comp, 'value_float', inc_delay )
-						else
-							EntityRemoveComponent( entity, v_comp )
-						end
-					end
-				end
+				add_comp_remove_dupli( entity, 'VariableStorageComponent', command_delay, {
+					_tags = command_delay,
+					value_int = 0,
+					value_string = tostring( angle_delay ),
+					value_float = inc_delay,
+				} )
 
-				local l_comps = EntityGetComponent( entity, 'LuaComponent', command_trigger )
-
-				if ( not l_comps ) then
-					EntityAddComponent2( entity, 'LuaComponent', {
-						_tags = command_trigger,
-						script_source_file = empty_path .. 'scripts/projectiles/command/' .. command_trigger .. '.lua',
-						execute_every_n_frame = delay,
-					} )
-				else
-					for _, l_comp in ipairs( l_comps or { } ) do
-						if ( _ > 1 ) then
-							EntityRemoveComponent( entity, l_comp )
-						end
-					end
-				end
+				add_comp_remove_dupli( entity, 'LuaComponent', command_delay, {
+					_tags = command_trigger,
+					script_source_file = empty_path .. 'scripts/projectiles/command/' .. command_trigger .. '.lua',
+					execute_every_n_frame = delay,
+				} )
 			else
 				add_desc_by_info( c, {
 					replace = true,
@@ -1526,58 +1445,25 @@ e_cmd_funcs = {
 				end
 
 				local entity = EntityGetRootEntity( GetUpdatedEntityID( ) )
-				local v_comps = EntityGetComponent( entity, 'VariableStorageComponent', command_delay )
 
-				if ( not v_comps ) then
-					EntityAddComponent2( entity, 'VariableStorageComponent', {
-						_tags = command_delay,
-						value_int = 0,
-						value_string = tostring( angle_delay ),
-						value_float = inc_delay,
-					} )
-				else
-					for _, v_comp in ipairs( v_comps or { } ) do
-						if ( _ == 1 ) then
-							ComponentSetValue2( v_comp, 'value_int', 0 )
-							ComponentSetValue2( v_comp, 'value_string', tostring( angle_delay ) )
-							ComponentSetValue2( v_comp, 'value_float', inc_delay )
-						else
-							EntityRemoveComponent( entity, v_comp )
-						end
-					end
-				end
+				add_comp_remove_dupli( entity, 'VariableStorageComponent', command_delay, {
+					_tags = command_delay,
+					value_int = 0,
+					value_string = tostring( angle_delay ),
+					value_float = inc_delay,
+				} )
 
-				local l_comps = EntityGetComponent( entity, 'LuaComponent', command_trigger )
+				add_comp_remove_dupli( entity, 'LuaComponent', command_trigger, {
+					_tags = command_trigger,
+					script_source_file = empty_path .. 'scripts/projectiles/command/' .. command_trigger .. '.lua',
+					execute_every_n_frame = delay,
+				} )
 
-				if ( not l_comps ) then
-					EntityAddComponent2( entity, 'LuaComponent', {
-						_tags = command_trigger,
-						script_source_file = empty_path .. 'scripts/projectiles/command/' .. command_trigger .. '.lua',
-						execute_every_n_frame = delay,
-					} )
-				else
-					for _, l_comp in ipairs( l_comps or { } ) do
-						if ( _ > 1 ) then
-							EntityRemoveComponent( entity, l_comp )
-						end
-					end
-				end
-
-				l_comps = EntityGetComponent( entity, 'LuaComponent', command_death )
-
-				if ( not l_comps ) then
-					EntityAddComponent2( entity, 'LuaComponent', {
-						_tags = command_death,
-						script_source_file = empty_path .. 'scripts/projectiles/command/' .. command_death .. '.lua',
-						execute_every_n_frame = delay + duration,
-					} )
-				else
-					for _, l_comp in ipairs( l_comps or { } ) do
-						if ( _ > 1 ) then
-							EntityRemoveComponent( entity, l_comp )
-						end
-					end
-				end
+				add_comp_remove_dupli( entity, 'LuaComponent', command_death, {
+					_tags = command_death,
+					script_source_file = empty_path .. 'scripts/projectiles/command/' .. command_death .. '.lua',
+					execute_every_n_frame = delay + duration,
+				} )
 			else
 				add_desc_by_info( c, {
 					replace = true,
@@ -1667,41 +1553,19 @@ e_cmd_funcs = {
 				end
 
 				local entity = EntityGetRootEntity( GetUpdatedEntityID( ) )
-				local v_comps = EntityGetComponent( entity, 'VariableStorageComponent', command_reflect )
 
-				if ( not v_comps ) then
-					EntityAddComponent2( entity, 'VariableStorageComponent', {
-						_tags = command_reflect,
-						value_int = 0,
-						value_string = tostring( angle ),
-						value_float = 0,
-					} )
-				else
-					for _, v_comp in ipairs( v_comps or { } ) do
-						if ( _ == 1 ) then
-							ComponentSetValue2( v_comp, 'value_int', 0 )
-							ComponentSetValue2( v_comp, 'value_string', tostring( angle ) )
-						else
-							EntityRemoveComponent( entity, v_comp )
-						end
-					end
-				end
+				add_comp_remove_dupli( entity, 'VariableStorageComponent', command_reflect, {
+					_tags = command_reflect,
+					value_int = 0,
+					value_string = tostring( angle ),
+					value_float = 0,
+				} )
 
-				local l_comps = EntityGetComponent( entity, 'LuaComponent', command_reflect )
-
-				if ( not l_comps ) then
-					EntityAddComponent2( entity, 'LuaComponent', {
-						_tags = command_reflect,
-						script_source_file = empty_path .. 'scripts/projectiles/command/' .. command_reflect .. '.lua',
-						execute_every_n_frame = 0,
-					} )
-				else
-					for _, l_comp in ipairs( l_comps or { } ) do
-						if ( _ > 1 ) then
-							EntityRemoveComponent( entity, l_comp )
-						end
-					end
-				end
+				add_comp_remove_dupli( entity, 'LuaComponent', command_reflect, {
+					_tags = command_reflect,
+					script_source_file = empty_path .. 'scripts/projectiles/command/' .. command_reflect .. '.lua',
+					execute_every_n_frame = 0,
+				} )
 			else
 				add_desc_by_info( c, {
 					replace = true,
@@ -1745,42 +1609,19 @@ e_cmd_funcs = {
 				end
 
 				local entity = EntityGetRootEntity( GetUpdatedEntityID( ) )
-				local v_comps = EntityGetComponent( entity, 'VariableStorageComponent', command_reflect )
 
-				if ( not v_comps ) then
-					EntityAddComponent2( entity, 'VariableStorageComponent', {
-						_tags = command_reflect,
-						value_int = 0,
-						value_string = tostring( angle ),
-						value_float = inc,
-					} )
-				else
-					for _, v_comp in ipairs( v_comps or { } ) do
-						if ( _ == 1 ) then
-							ComponentSetValue2( v_comp, 'value_int', 0 )
-							ComponentSetValue2( v_comp, 'value_string', tostring( angle ) )
-							ComponentSetValue2( v_comp, 'value_float', inc )
-						else
-							EntityRemoveComponent( entity, v_comp )
-						end
-					end
-				end
+				add_comp_remove_dupli( entity, 'VariableStorageComponent', command_reflect, {
+					_tags = command_reflect,
+					value_int = 0,
+					value_string = tostring( angle ),
+					value_float = inc,
+				} )
 
-				local l_comps = EntityGetComponent( entity, 'LuaComponent', command_reflect )
-
-				if ( not l_comps ) then
-					EntityAddComponent2( entity, 'LuaComponent', {
-						_tags = command_reflect,
-						script_source_file = empty_path .. 'scripts/projectiles/command/' .. command_reflect .. '.lua',
-						execute_every_n_frame = 0,
-					} )
-				else
-					for _, l_comp in ipairs( l_comps or { } ) do
-						if ( _ > 1 ) then
-							EntityRemoveComponent( entity, l_comp )
-						end
-					end
-				end
+				add_comp_remove_dupli( entity, 'LuaComponent', command_reflect, {
+					_tags = command_reflect,
+					script_source_file = empty_path .. 'scripts/projectiles/command/' .. command_reflect .. '.lua',
+					execute_every_n_frame = 0,
+				} )
 			else
 				add_desc_by_info( c, {
 					replace = true,
@@ -1836,42 +1677,19 @@ e_cmd_funcs = {
 				end
 
 				local entity = EntityGetRootEntity( GetUpdatedEntityID( ) )
-				local v_comps = EntityGetComponent( entity, 'VariableStorageComponent', command_delay )
 
-				if ( not v_comps ) then
-					EntityAddComponent2( entity, 'VariableStorageComponent', {
-						_tags = command_delay,
-						value_int = 0,
-						value_string = tostring( angle_delay ),
-						value_float = inc_delay,
-					} )
-				else
-					for _, v_comp in ipairs( v_comps or { } ) do
-						if ( _ == 1 ) then
-							ComponentSetValue2( v_comp, 'value_int', 0 )
-							ComponentSetValue2( v_comp, 'value_string', tostring( angle_delay ) )
-							ComponentSetValue2( v_comp, 'value_float', inc_delay )
-						else
-							EntityRemoveComponent( entity, v_comp )
-						end
-					end
-				end
+				add_comp_remove_dupli( entity, 'VariableStorageComponent', command_delay, {
+					_tags = command_delay,
+					value_int = 0,
+					value_string = tostring( angle_delay ),
+					value_float = inc_delay,
+				} )
 
-				local l_comps = EntityGetComponent( entity, 'LuaComponent', command_trigger )
-
-				if ( not l_comps ) then
-					EntityAddComponent2( entity, 'LuaComponent', {
-						_tags = command_trigger,
-						script_source_file = empty_path .. 'scripts/projectiles/command/' .. command_trigger .. '.lua',
-						execute_every_n_frame = delay,
-					} )
-				else
-					for _, l_comp in ipairs( l_comps or { } ) do
-						if ( _ > 1 ) then
-							EntityRemoveComponent( entity, l_comp )
-						end
-					end
-				end
+				add_comp_remove_dupli( entity, 'LuaComponent', command_trigger, {
+					_tags = command_trigger,
+					script_source_file = empty_path .. 'scripts/projectiles/command/' .. command_trigger .. '.lua',
+					execute_every_n_frame = delay,
+				} )
 			else
 				add_desc_by_info( c, {
 					replace = true,
@@ -1940,58 +1758,25 @@ e_cmd_funcs = {
 				end
 
 				local entity = EntityGetRootEntity( GetUpdatedEntityID( ) )
-				local v_comps = EntityGetComponent( entity, 'VariableStorageComponent', command_delay )
 
-				if ( not v_comps ) then
-					EntityAddComponent2( entity, 'VariableStorageComponent', {
-						_tags = command_delay,
-						value_int = 0,
-						value_string = tostring( angle_delay ),
-						value_float = inc_delay,
-					} )
-				else
-					for _, v_comp in ipairs( v_comps or { } ) do
-						if ( _ == 1 ) then
-							ComponentSetValue2( v_comp, 'value_int', 0 )
-							ComponentSetValue2( v_comp, 'value_string', tostring( angle_delay ) )
-							ComponentSetValue2( v_comp, 'value_float', inc_delay )
-						else
-							EntityRemoveComponent( entity, v_comp )
-						end
-					end
-				end
+				add_comp_remove_dupli( entity, 'VariableStorageComponent', command_delay, {
+					_tags = command_delay,
+					value_int = 0,
+					value_string = tostring( angle_delay ),
+					value_float = inc_delay,
+				} )
 
-				local l_comps = EntityGetComponent( entity, 'LuaComponent', command_trigger )
+				add_comp_remove_dupli( entity, 'LuaComponent', command_trigger, {
+					_tags = command_trigger,
+					script_source_file = empty_path .. 'scripts/projectiles/command/' .. command_trigger .. '.lua',
+					execute_every_n_frame = delay,
+				} )
 
-				if ( not l_comps ) then
-					EntityAddComponent2( entity, 'LuaComponent', {
-						_tags = command_trigger,
-						script_source_file = empty_path .. 'scripts/projectiles/command/' .. command_trigger .. '.lua',
-						execute_every_n_frame = delay,
-					} )
-				else
-					for _, l_comp in ipairs( l_comps or { } ) do
-						if ( _ > 1 ) then
-							EntityRemoveComponent( entity, l_comp )
-						end
-					end
-				end
-
-				l_comps = EntityGetComponent( entity, 'LuaComponent', command_death )
-
-				if ( not l_comps ) then
-					EntityAddComponent2( entity, 'LuaComponent', {
-						_tags = command_death,
-						script_source_file = empty_path .. 'scripts/projectiles/command/' .. command_death .. '.lua',
-						execute_every_n_frame = delay + duration,
-					} )
-				else
-					for _, l_comp in ipairs( l_comps or { } ) do
-						if ( _ > 1 ) then
-							EntityRemoveComponent( entity, l_comp )
-						end
-					end
-				end
+				add_comp_remove_dupli( entity, 'LuaComponent', command_death, {
+					_tags = command_death,
+					script_source_file = empty_path .. 'scripts/projectiles/command/' .. command_death .. '.lua',
+					execute_every_n_frame = delay + duration,
+				} )
 			else
 				add_desc_by_info( c, {
 					replace = true,
