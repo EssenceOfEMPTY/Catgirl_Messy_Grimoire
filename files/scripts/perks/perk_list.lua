@@ -1092,10 +1092,18 @@ local new_perks =
 				add_table( players, poly_players, false, true )
 
 				for _, player in ipairs( players ) do
-					LoadGameEffectEntityTo( player, 'data/entities/misc/effect_curse_cloud_02.xml' )
+					EntityAddComponent2( player, 'LuaComponent', {
+						script_source_file = empty_path .. 'scripts/perks/curse_malice_washes_over_delay.lua',
+						execute_every_n_frame = 300,
+						remove_after_executed = true,
+					} )
 				end
 			else
-				LoadGameEffectEntityTo( entity_who_picked, 'data/entities/misc/effect_curse_cloud_02.xml' )
+				EntityAddComponent2( entity_who_picked, 'LuaComponent', {
+					script_source_file = empty_path .. 'scripts/perks/curse_malice_washes_over_delay.lua',
+					execute_every_n_frame = 300,
+					remove_after_executed = true,
+				} )
 			end
 		end,
 		func_remove = function( entity_who_picked )
@@ -1263,11 +1271,12 @@ for i, _ in ipairs( new_perks ) do
 		local info = string.lower( _.info )
 		local e_info = 'empty_' .. info
 
-		_.id= string.upper( e_info )
-		_.ui_name= '$perk_' .. e_info
-		_.ui_description= '$perkdesc_' .. e_info
-		_.ui_icon= ui_icon_url .. info .. '.png'
-		_.perk_icon= perk_icon_url .. info .. '.png'
+		_.id				= string.upper( e_info )
+		_.ui_name			= '$perk_' .. e_info
+		_.ui_description	= '$perkdesc_' .. e_info
+		_.ui_icon			= ui_icon_url .. info .. '.png'
+		_.perk_icon			= perk_icon_url .. info .. '.png'
+		_.info				= nil
 	end
 end
 

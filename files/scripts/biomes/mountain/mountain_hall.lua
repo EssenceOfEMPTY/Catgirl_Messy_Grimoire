@@ -7,21 +7,21 @@ g_cartlike =
 {
 	total_prob = 0,
 	{
-		prob		= 4,
+		prob		= 1.2,
 		min_count	= 1,
 		max_count	= 1,
 		offset_y	= -3,
 		entity	= 'data/entities/props/physics/minecart.xml'
 	},
 	{
-		prob		= 4,
+		prob		= 1,
 		min_count	= 1,
 		max_count	= 1,
 		offset_y	= -5,
 		entity	= 'data/entities/props/physics_cart.xml'
 	},
 	{
-		prob		= 2,
+		prob		= 0.8,
 		min_count	= 1,
 		max_count	= 1,
 		offset_y	= -7,
@@ -31,32 +31,45 @@ g_cartlike =
 		prob		= 0.5,
 		min_count	= 1,
 		max_count	= 1,
-		offset_y	= 0,
-		entity	= 'data/entities/props/physics_box_explosive.xml'
+		entities = {
+			{
+				min_count = 1,
+				max_count = 15,
+				entity = 'data/entities/props/physics_barrel_oil.xml',
+			}
+		},
 	},
 	{
-		prob		= 0.4,
+		prob		= 0.5,
 		min_count	= 1,
 		max_count	= 1,
-		offset_y	= 0,
-		entity	= 'data/entities/props/physics_barrel_radioactive.xml'
+		entities = {
+			{
+				min_count = 1,
+				max_count = 15,
+				entity = 'data/entities/props/physics_box_explosive.xml',
+			}
+		},
 	},
 	{
-		prob		= 0.3,
+		prob		= 0.5,
 		min_count	= 1,
 		max_count	= 1,
-		offset_y	= 0,
-		entity	= 'data/entities/props/physics_barrel_oil.xml'
+		entities = {
+			{
+				min_count = 1,
+				max_count = 15,
+				entity = 'data/entities/props/physics_barrel_radioactive.xml',
+			}
+		},
 	},
 }
 
 local old_spawn_crate = spawn_crate
 function spawn_crate( x, y )
-	old_spawn_crate( x, y )
-
 	EntityLoad( 'data/entities/buildings/workshop_tree_holiday.xml', x, y )
 
-	empty_spawn_all_curses( x + 48, y - 64 )
+	EntityLoad( empty_path .. 'entities/buildings/teleport_pyramid.xml', x - 512, y - 128 )
 
-	EntityLoad( empty_path .. 'entities/buildings/teleport_pyramid.xml', x - 384, y - 128 )
+	old_spawn_crate( x, y )
 end

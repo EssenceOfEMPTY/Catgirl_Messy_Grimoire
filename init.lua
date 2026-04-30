@@ -14,6 +14,8 @@ dofile_once( 'mods/empty_the_blackhole_catgirl/files/scripts/empty/empty_utility
 --	end
 --end
 
+---<<<<<<<<<<<<<<<<<<<<<<<< 翻译 >>>>>>>>>>>>>>>>>>>>>>>>---
+
 local translation = ModTextFileGetContent( 'data/translations/common.csv' )
 local add_str = ''
 
@@ -31,11 +33,15 @@ translation = translation .. add_str
 
 ModTextFileSetContent( 'data/translations/common.csv', translation )
 
+---<<<<<<<<<<<<<<<<<<<<<<<< 魔数 >>>>>>>>>>>>>>>>>>>>>>>>---
+
 ModMagicNumbersFileAdd( empty_path .. 'magic_numbers/default.xml' )
 
 if ( ModSettingGet( 'empty_the_blackhole_catgirl.NO_KUMMITUS' ) ) then
 	ModMagicNumbersFileAdd( empty_path .. 'magic_numbers/no_kummitus.xml' )
 end
+
+---<<<<<<<<<<<<<<<<<<<<<<<< 设置: 视野提升 >>>>>>>>>>>>>>>>>>>>>>>>---
 
 if ( ModSettingGet( 'empty_the_blackhole_catgirl.VISION_IMPROVE' ) ) then
 	ModMagicNumbersFileAdd( empty_path .. 'magic_numbers/zoom.xml' )
@@ -49,6 +55,8 @@ if ( ModSettingGet( 'empty_the_blackhole_catgirl.VISION_IMPROVE' ) ) then
 		ModTextFileSetContent( 'data/' .. each, ModTextFileGetContent( empty_path .. each ) )
 	end
 end
+
+---<<<<<<<<<<<<<<<<<<<<<<<< 生物群系追加 >>>>>>>>>>>>>>>>>>>>>>>>---
 
 local biomes_append = {
 	'alchemist_secret',
@@ -77,11 +85,12 @@ for _, each in ipairs( biomes_append ) do
 	ModLuaFileAppend( 'data/scripts/biomes/' .. each .. '.lua', empty_path .. 'scripts/biomes/biome_append.lua' )
 end
 
-ModLuaFileAppend( 'data/scripts/biomes/the_end.lua', empty_path .. 'scripts/biomes/imitated_biomes.lua' )
+---<<<<<<<<<<<<<<<<<<<<<<<< 通用 lua 追加 >>>>>>>>>>>>>>>>>>>>>>>>---
 
 local lua_append = {
 	'scripts/biomes/mountain/mountain_hall',
 	'scripts/biomes/mountain_tree',
+	'scripts/biomes/the_end',
 	'scripts/perks/perk',
 	'scripts/perks/perk_list',
 	'scripts/gun/gun',
@@ -92,4 +101,31 @@ local lua_append = {
 
 for _, each in ipairs( lua_append ) do
 	ModLuaFileAppend( 'data/' .. each .. '.lua', empty_path .. each .. '.lua' )
+end
+
+---<<<<<<<<<<<<<<<<<<<<<<<< 开局诅咒 >>>>>>>>>>>>>>>>>>>>>>>>---
+
+dofile_once( 'data/scripts/perks/perk_utilities.lua' )
+dofile_once( 'data/scripts/perks/perk.lua' )
+
+function OnPlayerSpawned( player )
+	if ( GlobalsGetValue( 'EMPTY_STARTING_CURSE', '0' ) == '0' ) then
+		GlobalsSetValue( 'EMPTY_STARTING_CURSE', '1' )
+
+		local all_curses = {
+			'CURSE_MONK',
+			'CURSE_ALWAYS_SHUFFLE',
+			'CURSE_SHORT_WAND',
+			'CURSE_MALICE_WASHES_OVER',
+			'CURSE_REALITY_SHIFT',
+			'CURSE_GUARANTEED_LOSE',
+			'CURSE_GRAVITY_FREE',
+		}
+
+		for _, curse in ipairs( all_curses ) do
+			if ( ModSettingGet( 'empty_the_blackhole_catgirl.' .. curse ) ) then
+				perk_pickup( nil, player, 'EMPTY_' .. curse, false, false, true )
+			end
+		end
+	end
 end

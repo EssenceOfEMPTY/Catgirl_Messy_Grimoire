@@ -136,31 +136,134 @@ if ( language:find( '中文' ) or language:find( '汉化' ) ) then
 			not_setting = true,
 		},
 		{
+			category_id = 'SETTINGS_PERKS',
+			ui_name = '天赋设置',
+			foldable = true,
+			_folded = true,
+			settings = {
+				{
+					id = 'UNLIMITED_SPELLS',
+					ui_name = '[ 无限法术 ] 力量解放',
+					ui_description =
+						'令 [ 无限法术 ] 天赋对此模组、位于此模组加载前加载的模组\n'
+						.. b1 .. '以及原版 Noita 中包含的所有法术均生效',
+					value_default = false,
+					scope = MOD_SETTING_SCOPE_NEW_GAME,
+				},
+			},
+		},
+		{
+			category_id = 'SETTINGS_SPELLS',
+			ui_name = '法术设置',
+			foldable = true,
+			_folded = true,
+			settings = {
+				{
+					id = 'UNLOCK_ALL_SPELL',
+					ui_name = '法术无需解锁',
+					ui_description = '所有法术无需解锁即可生成',
+					value_default = false,
+					scope = MOD_SETTING_SCOPE_NEW_GAME,
+				},
+				{
+					id = 'SPELL_ALL_EQUAL',
+					ui_name = '法术等可能生成',
+					ui_description = '所有已解锁法术以相同概率在每个法术等级生成',
+					value_default = false,
+					scope = MOD_SETTING_SCOPE_NEW_GAME,
+				},
+			},
+		},
+		{
+			category_id = 'SETTINGS_ENEMIES',
+			ui_name = '敌人设置',
+			foldable = true,
+			_folded = true,
+			settings = {
+				{
+					id = 'SPAWN_MANY_ENEMIES',
+					ui_name = '刷怪+',
+					ui_description = '刷怪率大幅提升',
+					value_default = false,
+					scope = MOD_SETTING_SCOPE_NEW_GAME,
+				},
+				{
+					id = 'NO_KUMMITUS',
+					ui_name = '再无幻影',
+					ui_description = '历史幻象不再生成',
+					value_default = false,
+					scope = MOD_SETTING_SCOPE_NEW_GAME,
+				},
+			},
+		},
+		{
+			category_id = 'SETTINGS_CURSES',
+			ui_name = '诅咒设置',
+			foldable = true,
+			_folded = true,
+			settings = {
+				{
+					ui_name =
+						'如果你正在寻找某种挑战......\n'
+						.. b1 .. '那么这就是了',
+					not_setting = true,
+				},
+				{
+					id = 'CURSE_MONK',
+					ui_name = '和尚',
+					ui_description = '新游戏开始时, 你获得 [ 诅咒: 和尚 ]',
+					value_default = false,
+					scope = MOD_SETTING_SCOPE_NEW_GAME,
+				},
+				{
+					id = 'CURSE_ALWAYS_SHUFFLE',
+					ui_name = '始终乱序',
+					ui_description = '新游戏开始时, 你获得 [ 诅咒: 始终乱序 ]',
+					value_default = false,
+					scope = MOD_SETTING_SCOPE_NEW_GAME,
+				},
+				{
+					id = 'CURSE_SHORT_WAND',
+					ui_name = '短杖',
+					ui_description = '新游戏开始时, 你获得 [ 诅咒: 短杖 ]',
+					value_default = false,
+					scope = MOD_SETTING_SCOPE_NEW_GAME,
+				},
+				{
+					id = 'CURSE_MALICE_WASHES_OVER',
+					ui_name = '邪念冲刷而过',
+					ui_description = '新游戏开始时, 你获得 [ 诅咒: 邪念冲刷而过 ]',
+					value_default = false,
+					scope = MOD_SETTING_SCOPE_NEW_GAME,
+				},
+				{
+					id = 'CURSE_REALITY_SHIFT',
+					ui_name = '现实变换',
+					ui_description = '新游戏开始时, 你获得 [ 诅咒: 现实变换 ]',
+					value_default = false,
+					scope = MOD_SETTING_SCOPE_NEW_GAME,
+				},
+				{
+					id = 'CURSE_GUARANTEED_LOSE',
+					ui_name = '“保送”',
+					ui_description = '新游戏开始时, 你获得 [ 诅咒: “保送” ]',
+					value_default = false,
+					scope = MOD_SETTING_SCOPE_NEW_GAME,
+				},
+				{
+					id = 'CURSE_GRAVITY_FREE',
+					ui_name = '力场解放',
+					ui_description = '新游戏开始时, 你获得 [ 诅咒: 力场解放 ]',
+					value_default = false,
+					scope = MOD_SETTING_SCOPE_NEW_GAME,
+				},
+			},
+		},
+		{
 			id = 'VISION_IMPROVE',
 			ui_name = '视野提升',
 			ui_description = '150% 视野宽高',
 			value_default = true,
-			scope = MOD_SETTING_SCOPE_NEW_GAME,
-		},
-		{
-			id = 'UNLOCK_ALL_SPELL',
-			ui_name = '法术无需解锁',
-			ui_description = '所有法术无需解锁即可生成',
-			value_default = false,
-			scope = MOD_SETTING_SCOPE_NEW_GAME,
-		},
-		{
-			id = 'SPELL_ALL_EQUAL',
-			ui_name = '法术等可能生成',
-			ui_description = '所有已解锁法术以相同概率在每个法术等级生成',
-			value_default = false,
-			scope = MOD_SETTING_SCOPE_NEW_GAME,
-		},
-		{
-			id = 'UNLIMITED_SPELLS',
-			ui_name = '[ 无限法术 ] 力量解放',
-			ui_description = '令 [ 无限法术 ] 天赋对此模组、位于此模组加载前加载的模组以及原版 Noita 中包含的所有法术均生效',
-			value_default = false,
 			scope = MOD_SETTING_SCOPE_NEW_GAME,
 		},
 		{
@@ -169,20 +272,6 @@ if ( language:find( '中文' ) or language:find( '汉化' ) ) then
 			ui_description = '命令法术将会在左下角反馈执行状态',
 			value_default = true,
 			scope = MOD_SETTING_SCOPE_RUNTIME_RESTART,
-		},
-		{
-			id = 'NO_KUMMITUS',
-			ui_name = '再无幻影',
-			ui_description = '历史幻象不再生成',
-			value_default = false,
-			scope = MOD_SETTING_SCOPE_NEW_GAME,
-		},
-		{
-			id = 'SPAWN_MANY_ENEMIES',
-			ui_name = '刷怪+',
-			ui_description = '刷怪率大幅提升',
-			value_default = false,
-			scope = MOD_SETTING_SCOPE_NEW_GAME,
 		},
 		{
 			id = 'SVAROG_TRANSLATION',
@@ -299,31 +388,134 @@ else
 			not_setting = true,
 		},
 		{
+			category_id = 'SETTINGS_PERKS',
+			ui_name = 'Settings about perks',
+			foldable = true,
+			_folded = true,
+			settings = {
+				{
+					id = 'UNLIMITED_SPELLS',
+					ui_name = 'True Power of [ Unlimited Spells ]',
+					ui_description =
+						'Make [ Unlimited Spells ] perk effective for all spells in this mod,\n'
+						.. b1 .. 'mods loaded before this mod, and vanilla Noita',
+					value_default = false,
+					scope = MOD_SETTING_SCOPE_NEW_GAME,
+				},
+			},
+		},
+		{
+			category_id = 'SETTINGS_SPELLS',
+			ui_name = 'Settings about spells',
+			foldable = true,
+			_folded = true,
+			settings = {
+				{
+					id = 'UNLOCK_ALL_SPELL',
+					ui_name = 'No Need Unlock Spells',
+					ui_description = 'All spells can spawn without needing to be unlocked',
+					value_default = false,
+					scope = MOD_SETTING_SCOPE_NEW_GAME,
+				},
+				{
+					id = 'SPELL_ALL_EQUAL',
+					ui_name = 'Spells Spawn with Equal Chance',
+					ui_description = 'All unlocked spells have equal chance to spawn at every spell level',
+					value_default = false,
+					scope = MOD_SETTING_SCOPE_NEW_GAME,
+				},
+			},
+		},
+		{
+			category_id = 'SETTINGS_ENEMIES',
+			ui_name = 'Settings about enemies',
+			foldable = true,
+			_folded = true,
+			settings = {
+				{
+					id = 'SPAWN_MANY_ENEMIES',
+					ui_name = 'Enemy Spawn Rate+',
+					ui_description = 'Enemy spawn rate is greatly increased',
+					value_default = false,
+					scope = MOD_SETTING_SCOPE_NEW_GAME,
+				},
+				{
+					id = 'NO_KUMMITUS',
+					ui_name = 'No More Illusions',
+					ui_description = "Kummitus don't spawn any more",
+					value_default = false,
+					scope = MOD_SETTING_SCOPE_NEW_GAME,
+				},
+			},
+		},
+		{
+			category_id = 'SETTINGS_CURSES',
+			ui_name = 'Settings about CURSEs',
+			foldable = true,
+			_folded = true,
+			settings = {
+				{
+					ui_name =
+						'If you are looking for some challenges......\n'
+						.. b1 .. 'then this is it',
+					not_setting = true,
+				},
+				{
+					id = 'CURSE_MONK',
+					ui_name = 'Monk',
+					ui_description = 'At beginning of new round of game, you get [ Curse: Monk ]',
+					value_default = false,
+					scope = MOD_SETTING_SCOPE_NEW_GAME,
+				},
+				{
+					id = 'CURSE_ALWAYS_SHUFFLE',
+					ui_name = 'Always Shuffle',
+					ui_description = 'At beginning of new round of game, you get [ Curse: Always Shuffle ]',
+					value_default = false,
+					scope = MOD_SETTING_SCOPE_NEW_GAME,
+				},
+				{
+					id = 'CURSE_SHORT_WAND',
+					ui_name = 'Short Wand',
+					ui_description = 'At beginning of new round of game, you get [ Curse: Short Wand ]',
+					value_default = false,
+					scope = MOD_SETTING_SCOPE_NEW_GAME,
+				},
+				{
+					id = 'CURSE_MALICE_WASHES_OVER',
+					ui_name = 'Malice Washes Over',
+					ui_description = 'At beginning of new round of game, you get [ Curse: Malice Washes Over ]',
+					value_default = false,
+					scope = MOD_SETTING_SCOPE_NEW_GAME,
+				},
+				{
+					id = 'CURSE_REALITY_SHIFT',
+					ui_name = 'Reality Shift',
+					ui_description = 'At beginning of new round of game, you get [ Curse: Reality Shift ]',
+					value_default = false,
+					scope = MOD_SETTING_SCOPE_NEW_GAME,
+				},
+				{
+					id = 'CURSE_GUARANTEED_LOSE',
+					ui_name = '“Guaranteed Win”',
+					ui_description = 'At beginning of new round of game, you get [ Curse: “Guaranteed Win” ]',
+					value_default = false,
+					scope = MOD_SETTING_SCOPE_NEW_GAME,
+				},
+				{
+					id = 'CURSE_GRAVITY_FREE',
+					ui_name = 'Force Field Liberation',
+					ui_description = 'At beginning of new round of game, you get [ Curse: Force Field Liberation ]',
+					value_default = false,
+					scope = MOD_SETTING_SCOPE_NEW_GAME,
+				},
+			},
+		},
+		{
 			id = 'VISION_IMPROVE',
 			ui_name = 'Vision Improve',
 			ui_description = '150% vision width and height',
 			value_default = true,
-			scope = MOD_SETTING_SCOPE_NEW_GAME,
-		},
-		{
-			id = 'UNLOCK_ALL_SPELL',
-			ui_name = 'No Need Unlock Spells',
-			ui_description = 'All spells can spawn without needing to be unlocked',
-			value_default = false,
-			scope = MOD_SETTING_SCOPE_NEW_GAME,
-		},
-		{
-			id = 'SPELL_ALL_EQUAL',
-			ui_name = 'Spells Spawn with Equal Chance',
-			ui_description = 'All unlocked spells have equal chance to spawn at every spell level',
-			value_default = false,
-			scope = MOD_SETTING_SCOPE_NEW_GAME,
-		},
-		{
-			id = 'UNLIMITED_SPELLS',
-			ui_name = 'True Power of [ Unlimited Spells ]',
-			ui_description = 'Make [ Unlimited Spells ] perk effective for all spells in this mod, mods loaded before this mod, and vanilla Noita',
-			value_default = false,
 			scope = MOD_SETTING_SCOPE_NEW_GAME,
 		},
 		{
@@ -332,20 +524,6 @@ else
 			ui_description = 'Command spells will display execution feedback at bottom-left',
 			value_default = true,
 			scope = MOD_SETTING_SCOPE_RUNTIME_RESTART,
-		},
-		{
-			id = 'NO_KUMMITUS',
-			ui_name = 'No More Illusions',
-			ui_description = "Kummitus don't spawn any more",
-			value_default = false,
-			scope = MOD_SETTING_SCOPE_NEW_GAME,
-		},
-		{
-			id = 'SPAWN_MANY_ENEMIES',
-			ui_name = 'Enemy Spawn Rate+',
-			ui_description = 'Enemy spawn rate is greatly increased',
-			value_default = false,
-			scope = MOD_SETTING_SCOPE_NEW_GAME,
 		},
 		{
 			id = 'SVAROG_TRANSLATION',

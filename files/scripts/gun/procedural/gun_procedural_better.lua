@@ -98,7 +98,7 @@ function generate_gun( cost, level, force_unshuffle )
 		name = gun_names[ Random( 1, #gun_names ) ] .. ' ' .. name
 	end
 
-	if ( gun[ 'shuffle_deck_when_empty' ] == 1 and Random( 1, 100 ) < 10 ) then
+	if ( gun[ 'shuffle_deck_when_empty' ] == true and Random( 1, 100 ) < 10 ) then
 		gun[ 'shuffle_deck_when_empty' ] = false
 	end
 

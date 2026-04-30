@@ -7182,6 +7182,7 @@ for i, _ in ipairs( new_actions ) do
 		_.description			= '$actiondesc_' .. e_info
 		_.sprite				= sprite_url .. info .. '.png'
 		_.sprite_unidentified	= img_unident
+		_.info					= nil
 	end
 end
 

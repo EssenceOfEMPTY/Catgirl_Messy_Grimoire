@@ -25,14 +25,13 @@ local ability_comp = EntityGetFirstComponent( e_id, 'AbilityComponent' ) or { }
 
 local gun = {
 	name = 'Bolt staff',
-	deck_capacity = { 2, 5 },
+	deck_capacity = { 3, 5 },
 	actions_per_round = 1,
 	shuffle_deck_when_empty = false,
 	fire_rate_wait = { 6, 20 },
 	reload_time = { 16, 32 },
 	spread_degrees = 0,
 	speed_multiplier = 1,
-	-- mana_charge_speed = { 20, 50 },
 	mana_max = { 120, 240 },
 }
 
@@ -42,7 +41,7 @@ gun.actions = {
 	{ 'RUBBER_BALL', 5 }, { 'EMPTY_RUBBER_BALL_TRIGGER', 10 }, { 'EMPTY_RUBBER_BALL_TIMER', 10 }, { 'EMPTY_RUBBER_BALL_DEATH_TRIGGER', 10 },
 }
 
-local deck_capacity = get_random_between_range( gun.deck_capacity )
+local deck_cap = get_random_between_range( gun.deck_capacity )
 
 ComponentSetValue2( ability_comp, 'ui_name', gun.name )
 ComponentSetValue2( ability_comp, 'item_name', '$item_wand_starting_wand_blue' )
@@ -51,18 +50,17 @@ ComponentObjectSetValue2( ability_comp, 'gun_config', 'reload_time', get_random_
 ComponentObjectSetValue2( ability_comp, 'gunaction_config', 'fire_rate_wait', get_random_between_range( gun.fire_rate_wait ) )
 
 ComponentObjectSetValue2( ability_comp, 'gun_config', 'actions_per_round', gun.actions_per_round )
-ComponentObjectSetValue2( ability_comp, 'gun_config', 'deck_capacity', deck_capacity )
+ComponentObjectSetValue2( ability_comp, 'gun_config', 'deck_capacity', deck_cap )
 ComponentObjectSetValue2( ability_comp, 'gun_config', 'shuffle_deck_when_empty', gun.shuffle_deck_when_empty )
 ComponentObjectSetValue2( ability_comp, 'gunaction_config', 'spread_degrees', gun.spread_degrees )
 ComponentObjectSetValue2( ability_comp, 'gunaction_config', 'speed_multiplier', gun.speed_multiplier )
 
-
 local total_mana = 0
-for i = 1, deck_capacity do
-	local c = get_random_from( gun.actions )
-	AddGunAction( e_id, c[ 1 ] )
+for _ = 1, deck_cap do
+	local card = get_random_from( gun.actions )
+	AddGunAction( e_id, card[ 1 ] )
 
-	total_mana = total_mana + c[ 2 ] * 2
+	total_mana = total_mana + card[ 2 ] * 2
 end
 
 if ( gun.mana_max[ 1 ] < total_mana ) then
