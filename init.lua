@@ -1,18 +1,8 @@
 dofile_once( 'mods/empty_the_blackhole_catgirl/files/scripts/empty/empty_utility.lua' )
---dofile_once( empty_path .. 'scripts/magic/for_some_command.lua' )
---
---local receiver = nil
---function OnPlayerSpawned( player )
---	local updator = EntityCreateNew( 'empty.updator' )
---	EntityAddComponent2( updator, 'LuaComponent', { script_electricity_receiver_electrified = empty_path .. 'scripts/magic/for_some_command.lua' } )
---	receiver = EntityAddComponent2( updator, 'ElectricityReceiverComponent', { electrified_msg_interval_frames = 1 } )
---end
---
---function OnWorldPreUpdate( )
---	if ( receiver ) then
---		ComponentSetValue2( receiver, "mLastFrameElectrified", GameGetFrameNum( ) + 1 )
---	end
---end
+
+---<<<<<<<<<<<<<<<<<<<<<<<< 测试用代码 >>>>>>>>>>>>>>>>>>>>>>>>---
+
+info_print( spawn_material_checker )
 
 ---<<<<<<<<<<<<<<<<<<<<<<<< 翻译 >>>>>>>>>>>>>>>>>>>>>>>>---
 
@@ -109,6 +99,19 @@ dofile_once( 'data/scripts/perks/perk_utilities.lua' )
 dofile_once( 'data/scripts/perks/perk.lua' )
 
 function OnPlayerSpawned( player )
+	if ( GlobalsGetValue( 'EMPTY_STARTING_CHANGE', '0' ) == '0' ) then
+		GlobalsSetValue( 'EMPTY_STARTING_CHANGE', '1' )
+
+		set_comp_value( player, 'CharacterPlatformingComponent', nil, {
+			run_velocity = 57,
+
+			velocity_min_x = -math.huge,
+			velocity_max_x = math.huge,
+			velocity_min_y = -math.huge,
+			velocity_max_y = math.huge,
+		}, nil )
+	end
+
 	if ( GlobalsGetValue( 'EMPTY_STARTING_CURSE', '0' ) == '0' ) then
 		GlobalsSetValue( 'EMPTY_STARTING_CURSE', '1' )
 
@@ -120,6 +123,7 @@ function OnPlayerSpawned( player )
 			'CURSE_REALITY_SHIFT',
 			'CURSE_GUARANTEED_LOSE',
 			'CURSE_GRAVITY_FREE',
+			'CURSE_DEATH_TRAIL',
 		}
 
 		for _, curse in ipairs( all_curses ) do

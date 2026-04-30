@@ -76,6 +76,8 @@ perk_empty_curse_guaranteed_lose,"CURSE: “Guaranteed Win”",,,,,,,,"诅咒: �
 perkdesc_empty_curse_guaranteed_lose,"all newly wands have 50% chance with always-cast: [ Circle of vigour ], ×2 healing damage multiplier\ngain 4 potions of healthium\nand what, Gul'dan, must we give it return?",,,,,,,,"新生成的法杖有 50% 的概率带有始终释放 [ 活力之环 ] , ×4 治疗承伤系数\n获得 4 瓶生命基质\n\n但是, 古尔丹, 代价是什么呢?",,,,,,,,,,,,,,,,
 perk_empty_curse_gravity_free,"CURSE: Force Field Liberation",,,,,,,,"诅咒: 力场解放",,,,,,,,,,,,,,,,
 perkdesc_empty_curse_gravity_free,"You broke out from imprisonment of a certain force field\n......which force field though?\nadditionally get [ Hook ] spell when get this CURSE",,,,,,,,"你从某个力场的囚禁内破笼而出\n......是哪个力场呢?\n获得此诅咒时额外获得 [ 钩爪 ] 法术",,,,,,,,,,,,,,,,
+perk_empty_curse_death_trail,"CURSE: Death Trail",,,,,,,,"诅咒: 死亡轨迹",,,,,,,,,,,,,,,,
+perkdesc_empty_curse_death_trail,"Death flows like water, ever at my side",,,,,,,,"死亡如水, 常伴吾身",,,,,,,,,,,,,,,,
 action_empty_summon_frog,Summon frog,,,,,,,,召唤呱呱,,,,,,,,,,,,,,,,
 actiondesc_empty_summon_frog,"Summon a frog\nthere's a little chance to summon a bigger one",,,,,,,,召唤 1 只呱呱\n有小概率召唤大呱呱,,,,,,,,,,,,,,,,
 action_empty_summon_crystal_red,Summon red crystal,,,,,,,,召唤红水晶,,,,,,,,,,,,,,,,

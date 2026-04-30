@@ -34,18 +34,16 @@ if ( player_id ~= NULL_ENTITY ) and ( entity_id ~= player_id ) then
 		end
 	end
 
-	if ( variablestorages ) then
-		for _, storage_id in ipairs( variablestorages ) do
-			local var_name = ComponentGetValue2( storage_id, 'name' )
-			if ( var_name == 'effect_hearty' ) then
-				if ( not stop ) then
-					ComponentSetValue2( storage_id, 'value_float', max_hp_before )
-				else
-					EntityRemoveComponent( entity_id, storage_id )
-				end
-
-				break
+	for _, storage_id in ipairs( variablestorages or { } ) do
+		local var_name = ComponentGetValue2( storage_id, 'name' )
+		if ( var_name == 'effect_hearty' ) then
+			if ( not stop ) then
+				ComponentSetValue2( storage_id, 'value_float', max_hp_before )
+			else
+				EntityRemoveComponent( entity_id, storage_id )
 			end
+
+			break
 		end
 	end
 end

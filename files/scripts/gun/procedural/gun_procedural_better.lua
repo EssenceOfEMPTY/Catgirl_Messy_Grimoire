@@ -1,5 +1,17 @@
 dofile_once( 'mods/empty_the_blackhole_catgirl/files/scripts/empty/empty_utility.lua' )
 
+local old_GetWand = GetWand
+function GetWand( gun )
+	local shuffle = gun.shuffle_deck_when_empty
+	if ( shuffle == nil or shuffle == false ) then
+		gun.shuffle_deck_when_empty = 0
+	else
+		gun.shuffle_deck_when_empty = 1
+	end
+
+	return old_GetWand( gun )
+end
+
 function generate_gun( cost, level, force_unshuffle )
 	local entity_id = GetUpdatedEntityID( )
 	local x, y = EntityGetTransform( entity_id )
@@ -225,7 +237,7 @@ function generate_gun( cost, level, force_unshuffle )
 	local rnd = nil
 
 	if ( ( tonumber( GlobalsGetValue( 'EMPTY_CURSE_GUARANTEED_LOSE', '0' ) ) or 0 ) > 0
-		and ( tonumber( GlobalsGetValue( 'EMPTY_DISCOUNT_EXTRA_OFF', '0' ) ) or 0 ) < 1
+		and ( tonumber( GlobalsGetValue( 'EMPTY_CURSE_MONK', '0' ) ) or 0 ) < 1
 		and Random( 1, 2 ) < 2 ) then
 
 		AddGunActionPermanent( entity_id, 'REGENERATION_FIELD' )

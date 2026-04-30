@@ -198,7 +198,7 @@ end
 ---@param comp_type string
 ---@param tag string|nil
 ---@param comp_table table
----@return number count
+---@return number comps_count
 function add_comp_remove_dupli( entity, comp_type, tag, comp_table )
 	local comps, count = nil, 0
 
@@ -235,7 +235,7 @@ end
 ---@param tag string|nil
 ---@param value_table table|nil
 ---@param func function|nil?
----@return integer
+---@return integer comps_count
 function set_comp_value( entity, comp_type, tag, value_table, func )
 	local comps = nil
 
@@ -259,6 +259,27 @@ function set_comp_value( entity, comp_type, tag, value_table, func )
 				end
 			end
 		end
+	end
+
+	return #comps
+end
+
+---移除 entity 所有类型为 comp_type 的组件
+---@param entity number
+---@param comp_type string
+---@param tag string|nil?
+---@return integer comps_count
+function remove_all_comp( entity, comp_type, tag )
+	local comps = nil
+
+	if ( type( tag ) == 'string' ) then
+		comps = EntityGetComponent( entity, comp_type, tag ) or { }
+	else
+		comps = EntityGetComponent( entity, comp_type ) or { }
+	end
+
+	for _, comp in ipairs( comps ) do
+		EntityRemoveComponent( entity, comp )
 	end
 
 	return #comps

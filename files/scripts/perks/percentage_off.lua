@@ -29,7 +29,7 @@ if ( #targets > 0 ) then
 					end
 				end
 
-				if ( ( tonumber( GlobalsGetValue( 'EMPTY_DISCOUNT_EXTRA_OFF', '0' ) ) or 0 ) > 0 ) then
+				if ( ( tonumber( GlobalsGetValue( 'EMPTY_CURSE_MONK', '0' ) ) or 0 ) > 0 ) then
 					p = p + 50;
 				end
 

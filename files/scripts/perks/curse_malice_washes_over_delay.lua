@@ -1,3 +1,4 @@
+
 local entity = EntityGetRootEntity( GetUpdatedEntityID( ) )
 
 if ( entity ~= NULL_ENTITY ) then

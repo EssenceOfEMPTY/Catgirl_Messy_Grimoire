@@ -69,7 +69,11 @@ local old_spawn_crate = spawn_crate
 function spawn_crate( x, y )
 	EntityLoad( 'data/entities/buildings/workshop_tree_holiday.xml', x, y )
 
-	EntityLoad( empty_path .. 'entities/buildings/teleport_pyramid.xml', x - 512, y - 128 )
+	local e = EntityLoad( empty_path .. 'entities/buildings/teleport_pyramid.xml', x - 512, y - 128 )
+
+	set_comp_value( e, 'LifetimeComponent', nil, {
+		lifetime = 18000,
+	}, nil )
 
 	old_spawn_crate( x, y )
 end

@@ -257,6 +257,13 @@ if ( language:find( '中文' ) or language:find( '汉化' ) ) then
 					value_default = false,
 					scope = MOD_SETTING_SCOPE_NEW_GAME,
 				},
+				{
+					id = 'CURSE_DEATH_TRAIL',
+					ui_name = '死亡轨迹',
+					ui_description = '新游戏开始时, 你获得 [ 诅咒: 死亡轨迹 ]',
+					value_default = false,
+					scope = MOD_SETTING_SCOPE_NEW_GAME,
+				},
 			},
 		},
 		{
@@ -506,6 +513,13 @@ else
 					id = 'CURSE_GRAVITY_FREE',
 					ui_name = 'Force Field Liberation',
 					ui_description = 'At beginning of new round of game, you get [ Curse: Force Field Liberation ]',
+					value_default = false,
+					scope = MOD_SETTING_SCOPE_NEW_GAME,
+				},
+				{
+					id = 'CURSE_DEATH_TRAIL',
+					ui_name = 'Death Trail',
+					ui_description = 'At beginning of new round of game, you get [ Curse: Death Trail ]',
 					value_default = false,
 					scope = MOD_SETTING_SCOPE_NEW_GAME,
 				},

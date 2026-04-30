@@ -1,0 +1,16 @@
+<Entity>
+
+	<LifetimeComponent
+		lifetime="64"
+	></LifetimeComponent>
+
+	<ParticleEmitterComponent
+		_tags="enabled_in_world,perk,curse"
+		emitted_material_name="just_death"
+		create_real_particles="1"
+		emit_only_if_there_is_space="1"
+		emitter_lifetime_frames="5"
+		delay_frames="60"
+	></ParticleEmitterComponent>
+
+</Entity>

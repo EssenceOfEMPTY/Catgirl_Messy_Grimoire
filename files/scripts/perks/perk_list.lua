@@ -423,9 +423,15 @@ local new_perks =
 			EntityAddTag( entity_who_picked, 'teleportable_NOT' )
 			EntityAddTag( entity_who_picked, 'no_swap' )
 
-			EntityAddComponent2( entity_who_picked, 'LuaComponent', {
-				_tags = 'empty_teleport_immunity',
-				script_shot = empty_path .. 'scripts/perks/protection_teleport',
+			add_comp_remove_dupli( entity_who_picked, 'LuaComponent', 'empty_protection_teleport', {
+				_tags = 'empty_protection_teleport',
+				script_shot = empty_path .. 'scripts/perks/protection_teleport.lua',
+			} )
+
+			add_comp_remove_dupli( entity_who_picked, 'LuaComponent', 'empty_remove_teleport_effect', {
+				_tags = 'empty_remove_teleport_effect',
+				script_source_file = empty_path .. 'scripts/perks/remove_teleport_effect.lua',
+				execute_every_n_frame = 0,
 			} )
 		end,
 		func_remove = function( entity_who_picked )
@@ -433,10 +439,8 @@ local new_perks =
 			EntityRemoveTag( entity_who_picked, 'teleportable_NOT' )
 			EntityRemoveTag( entity_who_picked, 'no_swap' )
 
-			local comps = EntityGetComponent( entity_who_picked, 'LuaComponent', 'empty_teleport_immunity' )
-			for _, comp in ipairs( comps or { } ) do
-				EntityRemoveComponent( entity_who_picked, comp )
-			end
+			remove_all_comp( entity_who_picked, 'LuaComponent', 'empty_protection_teleport' )
+			remove_all_comp( entity_who_picked, 'LuaComponent', 'empty_remove_teleport_effect' )
 		end,
 	},
 	{
@@ -869,22 +873,28 @@ local new_perks =
 		not_in_default_perk_pool = true,
 		func = function( entity_perk_empty_item, entity_who_picked, item_name )
 			local damageMultipliers = {
-				[ 'melee' ] = 0.5,
-				[ 'projectile' ] = 0.5,
-				[ 'explosion' ] = 0.5,
-				[ 'electricity' ] = 0.5,
-				[ 'fire' ] = 0.5,
-				[ 'drill' ] = 0.5,
-				[ 'slice' ] = 0.5,
-				[ 'ice' ] = 0.5,
-				[ 'physics_hit' ] = 0.5,
-				[ 'radioactive' ] = 0.75,
-				[ 'poison' ] = 0.75,
-				[ 'holy' ] = 0.25,
+				melee = 0.5,
+				projectile = 0.5,
+				explosion = 0.5,
+				electricity = 0.5,
+				fire = 0.5,
+				drill = 0.5,
+				slice = 0.5,
+				ice = 0.5,
+				physics_hit = 0.5,
+				radioactive = 0.75,
+				poison = 0.75,
+				curse = 1.0,
+				holy = 0.25,
+				healing = 2.0,
 			}
 
+			if ( GlobalsGetValue( 'EMPTY_CURSE_GUARANTEED_LOSE', '0' ) == '1' ) then
+				damageMultipliers.curse = 0.5 * damageMultipliers.curse
+			end
+
 			if ( EntityHasTag( entity_who_picked, 'player_unit' ) or EntityHasTag( entity_who_picked, 'polymorphed_player' ) ) then
-				GlobalsSetValue( 'EMPTY_DISCOUNT_EXTRA_OFF', '1' )
+				GlobalsSetValue( 'EMPTY_CURSE_MONK', '1' )
 
 				local comp = {
 					_tags = 'empty_curse_monk,perk_component',
@@ -928,22 +938,28 @@ local new_perks =
 		end,
 		func_remove = function( entity_who_picked )
 			local damageMultipliers = {
-				[ 'melee' ] = 0.5,
-				[ 'projectile' ] = 0.5,
-				[ 'explosion' ] = 0.5,
-				[ 'electricity' ] = 0.5,
-				[ 'fire' ] = 0.5,
-				[ 'drill' ] = 0.5,
-				[ 'slice' ] = 0.5,
-				[ 'ice' ] = 0.5,
-				[ 'physics_hit' ] = 0.5,
-				[ 'radioactive' ] = 0.75,
-				[ 'poison' ] = 0.75,
-				[ 'holy' ] = 0.25,
+				melee = 0.5,
+				projectile = 0.5,
+				explosion = 0.5,
+				electricity = 0.5,
+				fire = 0.5,
+				drill = 0.5,
+				slice = 0.5,
+				ice = 0.5,
+				physics_hit = 0.5,
+				radioactive = 0.75,
+				poison = 0.75,
+				curse = 1.0,
+				holy = 0.25,
+				healing = 2.0,
 			}
 
+			if ( GlobalsGetValue( 'EMPTY_CURSE_GUARANTEED_LOSE', '0' ) == '1' ) then
+				damageMultipliers.curse = 0.5 * damageMultipliers.curse
+			end
+
 			if ( EntityHasTag( entity_who_picked, 'player_unit' ) or EntityHasTag( entity_who_picked, 'polymorphed_player' ) ) then
-				GlobalsSetValue( 'EMPTY_DISCOUNT_EXTRA_OFF', '0' )
+				GlobalsSetValue( 'EMPTY_CURSE_MONK', '0' )
 
 				local tags_to_remove = {
 					'empty_curse_monk',
@@ -1152,21 +1168,25 @@ local new_perks =
 		not_in_default_perk_pool = true,
 		func = function( entity_perk_empty_item, entity_who_picked, item_name )
 			local damageMultipliers = {
-				[ 'projectile' ] = 4.0,
-				[ 'fire' ] = 4.0,
-				[ 'explosion' ] = 4.0,
-				[ 'electricity' ] = 4.0,
-				[ 'ice' ] = 4.0,
-				[ 'radioactive' ] = 4.0,
-				[ 'poison' ] = 4.0,
-				[ 'slice' ] = 4.0,
-				[ 'drill' ] = 4.0,
-				[ 'melee' ] = 4.0,
-				[ 'physics_hit' ] = 4.0,
-				[ 'curse' ] = 3.0,
-				[ 'holy' ] = 2.0,
-				[ 'healing' ] = 4.0,
+				melee = 4.0,
+				projectile = 4.0,
+				explosion = 4.0,
+				electricity = 4.0,
+				fire = 4.0,
+				drill = 4.0,
+				slice = 4.0,
+				ice = 4.0,
+				physics_hit = 4.0,
+				radioactive = 4.0,
+				poison = 4.0,
+				curse = 3.0,
+				holy = 2.0,
+				healing = 4.0,
 			}
+
+			if ( GlobalsGetValue( 'EMPTY_CURSE_MONK', '0' ) == '1' ) then
+				damageMultipliers.curse = 0.5 * damageMultipliers.curse
+			end
 
 			if ( EntityHasTag( entity_who_picked, 'player_unit' ) or EntityHasTag( entity_who_picked, 'polymorphed_player' ) ) then
 				GlobalsSetValue( 'EMPTY_CURSE_GUARANTEED_LOSE', '1' )
@@ -1209,21 +1229,25 @@ local new_perks =
 
 			local damagemodels = EntityGetComponent( entity_who_picked, 'DamageModelComponent' )
 			local damageMultipliers = {
-				[ 'projectile' ] = 4.0,
-				[ 'fire' ] = 4.0,
-				[ 'explosion' ] = 4.0,
-				[ 'electricity' ] = 4.0,
-				[ 'ice' ] = 4.0,
-				[ 'radioactive' ] = 4.0,
-				[ 'poison' ] = 4.0,
-				[ 'slice' ] = 4.0,
-				[ 'drill' ] = 4.0,
-				[ 'melee' ] = 4.0,
-				[ 'physics_hit' ] = 4.0,
-				[ 'curse' ] = 4.0,
-				[ 'holy' ] = 3.0,
-				[ 'healing' ] = 2.0,
+				melee = 4.0,
+				projectile = 4.0,
+				explosion = 4.0,
+				electricity = 4.0,
+				fire = 4.0,
+				drill = 4.0,
+				slice = 4.0,
+				ice = 4.0,
+				physics_hit = 4.0,
+				radioactive = 4.0,
+				poison = 4.0,
+				curse = 3.0,
+				holy = 2.0,
+				healing = 4.0,
 			}
+
+			if ( GlobalsGetValue( 'EMPTY_CURSE_MONK', '0' ) == '1' ) then
+				damageMultipliers.curse = 0.5 * damageMultipliers.curse
+			end
 
 			for _, damagemodel in ipairs( damagemodels or { } ) do
 				for damageType, multiplier in pairs( damageMultipliers ) do
@@ -1241,19 +1265,83 @@ local new_perks =
 		func = function ( entity_perk_empty_item, entity_who_picked, item_name )
 			set_comp_value( entity_who_picked, 'CharacterPlatformingComponent', nil, {
 				pixel_gravity = 0,
+				run_velocity = 0,
+				jump_velocity_x = 0,
+				fly_speed_max_up = 0,
+				fly_speed_max_down = 0,
+				fly_velocity_x = 0,
 			}, nil )
 
 			if ( EntityHasTag( entity_who_picked, 'player_unit' ) or EntityHasTag( entity_who_picked, 'polymorphed_player' ) ) then
 				local x, y = EntityGetTransform( entity_who_picked )
 
 				CreateItemActionEntity( 'HOOK', x, y )
+
+				local e = EntityLoad( 'data/entities/buildings/workshop_tree_holiday.xml', x, y )
+
+				set_comp_value( e, 'LifetimeComponent', nil, {
+					lifetime = 3600,
+				}, nil )
 			end
 		end,
 		func_remove = function ( entity_who_picked )
 			set_comp_value( entity_who_picked, 'CharacterPlatformingComponent', nil, {
 				pixel_gravity = 350,
+				run_velocity = 57,
+				jump_velocity_x = 56,
+				fly_speed_max_up = 95,
+				fly_speed_max_down = 85,
+				fly_velocity_x = 52,
 			}, nil )
-		end
+		end,
+	},
+	{
+		info = 'curse_death_trail',
+		stackable = STACKABLE_NO,
+		usable_by_enemies = true,
+		not_in_default_perk_pool = true,
+		func = function ( entity_perk_empty_item, entity_who_picked, item_name )
+			add_comp_remove_dupli( entity_who_picked, 'LuaComponent', 'CURSE_DEATH_TRAIL', {
+				_tags = 'CURSE_DEATH_TRAIL',
+				script_source_file = empty_path .. 'scripts/perks/curse_death_trail.lua',
+				execute_every_n_frame = 1,
+			} )
+
+			local c_comp = EntityGetFirstComponent( entity_who_picked, 'CharacterPlatformingComponent' )
+
+			if ( c_comp ~= nil ) then
+				local values = {
+					pixel_gravity = ComponentGetValue2( c_comp, 'pixel_gravity' ),
+					run_velocity = ComponentGetValue2( c_comp, 'run_velocity' ),
+					fly_velocity_x = ComponentGetValue2( c_comp, 'fly_velocity_x' ),
+				}
+
+				set_comp_value( entity_who_picked, 'CharacterPlatformingComponent', nil, {
+					pixel_gravity = values.pixel_gravity / 1.2,
+					run_velocity = values.run_velocity * 1.2,
+					fly_velocity_x = values.fly_velocity_x * 1.2,
+				}, nil )
+			end
+		end,
+		func_remove = function ( entity_who_picked )
+			remove_all_comp( entity_who_picked, 'LuaComponent', 'CURSE_DEATH_TRAIL' )
+
+			local c_comp = EntityGetFirstComponent( entity_who_picked, 'CharacterPlatformingComponent' )
+
+			if ( c_comp ~= nil ) then
+				local values = {
+					pixel_gravity = ComponentGetValue2( c_comp, 'pixel_gravity' ),
+					run_velocity = ComponentGetValue2( c_comp, 'run_velocity' ),
+					fly_velocity_x = ComponentGetValue2( c_comp, 'fly_velocity_x' ),
+				}
+
+				set_comp_value( entity_who_picked, 'CharacterPlatformingComponent', nil, {
+					pixel_gravity = values.pixel_gravity * 1.2,
+					run_velocity = values.run_velocity / 1.2,
+					fly_velocity_x = values.fly_velocity_x * 1.2,
+				}, nil )
+			end
+		end,
 	},
 }
 
