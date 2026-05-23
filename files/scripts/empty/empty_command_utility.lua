@@ -1,4 +1,3 @@
-dofile_once( 'data/scripts/lib/utilities.lua' )
 dofile_once( 'mods/empty_the_blackhole_catgirl/files/scripts/empty/empty_utility.lua' )
 
 local chunk_length = 512
@@ -55,7 +54,7 @@ e_cmd_funcs = {
 			},
 			para_2 = {
 				'table',
-				'1',
+				1,
 			},
 		},
 		---从 < NUMBER[ ] > 中选择顺数第 1 个 < NUMBER > 返回
@@ -111,7 +110,7 @@ e_cmd_funcs = {
 			},
 			para_2 = {
 				'table',
-				'1',
+				1,
 			},
 		},
 		---从 < NUMBER[ ] > 中选择倒数第 1 个 < NUMBER > 返回
@@ -163,7 +162,7 @@ e_cmd_funcs = {
 		max_paras = 1,
 		transform_tilde_into = {
 			para_1 = {
-				'0',
+				0,
 			},
 		},
 		---获取变量编号为 variable_number 的值
@@ -195,8 +194,8 @@ e_cmd_funcs = {
 		max_paras = 2,
 		transform_tilde_into = {
 			para_2 = {
-				'0',
-				'0',
+				0,
+				0,
 			},
 		},
 		---设置变量编号为 variable_number 的值为 variable_value
@@ -234,8 +233,8 @@ e_cmd_funcs = {
 				'table',
 			},
 			para_2 = {
-				'0',
-				'0',
+				0,
+				0,
 			},
 		},
 		---返回 num_table 中的最小值
@@ -316,8 +315,8 @@ e_cmd_funcs = {
 				'table',
 			},
 			para_2 = {
-				'0',
-				'0',
+				0,
+				0,
 			},
 		},
 		---返回 num_table 中的最大值
@@ -391,6 +390,190 @@ e_cmd_funcs = {
 			end
 		end,
 	},
+	color_set = {
+		max_paras = 4,
+		para_names = {
+			all = {
+				'r',
+				'g',
+				'b',
+				'a',
+			},
+			para_3 = {
+				'r',
+				'g',
+				'b',
+			},
+			para_4 = {
+				'r',
+				'g',
+				'b',
+				'a',
+			},
+		},
+		transform_tilde_into = {
+			para_3 = {
+				255,
+				255,
+				255,
+			},
+			para_4 = {
+				255,
+				255,
+				255,
+				255,
+			},
+		},
+		---更改投射物粒子组件的 rgb 颜色
+		---@param c table
+		---@param reflect boolean
+		---@param shooter number
+		---@param r string|number
+		---@param g string|number
+		---@param b string|number
+		---@return table rgb
+		action_3_paras = function ( c, reflect, shooter, r, g, b )
+			local command = 'color_set'
+
+			if ( type( r ) ~= 'number' and type( r ) ~= 'string' ) then
+				command_print( command .. '(', '$empty_command_error_wrong_para_type', 'NUMBER', upper_type( r ) )
+				return { 0, 0, 0 }
+			end
+			if ( type( g ) ~= 'number' and type( g ) ~= 'string' ) then
+				command_print( command .. '(', '$empty_command_error_wrong_para_type', 'NUMBER', upper_type( g ) )
+				return { 0, 0, 0 }
+			end
+			if ( type( b ) ~= 'number' and type( b ) ~= 'string' ) then
+				command_print( command .. '(', '$empty_command_error_wrong_para_type', 'NUMBER', upper_type( b ) )
+				return { 0, 0, 0 }
+			end
+
+			if ( reflect ) then
+				if ( type( r ) ~= 'number' ) then
+					r = 0
+				else
+					r = cap( 0, math.floor( r ), 255 )
+				end
+				if ( type( g ) ~= 'number' ) then
+					g = 0
+				else
+					g = cap( 0, math.floor( g ), 255 )
+				end
+				if ( type( b ) ~= 'number' ) then
+					b = 0
+				else
+					b = cap( 0, math.floor( b ), 255 )
+				end
+
+				local entity = get_root_entity( )
+
+				set_comp_value( entity, 'ParticleEmitterComponent', nil, {
+					color = pack_rgba( r, g, b, 255 ),
+				}, nil, nil )
+
+				set_comp_value( entity, 'SpriteParticleEmitterComponent', nil, {
+					[ 'color.r' ] = r / 255,
+					[ 'color.g' ] = g / 255,
+					[ 'color.b' ] = b / 255,
+					[ 'color.a' ] = 1,
+				}, nil, nil )
+			else
+				add_desc_by_info( c, {
+					replace = true,
+					update = true,
+					merge = false,
+				}, {
+					id = command,
+					shooter = shooter,
+					r = r,
+					g = g,
+					b = b,
+				}, empty_path .. 'entities/misc/command/' .. command .. '.xml,', '$' )
+			end
+
+			return { r, g, b }
+		end,
+		---更改投射物粒子组件的 rgba 颜色
+		---@param c table
+		---@param reflect boolean
+		---@param shooter number
+		---@param r string|number
+		---@param g string|number
+		---@param b string|number
+		---@param a string|number
+		---@return table rgba
+		action_4_paras = function ( c, reflect, shooter, r, g, b, a )
+			local command = 'color_set'
+
+			if ( type( r ) ~= 'number' and type( r ) ~= 'string' ) then
+				command_print( command .. '(', '$empty_command_error_wrong_para_type', 'NUMBER', upper_type( r ) )
+				return { 0, 0, 0, 0 }
+			end
+			if ( type( g ) ~= 'number' and type( g ) ~= 'string' ) then
+				command_print( command .. '(', '$empty_command_error_wrong_para_type', 'NUMBER', upper_type( g ) )
+				return { 0, 0, 0, 0 }
+			end
+			if ( type( b ) ~= 'number' and type( b ) ~= 'string' ) then
+				command_print( command .. '(', '$empty_command_error_wrong_para_type', 'NUMBER', upper_type( b ) )
+				return { 0, 0, 0, 0 }
+			end
+			if ( type( a ) ~= 'number' and type( a ) ~= 'string' ) then
+				command_print( command .. '(', '$empty_command_error_wrong_para_type', 'NUMBER', upper_type( a ) )
+				return { 0, 0, 0, 0 }
+			end
+
+			if ( reflect ) then
+				if ( type( r ) ~= 'number' ) then
+					r = 0
+				else
+					r = cap( 0, math.floor( r ), 255 )
+				end
+				if ( type( g ) ~= 'number' ) then
+					g = 0
+				else
+					g = cap( 0, math.floor( g ), 255 )
+				end
+				if ( type( b ) ~= 'number' ) then
+					b = 0
+				else
+					b = cap( 0, math.floor( b ), 255 )
+				end
+				if ( type( a ) ~= 'number' ) then
+					a = 0
+				else
+					a = cap( 0, math.floor( a ), 255 )
+				end
+
+				local entity = get_root_entity( )
+
+				set_comp_value( entity, 'ParticleEmitterComponent', nil, {
+					color = pack_rgba( r, g, b, a ),
+				}, nil, nil )
+
+				set_comp_value( entity, 'SpriteParticleEmitterComponent', nil, {
+					[ 'color.r' ] = r / 255,
+					[ 'color.g' ] = g / 255,
+					[ 'color.b' ] = b / 255,
+					[ 'color.a' ] = a / 255,
+				}, nil, nil )
+			else
+				add_desc_by_info( c, {
+					replace = true,
+					update = true,
+					merge = false,
+				}, {
+					id = command,
+					shooter = shooter,
+					r = r,
+					g = g,
+					b = b,
+					a = a,
+				}, empty_path .. 'entities/misc/command/' .. command .. '.xml,', '$' )
+			end
+
+			return { r, g, b, a }
+		end,
+	},
 	lifetime_set = {
 		max_paras = 1,
 		para_names = {
@@ -403,7 +586,7 @@ e_cmd_funcs = {
 		},
 		transform_tilde_into = {
 			para_1 = {
-				'0',
+				-1,
 			},
 		},
 		---将投射物中 lifetime 组件的 lifetime 属性设为参数值
@@ -425,11 +608,11 @@ e_cmd_funcs = {
 					lifetime = 0
 				end
 
-				local entity = EntityGetRootEntity( GetUpdatedEntityID( ) )
+				local entity = get_root_entity( )
 
 				local count = set_comp_value( entity, 'LifetimeComponent', nil, {
 					lifetime = lifetime,
-				}, nil )
+				}, nil, nil )
 
 				if ( count > 0 ) then
 					command_print( command .. '(', '$empty_command_projectile_change_success', tostring( count ) )
@@ -463,7 +646,7 @@ e_cmd_funcs = {
 		},
 		transform_tilde_into = {
 			para_1 = {
-				'0',
+				-1,
 			},
 		},
 		---将投射物中 投射物 组件的 lifetime 属性设为参数值
@@ -485,11 +668,11 @@ e_cmd_funcs = {
 					lifetime = 0
 				end
 
-				local entity = EntityGetRootEntity( GetUpdatedEntityID( ) )
+				local entity = get_root_entity( )
 
 				local count = set_comp_value( entity, 'ProjectileComponent', nil, {
 					lifetime = lifetime,
-				}, nil )
+				}, nil, nil )
 
 				if ( count > 0 ) then
 					command_print( command .. '(', '$empty_command_projectile_change_success', tostring( count ) )
@@ -529,11 +712,11 @@ e_cmd_funcs = {
 		},
 		transform_tilde_into = {
 			para_1 = {
-				'0',
+				0,
 			},
 			para_2 = {
-				'0',
-				'0',
+				0,
+				0,
 			},
 		},
 		---投射物已发射的场合: 在保持方向的状态下将 速度 组件中的 vel_x, vel_y 的模更改为 speed; 
@@ -558,25 +741,29 @@ e_cmd_funcs = {
 					speed = 0
 				end
 
-				local entity = EntityGetRootEntity( GetUpdatedEntityID( ) )
+				local entity = get_root_entity( )
 
 				remove_speed_limit( entity )
 
 				local count = set_comp_value( entity, 'VelocityComponent', nil, {
 					speed_min = speed,
 					speed_max = speed,
-				}, nil )
+				}, nil, nil )
+
+				EntityAddTag( entity, command_shot_speed )
 
 				add_comp_remove_dupli( entity, 'VariableStorageComponent', command_shot_speed, {
 					_tags = command_shot_speed,
 					value_float = speed,
 				} )
 
-				add_comp_remove_dupli( entity, 'LuaComponent', command_shot_speed, {
-					_tags = command_shot_speed,
-					script_shot = empty_path .. 'scripts/projectiles/command/' .. command_shot_speed .. '.lua',
-					remove_after_executed = true,
-				} )
+				if ( not is_has_comp( shooter, 'LuaComponent', command_shot_speed ) ) then
+					add_comp_remove_dupli( shooter, 'LuaComponent', command_shot_speed, {
+						_tags = command_shot_speed,
+						script_shot = empty_path .. 'scripts/projectiles/command/' .. command_shot_speed .. '.lua',
+						remove_after_executed = true,
+					} )
+				end
 
 				if ( count > 0 ) then
 					command_print( command .. '(', '$empty_command_projectile_change_success', tostring( count ) )
@@ -625,7 +812,7 @@ e_cmd_funcs = {
 					vel_y = 0
 				end
 
-				local entity = EntityGetRootEntity( GetUpdatedEntityID( ) )
+				local entity = get_root_entity( )
 				local speed = math.sqrt( vel_x ^ 2, vel_y ^ 2 )
 
 				remove_speed_limit( entity )
@@ -633,18 +820,22 @@ e_cmd_funcs = {
 				local count = set_comp_value( entity, 'VelocityComponent', nil, {
 					speed_min = speed,
 					speed_max = speed,
-				}, nil )
+				}, nil, nil )
+
+				EntityAddTag( entity, command_shot_velxy )
 
 				add_comp_remove_dupli( entity, 'VariableStorageComponent', command_shot_velxy, {
 					_tags = command_shot_velxy,
 					value_float = speed,
 				} )
 
-				add_comp_remove_dupli( entity, 'LuaComponent', command_shot_velxy, {
-					_tags = command_shot_velxy,
-					script_shot = empty_path .. 'scripts/projectiles/command/' .. command_shot_velxy .. '.lua',
-					remove_after_executed = true,
-				} )
+				if ( not is_has_comp( shooter, 'LuaComponent', command_shot_velxy ) ) then
+					add_comp_remove_dupli( shooter, 'LuaComponent', command_shot_velxy, {
+						_tags = command_shot_velxy,
+						script_shot = empty_path .. 'scripts/projectiles/command/' .. command_shot_velxy .. '.lua',
+						remove_after_executed = true,
+					} )
+				end
 
 				if ( count > 0 ) then
 					command_print( command .. '(', '$empty_command_projectile_change_success', tostring( count ) )
@@ -684,11 +875,11 @@ e_cmd_funcs = {
 		},
 		transform_tilde_into = {
 			para_1 = {
-				'0',
+				0,
 			},
 			para_2 = {
-				'0',
-				'0',
+				0,
+				0,
 			},
 		},
 		---将投射物中 速度 组件的 gravity_y 属性设为 gravity_y
@@ -710,11 +901,11 @@ e_cmd_funcs = {
 					gravity_y = 0
 				end
 
-				local entity = EntityGetRootEntity( GetUpdatedEntityID( ) )
+				local entity = get_root_entity( )
 
 				local count = set_comp_value( entity, 'VelocityComponent', nil, {
 					gravity_y = gravity_y,
-				}, nil )
+				}, nil, nil )
 
 				if ( count > 0 ) then
 					command_print( command .. '(', '$empty_command_projectile_change_success', tostring( count ) )
@@ -762,12 +953,12 @@ e_cmd_funcs = {
 					gravity_x = 0
 				end
 
-				local entity = EntityGetRootEntity( GetUpdatedEntityID( ) )
+				local entity = get_root_entity( )
 
 				local count = set_comp_value( entity, 'VelocityComponent', nil, {
 					gravity_y = gravity_y,
 					gravity_x = gravity_x,
-				} )
+				}, nil, nil )
 
 				if ( count > 0 ) then
 					command_print( command .. '(', '$empty_command_projectile_change_success', tostring( count ) )
@@ -802,7 +993,7 @@ e_cmd_funcs = {
 		},
 		transform_tilde_into = {
 			para_1 = {
-				'0',
+				0,
 			},
 		},
 		---将投射物中 速度 组件的 air_friction 属性设为参数值
@@ -824,11 +1015,11 @@ e_cmd_funcs = {
 					air_friction = 0
 				end
 
-				local entity = EntityGetRootEntity( GetUpdatedEntityID( ) )
+				local entity = get_root_entity( )
 
 				local count = set_comp_value( entity, 'VelocityComponent', nil, {
 					air_friction = air_friction,
-				} )
+				}, nil, nil )
 
 				if ( count > 0 ) then
 					command_print( command .. '(', '$empty_command_projectile_change_success', tostring( count ) )
@@ -868,11 +1059,11 @@ e_cmd_funcs = {
 		},
 		transform_tilde_into = {
 			para_1 = {
-				'0',
+				0,
 			},
 			para_2 = {
-				'0',
-				'0',
+				0,
+				0,
 			},
 		},
 		---在不更改速度大小的状态下将速度方向在原基础上逆时针旋转 angle°
@@ -895,18 +1086,22 @@ e_cmd_funcs = {
 					angle = 0
 				end
 
-				local entity = EntityGetRootEntity( GetUpdatedEntityID( ) )
+				local entity = get_root_entity( )
+
+				EntityAddTag( entity, command )
 
 				add_comp_remove_dupli( entity, 'VariableStorageComponent', command_shot, {
 					_tags = command_shot,
 					value_float = angle,
 				} )
 
-				add_comp_remove_dupli( entity, 'LuaComponent', command_shot, {
-					_tags = command_shot,
-					script_shot = empty_path .. 'scripts/projectiles/command/' .. command_shot .. '.lua',
-					remove_after_executed = true,
-				} )
+				if ( not is_has_comp( shooter, 'LuaComponent', command_shot ) ) then
+					add_comp_remove_dupli( shooter, 'LuaComponent', command_shot, {
+						_tags = command_shot,
+						script_shot = empty_path .. 'scripts/projectiles/command/' .. command_shot .. '.lua',
+						remove_after_executed = true,
+					} )
+				end
 			else
 				add_desc_by_info( c, {
 					replace = true,
@@ -951,7 +1146,7 @@ e_cmd_funcs = {
 					delay = math.floor( delay )
 				end
 
-				local entity = EntityGetRootEntity( GetUpdatedEntityID( ) )
+				local entity = get_root_entity( )
 
 				add_comp_remove_dupli( entity, 'VariableStorageComponent', command_delay, {
 					_tags = command_delay,
@@ -998,11 +1193,11 @@ e_cmd_funcs = {
 		},
 		transform_tilde_into = {
 			para_1 = {
-				'0',
+				0,
 			},
 			para_2 = {
-				'0',
-				'0',
+				0,
+				0,
 			},
 		},
 		---在不更改速度大小的状态下将速度方向在正右方基础上逆时针旋转 angle°
@@ -1025,18 +1220,22 @@ e_cmd_funcs = {
 					angle = 0
 				end
 
-				local entity = EntityGetRootEntity( GetUpdatedEntityID( ) )
+				local entity = get_root_entity( )
+
+				EntityAddTag( entity, command )
 
 				add_comp_remove_dupli( entity, 'VariableStorageComponent', command_shot, {
 					_tags = command_shot,
 					value_float = angle,
 				} )
 
-				add_comp_remove_dupli( entity, 'LuaComponent', command_shot, {
-					_tags = command_shot,
-					script_shot = empty_path .. 'scripts/projectiles/command/' .. command_shot .. '.lua',
-					remove_after_executed = true,
-				} )
+				if ( not is_has_comp( shooter, 'LuaComponent', command_shot ) ) then
+					add_comp_remove_dupli( entity, 'LuaComponent', command_shot, {
+						_tags = command_shot,
+						script_shot = empty_path .. 'scripts/projectiles/command/' .. command_shot .. '.lua',
+						remove_after_executed = true,
+					} )
+				end
 			else
 				add_desc_by_info( c, {
 					replace = true,
@@ -1081,7 +1280,7 @@ e_cmd_funcs = {
 					delay = math.floor( delay )
 				end
 
-				local entity = EntityGetRootEntity( GetUpdatedEntityID( ) )
+				local entity = get_root_entity( )
 
 				add_comp_remove_dupli( entity, 'VariableStorageComponent', command_delay, {
 					_tags = command_delay,
@@ -1122,7 +1321,7 @@ e_cmd_funcs = {
 		},
 		transform_tilde_into = {
 			para_1 = {
-				'0',
+				0,
 			},
 		},
 		---将投射物的出射散射设为 angle°
@@ -1144,11 +1343,11 @@ e_cmd_funcs = {
 					angle = 0
 				end
 
-				local entity = EntityGetRootEntity( GetUpdatedEntityID( ) )
+				local entity = get_root_entity( )
 
 				local count = set_comp_value( entity, 'ProjectileComponent', nil, {
 					direction_random_rad = deg_to_rad( angle ),
-				}, nil )
+				}, nil, nil )
 
 				if ( count > 0 ) then
 					command_print( command .. '(', '$empty_command_projectile_change_success', tostring( count ) )
@@ -1202,22 +1401,22 @@ e_cmd_funcs = {
 		},
 		transform_tilde_into = {
 			para_1 = {
-				'0',
+				0,
 			},
 			para_2 = {
-				'0',
-				'0',
+				0,
+				0,
 			},
 			para_3 = {
-				'0',
-				'0',
-				'0',
+				0,
+				0,
+				0,
 			},
 			para_4 = {
-				'0',
-				'0',
-				'0',
-				'0',
+				0,
+				0,
+				0,
+				0,
 			},
 		},
 		---在不更改速度大小的状态下将速度方向在原基础上每帧逆时针旋转 angle°
@@ -1240,7 +1439,7 @@ e_cmd_funcs = {
 					angle = 0
 				end
 
-				local entity = EntityGetRootEntity( GetUpdatedEntityID( ) )
+				local entity = get_root_entity( )
 
 				add_comp_remove_dupli( entity, 'VariableStorageComponent', command_reflect, {
 					_tags = command_reflect,
@@ -1295,7 +1494,7 @@ e_cmd_funcs = {
 					inc = 0
 				end
 
-				local entity = EntityGetRootEntity( GetUpdatedEntityID( ) )
+				local entity = get_root_entity( )
 
 				add_comp_remove_dupli( entity, 'VariableStorageComponent', command_reflect, {
 					_tags = command_reflect,
@@ -1363,7 +1562,7 @@ e_cmd_funcs = {
 					delay = math.floor( delay )
 				end
 
-				local entity = EntityGetRootEntity( GetUpdatedEntityID( ) )
+				local entity = get_root_entity( )
 
 				add_comp_remove_dupli( entity, 'VariableStorageComponent', command_delay, {
 					_tags = command_delay,
@@ -1444,7 +1643,7 @@ e_cmd_funcs = {
 					duration = math.floor( duration )
 				end
 
-				local entity = EntityGetRootEntity( GetUpdatedEntityID( ) )
+				local entity = get_root_entity( )
 
 				add_comp_remove_dupli( entity, 'VariableStorageComponent', command_delay, {
 					_tags = command_delay,
@@ -1514,22 +1713,22 @@ e_cmd_funcs = {
 		},
 		transform_tilde_into = {
 			para_1 = {
-				'0',
+				0,
 			},
 			para_2 = {
-				'0',
-				'0',
+				0,
+				0,
 			},
 			para_3 = {
-				'0',
-				'0',
-				'0',
+				0,
+				0,
+				0,
 			},
 			para_4 = {
-				'0',
-				'0',
-				'0',
-				'0',
+				0,
+				0,
+				0,
+				0,
 			},
 		},
 		---在不更改速度大小的状态下将速度方向在正右方基础上每帧逆时针旋转 angle°
@@ -1552,7 +1751,7 @@ e_cmd_funcs = {
 					angle = 0
 				end
 
-				local entity = EntityGetRootEntity( GetUpdatedEntityID( ) )
+				local entity = get_root_entity( )
 
 				add_comp_remove_dupli( entity, 'VariableStorageComponent', command_reflect, {
 					_tags = command_reflect,
@@ -1608,7 +1807,7 @@ e_cmd_funcs = {
 					inc = 0
 				end
 
-				local entity = EntityGetRootEntity( GetUpdatedEntityID( ) )
+				local entity = get_root_entity( )
 
 				add_comp_remove_dupli( entity, 'VariableStorageComponent', command_reflect, {
 					_tags = command_reflect,
@@ -1676,7 +1875,7 @@ e_cmd_funcs = {
 					delay = math.floor( delay )
 				end
 
-				local entity = EntityGetRootEntity( GetUpdatedEntityID( ) )
+				local entity = get_root_entity( )
 
 				add_comp_remove_dupli( entity, 'VariableStorageComponent', command_delay, {
 					_tags = command_delay,
@@ -1757,7 +1956,7 @@ e_cmd_funcs = {
 					duration = math.floor( duration )
 				end
 
-				local entity = EntityGetRootEntity( GetUpdatedEntityID( ) )
+				local entity = get_root_entity( )
 
 				add_comp_remove_dupli( entity, 'VariableStorageComponent', command_delay, {
 					_tags = command_delay,
@@ -1794,7 +1993,35 @@ e_cmd_funcs = {
 
 			return { angle_delay, inc_delay, delay, duration }
 		end,
+	},--[[
+	gravity_field_set = {
+		max_paras = 5,
 	},
+	projectile_gravity_field_set = {
+		max_paras = 3,
+		para_names = {
+			all = {
+				'radius',
+				'gravity',
+				'duration',
+			},
+			para_2 = {
+				'radius',
+				'gravity',
+			},
+			para_3 = {
+				'radius',
+				'gravity',
+				'duration',
+			},
+		},
+		transform_tilde_into = {
+			para_2 = {
+				64,
+				0,
+			},
+		},
+	},]]--
 	explode = {
 		max_paras = 3,
 		para_names = {
@@ -1816,11 +2043,11 @@ e_cmd_funcs = {
 		},
 		transform_tilde_into = {
 			para_2 = {
-				'100',
+				64,
 				'self',
 			},
 			para_3 = {
-				'100',
+				64,
 				'x',
 				'y',
 			},
@@ -2092,7 +2319,7 @@ e_cmd_funcs = {
 
 				count = 0
 
-				if ( type( tp_entities ) == 'table' and #tp_entities > 0 ) then
+				if ( is_not_nil_table( tp_entities ) ) then
 					for _, each in ipairs( tp_entities ) do
 						if ( EntityGetIsAlive( each ) and not EntityHasTag( each, 'teleportable_NOT' ) ) then
 							EntityApplyTransform( each, x, y )
@@ -2182,8 +2409,7 @@ local function command_at_handler( token, token_type, shooter, tar_x, tar_y )
 			command_print( token, '$empty_command_at_error_no_such_entity' )
 		end
 	elseif ( token == '@players' ) then
-		group = EntityGetWithTag( 'player_unit' ) or { }
-		add_table( group, EntityGetWithTag( 'polymorphed_player' ) or { } )
+		group = get_all_players( )
 
 		if ( #group == 0 ) then
 			command_print( token, '$empty_command_at_error_no_such_entity' )
@@ -2231,7 +2457,7 @@ local function command_at_handler( token, token_type, shooter, tar_x, tar_y )
 			x, y = EntityGetTransform( shooter )
 			group = y
 		else
-			if ( is_num( token_type ) ) then
+			if ( type( token_type ) == 'number' or is_num( token_type ) ) then
 				group = number_handler( token_type )
 			end
 		end
@@ -2639,7 +2865,7 @@ function from_table_get_paras( c, command_name, deck_table, pattern, shooter, ta
 	if ( transform_table ) then
 		for i, para in ipairs( paras ) do
 			local para_need_type = 'none'
-			if ( transform_table and #transform_table > 0 ) then
+			if ( is_not_nil_table( transform_table ) ) then
 				if ( i <= #transform_table ) then
 					para_need_type = transform_table[ i ]
 				end

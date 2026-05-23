@@ -1,4 +1,3 @@
-dofile_once( 'data/scripts/lib/utilities.lua' )
 dofile_once( 'mods/empty_the_blackhole_catgirl/files/scripts/empty/empty_utility.lua' )
 
 -- NOTE( Petri ):
@@ -161,69 +160,56 @@ materials_magic =
 }
 
 function init( entity_id )
-	local potion_material = nil
+	local mat = nil
 
-	local components = EntityGetComponent( entity_id, 'VariableStorageComponent' )
+	local comps = EntityGetComponent( entity_id, 'VariableStorageComponent' )
 
-	if ( components ) then
-		for key, comp_id in pairs( components ) do
-			local var_name = ComponentGetValue2( comp_id, 'name' )
+	if ( comps ) then
+		for key, comp in pairs( comps ) do
+			local var_name = ComponentGetValue2( comp, 'name' )
 			if ( var_name == 'potion_material' ) then
-				potion_material = ComponentGetValue2( comp_id, 'value_string' )
+				mat = ComponentGetValue2( comp, 'value_string' )
 			end
 		end
 	end
 
-	if ( not potion_material or potion_material == '' ) then
-		local players = EntityGetWithTag( 'player_unit' ) or { }
-		local px, py = 0, 0
-		if #players > 0 then
-			for _, player in ipairs( players ) do
-				local tempx, tempy = EntityGetTransform( player )
-				px = px + tempx
-				py = py + tempy
-			end
-			px = px / #players
-			py = py / #players
-		end
+	if ( not mat or mat == '' ) then
 		local x, y = EntityGetTransform( entity_id )
 		local a, b, c = time_for_vec3( )
-		SetRandomSeed( x + px + a - c, y + py + b - c )
+		SetRandomSeed( x + a - c, y + b - c )
 
-		if ( Random( 1, 100 ) <= 80 ) then
+		if ( Random( 1, 100 ) <= 60 ) then
 			if ( Random( 1, 100 ) <= 3 ) then
-				potion_material = 'purifying_powder'
+				mat = 'purifying_powder'
 			else
-				potion_material = random_from_array( materials_magic )
-				potion_material = potion_material.material
+				mat = get_random_from( materials_magic ).material
 			end
 		else
-			potion_material = random_from_array( materials_standard )
-			potion_material = potion_material.material
+			mat = get_random_from( materials_standard ).material
 		end
 
 		if ( Random( 1, 100 ) <= 3 ) then
 			local rnd = Random( 1, 7 )
 			if ( rnd <= 2 ) then
-				potion_material = 'sima'
+				mat = 'sima'
 			elseif ( rnd <= 4 ) then
-				potion_material = 'juhannussima'
+				mat = 'juhannussima'
 			elseif ( rnd <= 6 ) then
-				potion_material = 'beer'
+				mat = 'beer'
 			else
-				potion_material = 'mammi'
+				mat = 'mammi'
 			end
 		end
 	end
 
-	local total_capacity = tonumber( GlobalsGetValue( 'EXTRA_POTION_CAPACITY_LEVEL', '2000' ) ) or 2000
-	if ( total_capacity > 2000 ) then
+	local total_cap = tonumber( GlobalsGetValue( 'EXTRA_POTION_CAPACITY_LEVEL', '2000' ) ) or 2000
+	if ( total_cap > 2000 ) then
 		local comp = EntityGetFirstComponentIncludingDisabled( entity_id, 'MaterialSuckerComponent' )
 		if ( comp ) then
-			ComponentSetValue2( comp, 'barrel_size', total_capacity )
+			ComponentSetValue2( comp, 'barrel_size', total_cap )
 		end
 		EntityAddTag( entity_id, 'extra_potion_capacity' )
 	end
 
-	AddMaterialInventoryMaterial( entity_id, potion_material, total_capacity )
+	AddMaterialInventoryMaterial( entity_id, mat, total_cap )
 end

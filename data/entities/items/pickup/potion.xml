@@ -42,15 +42,15 @@
 	<!-- potion logic -->
 
 	<LuaComponent
+		script_source_file="data/scripts/items/potion.lua"
 		execute_on_added="1"
 		remove_after_executed="1"
 		call_init_function="1"
-		script_source_file="data/scripts/items/potion.lua"
 	></LuaComponent>
 
 	<LuaComponent
-		remove_after_executed="1"
 		script_item_picked_up="data/scripts/items/potion_effect.lua"
+		remove_after_executed="1"
 	></LuaComponent>
 
 	<LuaComponent

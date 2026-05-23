@@ -136,6 +136,44 @@ if ( language:find( '中文' ) or language:find( '汉化' ) ) then
 			not_setting = true,
 		},
 		{
+			category_id = 'SETTINGS_WORLDS',
+			ui_name = '世界设置',
+			foldable = true,
+			_folded = true,
+			settings = {
+				{
+					id = 'STARTING_EDIT',
+					ui_name = '开局编辑',
+					ui_description = '在出生点右侧的山地大厅生成一片法杖编辑区域',
+					value_default = true,
+					scope = MOD_SETTING_SCOPE_NEW_GAME,
+				},
+				{
+					id = 'TELEPORT_TO_PYRAMID',
+					ui_name = '金字塔传送门',
+					ui_description = '在出生点上方生成一个通往金字塔顶的传送门',
+					value_default = false,
+					scope = MOD_SETTING_SCOPE_NEW_GAME,
+				},
+				{
+					id = 'CHAOS_CONNECTED_WORLD',
+					ui_name = '四通八达',
+					ui_description =
+						'令各生物群系之间增加数量繁多的通路\n'
+						.. '代价是区域混乱不堪',
+					value_default = false,
+					scope = MOD_SETTING_SCOPE_NEW_GAME,
+				},
+				{
+					id = 'EASY_NG+',
+					ui_name = '更简单的 NG+',
+					ui_description = '降低 NG+ 的难度......各方面',
+					value_default = false,
+					scope = MOD_SETTING_SCOPE_NEW_GAME,
+				},
+			},
+		},
+		{
 			category_id = 'SETTINGS_PERKS',
 			ui_name = '天赋设置',
 			foldable = true,
@@ -172,11 +210,70 @@ if ( language:find( '中文' ) or language:find( '汉化' ) ) then
 					value_default = false,
 					scope = MOD_SETTING_SCOPE_NEW_GAME,
 				},
+				{
+					id = 'EFFECT_CHANGE_BOMB',
+					ui_name = '效果更改: 炸弹',
+					ui_description =
+						'增加 [ 炸弹 ] 法术的最大使用次数'
+						.. '对 [ 粘性炸弹 ] 与 [ 弹性炸弹 ] 法术也生效',
+					value_default = true,
+					scope = MOD_SETTING_SCOPE_NEW_GAME,
+				},
+				{
+					id = 'ICON_CHANGE_BLACKHOLE_DEATH_TRIGGER',
+					ui_name = '图标更改: 失效触发黑洞',
+					ui_description =
+						'将 [ 带有失效触发的黑洞 ] 法术图标的角标\n'
+						.. b1 .. '从 [ 定时 ] 更改为 [ 失效触发 ]',
+					value_default = true,
+					scope = MOD_SETTING_SCOPE_NEW_GAME,
+				},
+				{
+					id = 'EFFECT_CHANGE_BUBBLESHOT',
+					ui_name = '效果更改: 泡泡火花',
+					ui_description = '[ 泡泡火花 ] 法术的效果现在符合其法术图标',
+					value_default = true,
+					scope = MOD_SETTING_SCOPE_NEW_GAME,
+				},
+				{
+					id = 'EFFECT_CHANGE_BUBBLESHOT_TRIGGER',
+					ui_name = '效果更改: 触发泡泡火花',
+					ui_description = '[ 带有触发的泡泡火花 ] 法术的效果现在符合其法术图标',
+					value_default = true,
+					scope = MOD_SETTING_SCOPE_NEW_GAME,
+				},
+				{
+					id = 'ICON_CHANGE_MINE_DEATH_TRIGGER',
+					ui_name = '图标更改: 失效触发不稳晶体',
+					ui_description =
+						'将 [ 带有失效触发的不稳晶体 ] 法术图标的角标\n'
+						.. b1 .. '从 [ 触发 ] 更改为 [ 失效触发 ]',
+					value_default = true,
+					scope = MOD_SETTING_SCOPE_NEW_GAME,
+				},
+				{
+					id = 'ICON_CHANGE_PIPE_BOMB_DEATH_TRIGGER',
+					ui_name = '图标更改: 失效触发休眠晶体',
+					ui_description =
+						'将 [ 带有失效触发的休眠晶体 ] 法术图标的角标\n'
+						.. b1 .. '从 [ 触发 ] 更改为 [ 失效触发 ]',
+					value_default = true,
+					scope = MOD_SETTING_SCOPE_NEW_GAME,
+				},
+				{
+					id = 'ICON_CHANGE_SUMMON_EGG_DEATH_TRIGGER',
+					ui_name = '图标更改: 召唤失效触发蛋',
+					ui_description =
+						'将 [ 召唤带有失效触发的蛋 ] 法术图标的角标\n'
+						.. b1 .. '从 [ 触发 ] 更改为 [ 失效触发 ]',
+					value_default = true,
+					scope = MOD_SETTING_SCOPE_NEW_GAME,
+				},
 			},
 		},
 		{
 			category_id = 'SETTINGS_ENEMIES',
-			ui_name = '敌人设置',
+			ui_name = '敌怪设置',
 			foldable = true,
 			_folded = true,
 			settings = {
@@ -296,13 +393,61 @@ if ( language:find( '中文' ) or language:find( '汉化' ) ) then
 			},
 		},
 		{
-			id = 'CHAOS_CONNECTED_WORLD',
-			ui_name = '四通八达',
-			ui_description =
-				'令各生物群系之间增加数量繁多的通路\n'
-				.. '代价是区域混乱不堪',
-			value_default = false,
-			scope = MOD_SETTING_SCOPE_NEW_GAME,
+			category_id = 'SETTINGS_BUGS_AND_CHEESE',
+			ui_name = '漏洞 & 轮椅设置',
+			foldable = true,
+			_folded = true,
+			settings = {
+				{
+					id = 'BUGFIX_SPELL_TO_POWER',
+					ui_name = '漏洞修复: 法转力',
+					ui_description = '修复 [ 法术变力量 ] 法术在特定状况下导致游戏崩溃的漏洞',
+					value_default = true,
+					scope = MOD_SETTING_SCOPE_NEW_GAME,
+				},
+				{
+					id = 'BUGFIX_DUPE_MAX_HP_FROM_WORMRAIN',
+					ui_name = '漏洞修复: 蠕虫雨刷血',
+					ui_description = '修复通过 [ 蠕虫雨 ] 法术无限刷取追加生命上限的漏洞',
+					value_default = true,
+					scope = MOD_SETTING_SCOPE_NEW_GAME,
+				},
+				{
+					id = 'BUGFIX_DUPE_MAX_HP_FROM_HEARTY',
+					ui_name = '漏洞修复: 心绞痛刷血',
+					ui_description = '修复通过 [ 心绞痛 ] 状态永久增加生命上限的漏洞',
+					value_default = true,
+					scope = MOD_SETTING_SCOPE_NEW_GAME,
+				},
+				{
+					id = 'BUGFIX_DUPE_DMG_MULTI_FROM_VULNERABLE',
+					ui_name = '漏洞修复: 易伤刷抗性',
+					ui_description = '修复通过 [ 易伤 ] 状态永久降低承伤系数的漏洞',
+					value_default = true,
+					scope = MOD_SETTING_SCOPE_NEW_GAME,
+				},
+				{
+					id = 'BUGFIX_CONNOISSEUR_OF_WANDS',
+					ui_name = '漏洞修复: 魔杖鉴赏家',
+					ui_description = '修复通过 [ 狂暴魔药 ] 等方式极其简单地击败魔杖鉴赏家的漏洞',
+					value_default = true,
+					scope = MOD_SETTING_SCOPE_NEW_GAME,
+				},
+				{
+					id = 'BUGFIX_HAND_OF_MASTER',
+					ui_name = '漏洞修复: 法师之手',
+					ui_description = '修复隔空控制物品移动的漏洞',
+					value_default = true,
+					scope = MOD_SETTING_SCOPE_NEW_GAME,
+				},
+				{
+					id = 'CHEESE_CHANGE_CHAINSAW',
+					ui_name = '轮椅更改: 链锯',
+					ui_description = '作为施法延迟变成 0 的代替, 链锯现在 -30 帧施法延迟',
+					value_default = false,
+					scope = MOD_SETTING_SCOPE_NEW_GAME,
+				},
+			},
 		},
 		{
 			id = 'COMMAND_FEEDBACK',
@@ -415,7 +560,7 @@ else
 						},
 						{
 							ui_name =
-								'Blackhole catgirl heavely recommend also trying aforementioned\n'
+								'Blackhole catgirl heavily recommend also trying aforementioned\n'
 								..	b1 .. "developers' mods on Workshop!",
 							not_setting = true,
 						},
@@ -424,6 +569,44 @@ else
 				},
 			},
 			not_setting = true,
+		},
+		{
+			category_id = 'SETTINGS_WORLDS',
+			ui_name = 'Settings about Worlds',
+			foldable = true,
+			_folded = true,
+			settings = {
+				{
+					id = 'STARTING_EDIT',
+					ui_name = 'Starting Edit',
+					ui_description = 'Generates a wand editing area in Mountain Hall to right of spawn point',
+					value_default = true,
+					scope = MOD_SETTING_SCOPE_NEW_GAME,
+				},
+				{
+					id = 'TELEPORT_TO_PYRAMID',
+					ui_name = 'Pyramid Teleport',
+					ui_description = 'Generates a portal to top of Pyramid above spawn point',
+					value_default = false,
+					scope = MOD_SETTING_SCOPE_NEW_GAME,
+				},
+				{
+					id = 'CHAOS_CONNECTED_WORLD',
+					ui_name = 'Thoroughfare',
+					ui_description =
+						'Adds numerous passages between biomes\n'
+						.. 'but making area chaotic',
+					value_default = false,
+					scope = MOD_SETTING_SCOPE_NEW_GAME,
+				},
+				{
+					id = 'EASY_NG+',
+					ui_name = 'Easier NG+',
+					ui_description = 'Lower NG+ difficulty... in every way',
+					value_default = false,
+					scope = MOD_SETTING_SCOPE_NEW_GAME,
+				},
+			},
 		},
 		{
 			category_id = 'SETTINGS_PERKS',
@@ -460,6 +643,65 @@ else
 					ui_name = 'Spells Spawn with Equal Chance',
 					ui_description = 'All unlocked spells have equal chance to spawn at every spell level',
 					value_default = false,
+					scope = MOD_SETTING_SCOPE_NEW_GAME,
+				},
+				{
+					id = 'EFFECT_CHANGE_BOMB',
+					ui_name = 'Effect Change: Bomb',
+					ui_description =
+						'increase max uses of [ Bomb ] spell'
+						.. 'also affect [ Sticky bomb ] and [ Bouncy bomb ] spell',
+					value_default = true,
+					scope = MOD_SETTING_SCOPE_NEW_GAME,
+				},
+				{
+					id = 'ICON_CHANGE_BLACKHOLE_DEATH_TRIGGER',
+					ui_name = 'Icon Change: Blackhole with Death Trigger',
+					ui_description =
+						'Change icon corner mark of [ Blackhole with death trigger ]\n'
+						.. b1 .. 'from [ Timer ] to [ Death Trigger ]',
+					value_default = true,
+					scope = MOD_SETTING_SCOPE_NEW_GAME,
+				},
+				{
+					id = 'EFFECT_CHANGE_BUBBLESHOT',
+					ui_name = 'Effect Change: Bubble Spark',
+					ui_description = 'Effect of [ Bubble spark ] spell now matches its icon',
+					value_default = true,
+					scope = MOD_SETTING_SCOPE_NEW_GAME,
+				},
+				{
+					id = 'EFFECT_CHANGE_BUBBLESHOT_TRIGGER',
+					ui_name = 'Effect Change: Bubble Spark with Trigger',
+					ui_description = 'Effect of [ Bubble spark with trigger ] spell now matches its icon',
+					value_default = true,
+					scope = MOD_SETTING_SCOPE_NEW_GAME,
+				},
+				{
+					id = 'ICON_CHANGE_MINE_DEATH_TRIGGER',
+					ui_name = 'Icon Change: Unstable Crystal with Death Trigger',
+					ui_description =
+						'Change icon corner mark of [ Unstable Crystal with Death Trigger ]\n'
+						.. b1 .. 'from [ Trigger ] to [ Death Trigger ]',
+					value_default = true,
+					scope = MOD_SETTING_SCOPE_NEW_GAME,
+				},
+				{
+					id = 'ICON_CHANGE_PIPE_BOMB_DEATH_TRIGGER',
+					ui_name = 'Icon Change: Dormant Crystal with Death Trigger',
+					ui_description =
+						'Change icon corner mark of [ Dormant Crystal with Death Trigger ]\n'
+						.. b1 .. 'from [ Trigger ] to [ Death Trigger ]',
+					value_default = true,
+					scope = MOD_SETTING_SCOPE_NEW_GAME,
+				},
+				{
+					id = 'ICON_CHANGE_SUMMON_EGG_DEATH_TRIGGER',
+					ui_name = 'Icon Change: Summon Egg with Death Trigger',
+					ui_description =
+						'Change icon corner mark of [ Summon egg with death trigger ]\n'
+						.. b1 .. 'from [ Trigger ] to [ Death Trigger ]',
+					value_default = true,
 					scope = MOD_SETTING_SCOPE_NEW_GAME,
 				},
 			},
@@ -564,15 +806,6 @@ else
 			},
 		},
 		{
-			id = 'CHAOS_CONNECTED_WORLD',
-			ui_name = 'Thoroughfare',
-			ui_description =
-				'Adds numerous passages between biomes\n'
-				.. 'but making area chaotic',
-			value_default = false,
-			scope = MOD_SETTING_SCOPE_NEW_GAME,
-		},
-		{
 			category_id = 'SETTINGS_VISIONS',
 			ui_name = 'Settings about Visions',
 			foldable = true,
@@ -595,6 +828,63 @@ else
 			},
 		},
 		{
+			category_id = 'SETTINGS_BUGS_AND_CHEESE',
+			ui_name = 'Settings about Bugs & Cheeses',
+			foldable = true,
+			_folded = true,
+			settings = {
+				{
+					id = 'BUGFIX_SPELL_TO_POWER',
+					ui_name = 'Bugfix: Spells to Power',
+					ui_description = 'Fix crash caused by [ Spells to Power ] under certain conditions',
+					value_default = true,
+					scope = MOD_SETTING_SCOPE_NEW_GAME,
+				},
+				{
+					id = 'BUGFIX_DUPE_MAX_HP_FROM_WORMRAIN',
+					ui_name = 'Bugfix: Worm Rain HP Dupe',
+					ui_description = 'Fix infinite max health dupe through [ Worm Rain ] spell',
+					value_default = true,
+					scope = MOD_SETTING_SCOPE_NEW_GAME,
+				},
+				{
+					id = 'BUGFIX_DUPE_MAX_HP_FROM_HEARTY',
+					ui_name = 'Bugfix: Heartache HP Dupe',
+					ui_description = 'Fix permanent max health increase dupe through [ Heartache ] status',
+					value_default = true,
+					scope = MOD_SETTING_SCOPE_NEW_GAME,
+				},
+				{
+					id = 'BUGFIX_DUPE_DMG_MULTI_FROM_VULNERABLE',
+					ui_name = 'Bugfix: Vulnerable Resistance Dupe',
+					ui_description = 'Fix permanent damage multiplier reduction dupe through [ Vulnerable ] status',
+					value_default = true,
+					scope = MOD_SETTING_SCOPE_NEW_GAME,
+				},
+				{
+					id = 'BUGFIX_CONNOISSEUR_OF_WANDS',
+					ui_name = 'Bugfix: Connoisseur of Wands',
+					ui_description = 'Fix exploit of defeating Connoisseur of Wands extremely easily via [ Berserkium ] etc.',
+					value_default = true,
+					scope = MOD_SETTING_SCOPE_NEW_GAME,
+				},
+				{
+					id = 'BUGFIX_HAND_OF_MASTER',
+					ui_name = 'Bugfix: Hand of Master',
+					ui_description = 'Fix exploit of moving items from distance',
+					value_default = true,
+					scope = MOD_SETTING_SCOPE_NEW_GAME,
+				},
+				{
+					id = 'CHEESE_CHANGE_CHAINSAW',
+					ui_name = 'Cheese Change: Chainsaw',
+					ui_description = 'Instead of setting fire rate wait to 0, Chainsaw now -30 frames fire rate wait',
+					value_default = false,
+					scope = MOD_SETTING_SCOPE_NEW_GAME,
+				},
+			},
+		},
+		{
 			id = 'COMMAND_FEEDBACK',
 			ui_name = 'Command Feedback',
 			ui_description = 'Command spells will display execution feedback at bottom-left',
@@ -608,7 +898,7 @@ else
 				'Replace some of creatures names with text related to Svarog\n\n'
 				.. 'this setting is useless for you, reason:\n'
 				.. b1 .. 'Svarog is a chinese Noita streamer\n'
-				.. b1 .. 'this setting only replace some of chinese translations of his jokes',
+				.. b1 .. 'this setting only replace some chinese translations of his jokes',
 			value_default = false,
 			scope = MOD_SETTING_SCOPE_ONLY_SET_DEFAULT,
 		},

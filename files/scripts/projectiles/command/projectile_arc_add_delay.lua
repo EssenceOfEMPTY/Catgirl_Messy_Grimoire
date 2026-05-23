@@ -1,7 +1,6 @@
-dofile_once( 'data/scripts/lib/utilities.lua' )
 dofile_once( 'mods/empty_the_blackhole_catgirl/files/scripts/empty/empty_command_utility.lua' )
 
-local entity = EntityGetRootEntity( GetUpdatedEntityID( ) )
+local entity = get_root_entity( )
 local command = 'projectile_arc_add'
 local command_delay = command .. '_delay'
 

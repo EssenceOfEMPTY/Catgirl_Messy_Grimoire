@@ -68,10 +68,10 @@ function generate_gun( cost, level, force_unshuffle )
 		gun[ 'cost' ] = gun[ 'cost' ] + 65
 		local light_comp = EntityGetFirstComponent( entity_id, 'LightComponent' )
 		if ( light_comp ) then
-			ComponentSetValue2( light_comp, 'update_properties', '1' )
-			ComponentSetValue2( light_comp, 'r', '127' )
-			ComponentSetValue2( light_comp, 'g', '0' )
-			ComponentSetValue2( light_comp, 'b', '255' )
+			ComponentSetValue2( light_comp, 'update_properties', true )
+			ComponentSetValue2( light_comp, 'r', 127 )
+			ComponentSetValue2( light_comp, 'g', 0 )
+			ComponentSetValue2( light_comp, 'b', 255 )
 		end
 	end
 	-- based on capacity:
@@ -181,12 +181,18 @@ function generate_gun( cost, level, force_unshuffle )
 
 	gun.actions_per_round = clamp( gun.actions_per_round, 1, gun.deck_capacity )
 
+	local shuffle = true
+
+	if ( gun.shuffle_deck_when_empty == false or gun.shuffle_deck_when_empty == '0' ) then
+		shuffle = false
+	end
+
 	-- SetItemSprite( entity_id, ability_comp, 'data / items_gfx / gungen_guns / submachinegun_', Random( 0, 7 ) )
 	ComponentSetValue2( ability_comp, 'ui_name', name )
 	ComponentObjectSetValue2( ability_comp, 'gun_config', 'actions_per_round', gun.actions_per_round )
 	ComponentObjectSetValue2( ability_comp, 'gun_config', 'reload_time', gun.reload_time )
 	ComponentObjectSetValue2( ability_comp, 'gun_config', 'deck_capacity', gun.deck_capacity )
-	ComponentObjectSetValue2( ability_comp, 'gun_config', 'shuffle_deck_when_empty', gun.shuffle_deck_when_empty )
+	ComponentObjectSetValue2( ability_comp, 'gun_config', 'shuffle_deck_when_empty', shuffle )
 	ComponentObjectSetValue2( ability_comp, 'gunaction_config', 'fire_rate_wait', gun.fire_rate_wait )
 	ComponentObjectSetValue2( ability_comp, 'gunaction_config', 'spread_degrees', gun.spread_degrees )
 	ComponentObjectSetValue2( ability_comp, 'gunaction_config', 'speed_multiplier', gun.speed_multiplier )
@@ -197,10 +203,9 @@ function generate_gun( cost, level, force_unshuffle )
 
 	ComponentSetValue2( ability_comp, 'item_recoil_recovery_speed', 15.0 ) -- TODO: implement logic for setting this
 
-	-- stuff in the gun
 	local good_cards = 5
 	if ( Random( 0,100 ) < 7 ) then
-		good_cards = Random( 20,50 )
+		good_cards = Random( 20, 50 )
 	end
 
 	if ( is_rare == 1 ) then

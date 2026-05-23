@@ -1,6 +1,7 @@
 dofile_once( 'mods/empty_the_blackhole_catgirl/files/scripts/empty/empty_utility.lua' )
 
-local entity = EntityGetRootEntity( GetUpdatedEntityID( ) )
+local entity = get_root_entity( )
+
 if ( entity ~= NULL_ENTITY ) then
 	local p_comps = EntityGetComponent( entity, 'ProjectileComponent' )
 

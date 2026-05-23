@@ -47,7 +47,7 @@ local all_effs = {
 	'POLYMORPH_RANDOM',--不稳定变形 ( 完全随机 )
 	'POLYMORPH_CESSATION',--不复存在
 
-	'PROTECTION_DURING_TELEPOR',--传送免疫?
+	'PROTECTION_DURING_TELEPORT',--传送免疫?
 	'TELEPORTATION',-- 传送
 	'TELEPORTITIS',-- 受伤传送
 	'UNSTABLE_TELEPORTATION',-- 不稳传送
@@ -173,14 +173,14 @@ local sta_effs = {
 ---@param duration number|nil?
 ---@param path string|nil?
 ---@return number[] eff_entities
-function add_effect( entity, eff, duration, path )
+function add_effect_new( entity, eff, duration, path )
 	local eff_entites = { }
 
 	if ( type( entity ) == 'number' ) then
 		entity = { entity }
 	end
 
-	if ( type( path ) == 'string' and path ~= '' ) then
+	if ( is_not_nil_str( path ) ) then
 		if ( ModDoesFileExist( path .. string.lower( eff ) .. '.xml' ) ) then
 			for _, e in ipairs( entity or { } ) do
 				local eff_entity = LoadGameEffectEntityTo( e, path .. string.lower( eff ) .. '.xml' )
@@ -225,7 +225,6 @@ end
 function prolong_effect( entity, eff, prolong, duration, path )
 	local eff_entites = { }
 
-	info_print( entity, 'entity: empty_effect_utility.lua - prolong effect' )
 	if ( type( entity ) == 'number' ) then
 		entity = { entity }
 	end
@@ -253,7 +252,7 @@ function prolong_effect( entity, eff, prolong, duration, path )
 	end
 
 	if ( #has_no_eff_e > 0 ) then
-		local eff_ex_entites = add_effect( has_no_eff_e, eff, duration, path )
+		local eff_ex_entites = add_effect_new( has_no_eff_e, eff, duration, path )
 
 		add_table( eff_entites, eff_ex_entites )
 	end
@@ -268,7 +267,7 @@ end
 function show_effect( eff, eff_entities, path )
 	local eff_low, icon_path = string.lower( eff ), 'data/ui_gfx/status_indicators/'
 
-	if ( type( path ) == 'string' and path ~= '' ) then
+	if ( is_not_nil_str( path ) ) then
 		icon_path = path .. eff_low .. '.png'
 	else
 		icon_path = icon_path .. eff_low .. '.png'
@@ -290,17 +289,15 @@ function show_effect( eff, eff_entities, path )
 	end
 end
 
----为 entity 实体延长持续时间为 prolong 帧的随机效果
----没有这个效果的场合, 改为增加 duration 帧的随机效果
+---为 entity 实体延长持续时间为 prolong 帧的 eff 效果
+---没有这个效果的场合, 改为增加 duration 帧的 eff 效果
 ---@param entity number
+---@param eff string
 ---@param prolong number
 ---@param duration number
----@param title string
----@param path string|nil
-function add_effect_random( entity, prolong, duration, title, path )
-	r_seed_set( entity )
-
-	local eff = all_effs[ Random( 1, #all_effs ) ]
+---@param title string?
+---@param path string|nil?
+function add_effect( entity, eff, prolong, duration, title, path )
 	prolong, duration = math.floor( prolong ), math.floor( duration )
 
 	local eff_entities, eff_low = prolong_effect( entity, eff, prolong, duration, path ), string.lower( eff )
@@ -308,6 +305,23 @@ function add_effect_random( entity, prolong, duration, title, path )
 	if ( is_player( entity ) ) then
 		show_effect( eff, eff_entities )
 
-		imp_print( title, GameTextGet( '$empty_title_effect_display_random', GameTextGet( '$status_' .. eff_low ) ) )
+		if ( is_not_nil_str( title ) ) then
+			imp_print( title, GameTextGet( '$empty_title_effect_display_random', GameTextGet( '$status_' .. eff_low ) ) )
+		end
 	end
+end
+
+---为 entity 实体延长持续时间为 prolong 帧的随机效果
+---没有这个效果的场合, 改为增加 duration 帧的随机效果
+---@param entity number
+---@param prolong number
+---@param duration number
+---@param title string?
+---@param path string|nil?
+function add_effect_random( entity, prolong, duration, title, path )
+	r_seed_set( entity )
+
+	local eff = all_effs[ Random( 1, #all_effs ) ]
+
+	add_effect( entity, eff, prolong, duration, title, path )
 end

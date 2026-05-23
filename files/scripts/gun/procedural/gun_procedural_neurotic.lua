@@ -37,7 +37,7 @@ function generate_neurotic_gun( gun_type, level )
 			level = math.floor( level )
 		end
 
-		local e_id = EntityGetRootEntity( GetUpdatedEntityID( ) )
+		local e_id = get_root_entity( )
 		local x, y = EntityGetTransform( e_id )
 		local a_comp = EntityGetFirstComponent( e_id, 'AbilityComponent' ) or 0
 

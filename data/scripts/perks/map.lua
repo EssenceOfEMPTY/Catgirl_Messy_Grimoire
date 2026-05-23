@@ -81,11 +81,12 @@ if ( timercomp ) and ( entity_id ~= player_id ) then
 
 				GameCreateSpriteForXFrames( 'data/particles/' .. name .. '.png', mi_x + 6, mi_y - 92, true, 0, 0, 1, true )
 			end
+
 			for i, v in ipairs( orbdata ) do
- local ox = v[1] * 6 + 3
+				local ox = v[1] * 6 + 3
 				local oy = v[2] * 6 - 56
- GameCreateSpriteForXFrames( 'mods/empty_the_blackhole_catgirl/files/ui_gfx/map_orb.png', mi_x + ox, mi_y + oy, true, 0, 0, 1, true )
- end
+				GameCreateSpriteForXFrames( 'mods/empty_the_blackhole_catgirl/files/ui_gfx/map_orb.png', mi_x + ox, mi_y + oy, true, 0, 0, 1, true )
+			end
 		end
 	else
 		timer = 0

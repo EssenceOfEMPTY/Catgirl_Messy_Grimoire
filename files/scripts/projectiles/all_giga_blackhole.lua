@@ -1,39 +1,31 @@
+dofile_once( 'mods/empty_the_blackhole_catgirl/files/scripts/empty/empty_utility.lua' )
 
-local entity_id = GetUpdatedEntityID()
-local x, y = EntityGetTransform( entity_id )
+local projs = EntityGetWithTag( 'projectile' )
 
-local projectiles = EntityGetWithTag( 'projectile' )
+add_table( projs, EntityGetWithTag( 'projectile_player' ) or { } )
 
-if ( #projectiles > 0 ) then
-	for i,projectile_id in ipairs( projectiles ) do
-		local tags = EntityGetTags( projectile_id )
+set_comp_value( projs, 'ProjectileComponent', nil, {
+	on_death_explode = false,
+	on_lifetime_out_explode = false,
+}, nil, nil )
 
-		if ( not tags ) or ( string.find( tags, 'black_hole' ) == nil ) then
-			local px, py = EntityGetTransform( projectile_id )
-			local vel_x, vel_y = nil, nil
+for _, proj in ipairs( projs ) do
+	local tags = EntityGetTags( proj )
 
-			local projectilecomponents = EntityGetComponent( projectile_id, 'ProjectileComponent' )
-			local velocitycomponents = EntityGetFirstComponent( projectile_id, 'VelocityComponent' )
+	if ( not tags ) or ( string.find( tags, 'black_hole' ) == nil ) then
+		local x, y = EntityGetTransform( proj )
+		local vel_x, vel_y = nil, nil
 
-			if ( projectilecomponents ) then
-				for j, comp_id in ipairs( projectilecomponents ) do
-					ComponentSetValue2( comp_id, 'on_death_explode', '0' )
-					ComponentSetValue2( comp_id, 'on_lifetime_out_explode', '0' )
-				end
-			end
+		local v_comp = EntityGetFirstComponent( proj, 'VelocityComponent' )
 
-			if ( velocitycomponents ) then
-				edit_component( projectile_id, 'VelocityComponent', function( comp, vars )
-					vel_x, vel_y = ComponentGetValueVector2( comp, 'mVelocity' )
-				end)
-
-				if ( not ( vel_x and vel_y ) ) then
-					vel_x, vel_y = 0, 0
-				end
-			end
-
-			shoot_projectile_from_projectile( projectile_id, 'data/entities/projectiles/deck/black_hole_giga.xml', px, py, vel_x, vel_y )
-			EntityKill( projectile_id )
+		if ( v_comp ) then
+			vel_x, vel_y = ComponentGetValue2( v_comp, 'mVelocity' )
+		else
+			vel_x, vel_y = 0, 0
 		end
+
+		shoot_proj( proj, 'data/entities/projectiles/deck/black_hole_giga.xml', x, y, vel_x, vel_y, nil, nil, nil )
+
+		EntityKill( proj )
 	end
 end

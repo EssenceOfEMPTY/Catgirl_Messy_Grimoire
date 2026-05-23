@@ -1,10 +1,12 @@
 dofile_once( 'data/scripts/lib/utilities.lua' )
 dofile_once( 'mods/empty_the_blackhole_catgirl/files/scripts/empty/empty_command_utility.lua' )
 
-local entity = EntityGetRootEntity( GetUpdatedEntityID( ) )
+local entity = get_root_entity( )
 local command = 'projectile_gravity_set'
 
-if ( entity ~= NULL_ENTITY ) then
+if ( entity ~= NULL_ENTITY and not EntityHasTag( entity, command ) ) then
+	EntityAddTag( entity, command )
+
 	local paras = parse_and_evaluate_command_paras( command, entity, e_cmd_funcs[ command ].para_names.all )
 
 	if ( paras ) then
@@ -13,11 +15,5 @@ if ( entity ~= NULL_ENTITY ) then
 		else
 			e_cmd_funcs[ command ].action_2_paras( { }, true, paras.shooter, paras.gravity_y, paras.gravity_x )
 		end
-	end
-
-	local l_comps = EntityGetComponent( entity, 'LuaComponent', command .. '_dupli' )
-
-	for _, l_comp in ipairs( l_comps or { } ) do
-		EntityRemoveComponent( entity, l_comp )
 	end
 end

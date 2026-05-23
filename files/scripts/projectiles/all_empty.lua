@@ -1,8 +1,6 @@
 
-local projectiles = EntityGetWithTag( 'projectile' )
+local p_s = EntityGetWithTag( 'projectile' )
 
-if ( #projectiles > 0 ) then
-	for _, projectile in ipairs( projectiles ) do
-		EntityKill( projectile )
-	end
+for _, p in ipairs( p_s or { } ) do
+	EntityKill( p )
 end

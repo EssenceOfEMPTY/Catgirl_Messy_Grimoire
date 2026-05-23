@@ -1,9 +1,118 @@
---dofile_once( 'data/scripts/lib/utilities.lua' )
 
 empty_path = 'mods/empty_the_blackhole_catgirl/files/'
+
+int_huge = 2147483647
+epsilon = 0.0003
 p2 = 2 * math.pi
 
----打印一切信息, 此函数仅用于调试
+all_curses = {
+	'CURSE_MONK',
+	'CURSE_ALWAYS_SHUFFLE',
+	'CURSE_SHORT_WAND',
+	'CURSE_MALICE_WASHES_OVER',
+	'CURSE_REALITY_SHIFT',
+	'CURSE_GUARANTEED_LOSE',
+	'CURSE_GRAVITY_FREE',
+	'CURSE_DEATH_TRAIL',
+	--'CURSE_FURIOUS_COCKTAIL',
+}
+
+all_d_muls = {
+	'melee',
+	'projectile',
+	'explosion',
+	'electricity',
+	'fire',
+	'ice',
+	'drill',
+	'slice',
+	'physics_hit',
+	'radioactive',
+	'poison',
+	'curse',
+	'holy',
+	'healing',
+}
+
+all_d_muls_0 = {
+	melee = 0,
+	projectile = 0,
+	explosion = 0,
+	electricity = 0,
+	fire = 0,
+	ice = 0,
+	drill = 0,
+	slice = 0,
+	physics_hit = 0,
+	radioactive = 0,
+	poison = 0,
+	curse = 0,
+	holy = 0,
+	healing = 0,
+}
+
+all_proj_dmg = {
+	'melee',
+	'explosion',
+	'electricity',
+	'fire',
+	'ice',
+	'slice',
+	'drill',
+	'physics_hit',
+	'radioactive',
+	'poison',
+	'curse',
+	'holy',
+	'healing',
+}
+
+all_proj_dmg_0 = {
+	melee = 0,
+	explosion = 0,
+	electricity = 0,
+	fire = 0,
+	ice = 0,
+	slice = 0,
+	drill = 0,
+	physics_hit = 0,
+	radioactive = 0,
+	poison = 0,
+	curse = 0,
+	holy = 0,
+	healing = 0,
+}
+
+all_proj_dmg_0_dmg_by_type = {
+	{ 'damage_by_type', 'melee', 0 },
+	{ 'damage_by_type', 'explosion', 0 },
+	{ 'damage_by_type', 'electricity', 0 },
+	{ 'damage_by_type', 'fire', 0 },
+	{ 'damage_by_type', 'ice', 0 },
+	{ 'damage_by_type', 'slice', 0 },
+	{ 'damage_by_type', 'drill', 0 },
+	{ 'damage_by_type', 'physics_hit', 0 },
+	{ 'damage_by_type', 'radioactive', 0 },
+	{ 'damage_by_type', 'poison', 0 },
+	{ 'damage_by_type', 'curse', 0 },
+	{ 'damage_by_type', 'holy', 0 },
+	{ 'damage_by_type', 'healing', 0 },
+}
+
+all_tag = {
+	player = 'player_unit',
+	poly_player = 'polymorphed_player',
+	enemy = 'enemy',
+}
+
+orbit_loc_fix = {
+	{ x = 12, y = 12 },
+	{ x = 12, y = -12 },
+	{ x = -12, y = 12 },
+	{ x = -12, y = -12 },
+}
+---打印一切信息, 此函数仅用于调试; 
+---正式版本中不应该看见任何地方调用这个函数
 ---@param info any
 ---@param key string|nil
 ---@param tab_count number|nil
@@ -18,13 +127,21 @@ function info_print( info, key, tab_count )
 	local typ = type( info )
 
 	if ( typ == 'table' ) then
-		print( '< ' .. typ .. ' > ' .. key .. ': {' )
+		if ( tab_count == 0 ) then
+			print( '< ' .. typ .. ' > ' .. key .. ': {' )
+		else
+			print( string.rep( '\t', tab_count ) .. '< ' .. typ .. ' > ' .. key .. ': {' )
+		end
 
 		for i, _ in pairs( info or { } ) do
 			info_print( _, i, tab_count + 1 )
 		end
 
-		print( '}' )
+		if ( tab_count == 0 ) then
+			print( '}' )
+		else
+			print( string.rep( '\t', tab_count ) .. '}' )
+		end
 	else
 		if ( tab_count == 0 ) then
 			print( '< ' .. typ .. ' > ' .. key .. ': ' .. tostring( info ) )
@@ -32,23 +149,6 @@ function info_print( info, key, tab_count )
 			print( string.rep( '\t', tab_count ) .. '< ' .. typ .. ' > ' .. key .. ': ' .. tostring( info ) )
 		end
 	end
-end
-
----打印关于 loc 的 id 信息, 此函数仅用于调试
----@param loc table
----@param key string|nil
-function loc_print( loc, key )
-	if ( key == nil ) then
-		key = ''
-	end
-
-	print( key .. ': {' )
-
-	for _, data in ipairs( loc or { } ) do
-		print( '\t' .. tostring( _ ) .. ': '  .. data.id )
-	end
-
-	print( '}' )
 end
 
 ---显示重要信息
@@ -121,6 +221,80 @@ function upper_type( any )
 	return string.upper( type( any ) )
 end
 
+---根据 k_table 模板表创建键值全为 v 的表
+---@param k_table table|nil
+---@param v any
+---@return table v_table
+function create_all_table( k_table, v )
+	local v_table = { }
+
+	for i, _ in ipairs( k_table or { } ) do
+		v_table[ _ ] = v
+	end
+
+	return v_table
+end
+
+---检测 num 是否是数值且不为 0
+---@param num any
+---@return boolean is_not_0_num
+function is_not_0_num( num )
+	return type( num ) == 'number' and num ~= 0
+end
+
+---检测 str 是否是字符串且不为空字符串
+---@param str any
+---@return boolean is_not_nil_str
+function is_not_nil_str( str )
+	return type( str ) == 'string' and str ~= ''
+end
+
+---检测 v_table 是否是表且不为空表
+---@param v_table any
+---@return boolean is_not_nil_table
+function is_not_nil_table( v_table )
+	return type( v_table ) == 'table' and next( v_table ) ~= nil
+end
+
+---检测 num 是否为整数
+---@param num any
+---@return boolean is_int
+function is_int( num )
+	return type( num ) == 'number' and num % 1 == 0
+end
+
+---判断实体是否存活
+---@param entity number
+---@return boolean
+function is_alive( entity )
+	return ( is_not_0_num( entity ) and EntityGetIsAlive( entity ) )
+end
+
+---判断实体是否为玩家, 含变形
+---@param entity number
+---@return boolean
+function is_player( entity )
+	return ( is_not_0_num( entity ) and ( EntityHasTag( entity, 'player_unit' ) or EntityHasTag( entity, 'polymorphed_player' ) ) )
+end
+
+---检查 search 内是否包含 value
+---@param value any
+---@param search table|nil
+---@return boolean is_in
+function is_in( value, search )
+	if ( type( search ) ~= 'table' ) then
+		return false
+	end
+
+	for _, v in ipairs( search ) do
+		if ( v == value ) then
+			return true
+		end
+	end
+
+	return false
+end
+
 ---以包含 2 项的数组作为最值获取随机数
 ---@param target number[]
 ---@return number
@@ -150,56 +324,67 @@ function add_table( main, merge, is_clean_main, is_clean_merge )
 	end
 
 	if ( is_clean_main ) then
-		for _ = 1, #main do
+		for _ = #main, 1, -1 do
 			main[ _ ] = nil
 		end
 	end
 
 	if ( merge ) then
-		local merge_len = #merge
-
-		for _ = 1, merge_len do
+		for _ = 1, #merge do
 			table.insert( main, merge[ _ ] )
 		end
 
 		if ( is_clean_merge ) then
-			for _ = 1, merge_len do
+			for _ = #merge, 1, -1 do
 				merge[ _ ] = nil
 			end
 		end
 	end
 end
 
----在 main 内通过 id 查找并替换 replace 内的每项;
+---在 main 内通过 id 查找并替换 replace 内的每项; 
+---设置 pre_id 的场合, 将对比 pre_id 并将 id 更改为新的 id; 
 ---可在替换后清空 replace
 ---@param main table
 ---@param replace table
 ---@param is_clean_replace boolean|nil? --默认为 true
-function replace_table( main, replace, is_clean_replace )
+function update_table_by_id( main, replace, is_clean_replace )
 	if ( is_clean_replace == nil ) then
 		is_clean_replace = true
 	end
 
 	for i, new in ipairs( replace ) do
 		for j, old in ipairs( main ) do
-			if ( old.id == new.id ) then
-				for _, value in pairs( new ) do
-					main[ j ][ _ ] = value
-				end
+			if ( type( new.pre_id ) == 'string' ) then
+				if ( old.id == new.pre_id ) then
+					new.pre_id = nil
 
-				break
+					for k, _ in pairs( new ) do
+						main[ j ][ k ] = _
+					end
+
+					break
+				end
+			else
+				if ( old.id == new.id ) then
+					for k, _ in pairs( new ) do
+						main[ j ][ k ] = _
+					end
+
+					break
+				end
 			end
 		end
 	end
 
 	if ( is_clean_replace ) then
-		for _ = 1, #replace do
+		for _ = #replace, 1, -1 do
 			replace[ _ ] = nil
 		end
 	end
 end
 
----将 main 逆序并返回;
+---将 main 逆序并返回; 
 ---可修改 main
 ---@param main table
 ---@param is_change_main boolean|nil? --默认为 true
@@ -282,7 +467,7 @@ function add_table_count( from, to, count, from_front, to_front, is_reverse_orde
 	for _ = 1, count, 1 do
 		local pin1, pin2 = _, #from
 
-		if ( is_reverse_order ) then
+		if ( is_reverse_order and from_front ) or ( not is_reverse_order and not from_front ) then
 			pin1 = 1
 		end
 
@@ -321,7 +506,7 @@ function ensure_table( check, keys )
 end
 
 ---从 random_table 中随机选取 count 项; 
----count 或 random_table 的长度小于 1 时返回空表;
+---count 或 random_table 的长度小于 1 时返回空表; 
 ---count 大于 random_table 的长度时变作与 random_table 的长度相同
 ---@param random_table table
 ---@param count number
@@ -346,24 +531,24 @@ function random_gets( random_table, count )
 	return select_items
 end
 
----为仅包含 number · string 类型的 table 去重, 返回去重后的 table
----@param str_table any
----@return table table_remove_duplica
-function remove_duplicates( str_table )
-	local seen, result = { }, { }
+---为仅包含 number / string 类型的 table 去重, 返回去重后的 table
+---@param num_str_table any
+---@return table remove_dupli
+function remove_duplicates( num_str_table )
+	local seen, res = { }, { }
 
-	for _, each in ipairs( str_table ) do
+	for _, each in ipairs( num_str_table ) do
 		local str_each = tostring( each )
 		if ( not seen[ str_each ] ) then
 			seen[ str_each ] = true
-			table.insert( result, each )
+			table.insert( res, each )
 		end
 	end
 
-	return result
+	return res
 end
 
----为 location 排序;
+---为 location 排序; 
 ---仅可用于法术的 action( ) 中对 卡组 · 手卡 · 墓地 的操作
 ---@param location table[]
 ---@return table[] location_sort
@@ -382,7 +567,8 @@ function loc_sort( location )
 	return location
 end
 
----打乱 location 的顺序
+---打乱 loc 的顺序; 
+---仅可用于法术的 action( ) 中对 卡组 · 手卡 · 墓地 的操作
 ---@param loc table
 ---@return table location_shuffle
 function loc_shuffle( loc )
@@ -396,24 +582,6 @@ function loc_shuffle( loc )
 	end
 
 	return loc
-end
-
----检查 search_table 内是否包含 value
----@param value any
----@param search_table table|nil
----@return boolean is_in
-function is_in( value, search_table )
-	if ( type( search_table ) ~= 'table' ) then
-		return false
-	end
-
-	for _, v in ipairs( search_table ) do
-		if ( v == value ) then
-			return true
-		end
-	end
-
-	return false
 end
 
 ---在不更改速度方向的状态下将速度大小变为 speed
@@ -432,6 +600,16 @@ function change_vel( vel_x, vel_y, speed )
 	end
 end
 
+---将 count 个点以 gap 为间距排列在 x 轴上，整体中心位于 x = 0; 
+---返回第 num 个点的 x 坐标
+---@param count number
+---@param gap number
+---@param num number
+---@return number result
+function loc_center_fix( count, gap, num )
+	return ( num - ( count - 1 ) / 2 - 1 ) * gap
+end
+
 ---从 (x1, y1) 出发，向 (x2, y2) 方向移动 dis 距离, 返回终点坐标
 ---@param x1 number
 ---@param y1 number
@@ -448,6 +626,26 @@ function move_toward( x1, y1, x2, y2, dis )
 
 		return x1 + dx, y1 + dy
 	end
+end
+
+---计算两点之间的引力, 返回应当产生的动量
+---@param x1 number
+---@param y1 number
+---@param x2 number
+---@param y2 number
+---@param dist_full number
+---@param coeff number|nil
+---@return number vel_x
+---@return number vel_y
+function gravity_force_loc( x1, y1, x2, y2, dist_full, coeff )
+	coeff = coeff or 196
+
+	local dist = math.sqrt( ( x1 - x2 ) ^ 2 + ( y1 - y2 ) ^ 2 )
+	local dirc = -math.atan2( ( y1 - y2 ), ( x1 - x2 ) )
+
+	local per = ( dist_full - dist ) / dist_full
+
+	return math.cos( dirc ) * per * coeff, -math.sin( dirc ) * per * coeff
 end
 
 ---将角度 deg 转换为弧度 rad
@@ -501,21 +699,14 @@ end
 
 ---获取 NG+ 数
 ---@return number NG_count
-function get_ng_num( )
+function get_ng_count( )
 	return tonumber( SessionNumbersGetValue( 'NEW_GAME_PLUS_COUNT' ) ) or 0
 end
 
----获取缩放比例
+---获取生命显示比例
 ---@return number
 function get_scale( )
 	return tonumber( MagicNumbersGetValue( 'GUI_HP_MULTIPLIER' ) ) or 0
-end
-
----判断实体是否为玩家
----@param entity number
----@return boolean
-function is_player( entity )
-	return entity ~= NULL_ENTITY and ( EntityHasTag( entity, 'player_unit' ) or EntityHasTag( entity, 'polymorphed_player' ) )
 end
 
 ---获取金钱数
@@ -529,6 +720,117 @@ function get_money( entity )
 	end
 
 	return money
+end
+
+---将 num 的值调整至 min, max 之间
+---@param min number
+---@param num number
+---@param max number
+---@return number num
+function cap( min, num, max )
+	if ( min == max ) then
+		return max
+	end
+	if ( min > max ) then
+		min, max = max, min
+	end
+
+	return math.max( min, math.min( num, max ) )
+end
+
+---将 int rgba 打包为 uint32
+---@param r number
+---@param g number
+---@param b number
+---@param a number
+---@return number rgba
+function pack_rgba( r, g, b, a )
+	return 0x1000000 * r + 0x10000 * g + 0x100 * b + a
+end
+
+---获取当前根实体
+---@return number root_entity
+function get_root_entity( )
+	return EntityGetRootEntity( GetUpdatedEntityID( ) )
+end
+
+---获取实体;
+---可选是否获取为 table
+---@param is_group boolean|nil? -- 默认为 false
+---@return number|number[]
+function get_entity( is_group )
+	local update = GetUpdatedEntityID( )
+
+	if ( is_group ) then
+		local root = EntityGetRootEntity( update )
+
+		if ( update == root ) then
+			return { update }
+		else
+			return { root, update }
+		end
+	else
+		return update
+	end
+end
+
+---获取 comp 组件所在的根实体
+---@param comp any
+---@return number
+function comp_get_entity( comp )
+	return EntityGetRootEntity( ComponentGetEntity( comp ) )
+end
+
+---获取所有玩家, 包括变形中的
+---@return number[] players
+function get_all_players( )
+	local players = EntityGetWithTag( 'player_unit' ) or { }
+
+	add_table( players, EntityGetWithTag( 'polymorphed_player' ) or { } )
+
+	return players
+end
+
+---获取最近的玩家
+---@param tar_id number
+---@param tar_x number
+---@param tar_y number
+---@return number|nil closest
+function get_closest_player( tar_id, tar_x, tar_y )
+	local x, y = nil, nil
+
+	if ( tar_id ) then
+		x, y = EntityGetTransform( tar_id )
+	elseif ( tar_x ) and ( tar_y ) then
+		x, y = tar_x, tar_y
+	end
+
+	local closest = nil
+
+	if ( x ) and ( y ) then
+		local players = get_all_players( )
+
+		if ( #players > 1 ) then
+			local min_distance = math.huge
+
+			for _, player in ipairs( players ) do
+				local px, py = EntityGetTransform( player )
+
+				if ( px and py ) then
+					local distance_pow_2 = ( x - px ) ^ 2 + ( y - py ) ^ 2
+
+					if ( distance_pow_2 < min_distance ) then
+						min_distance = distance_pow_2
+						closest = player
+					end
+				end
+			end
+		elseif ( #players == 1 ) then
+			closest = players[ 1 ]
+		end
+	end
+
+	return closest
 end
 
 ---移除投射物速度组件的速度上限
@@ -551,36 +853,194 @@ function remove_speed_limit( projectile )
 	end
 end
 
----获取 comp 组件所在的根实体
----@param comp any
----@return number
-function comp_get_entity( comp )
-	return EntityGetRootEntity( ComponentGetEntity( comp ) )
+---检测法术是否是被复制的
+---@param rec number|nil
+---@param iter number|nil
+---@param series string|nil
+---@param specific string|nil
+---@return boolean is_spell_copy
+function is_spell_copy( rec, iter, series, specific )
+	return rec ~= nil or iter ~= nil or series ~= nil or specific ~= nil
 end
 
----获取每个 entity 实体类型为 comp_type 的组件
+---获取每个 entity 实体中类型为 comp_type 的组件
 ---@param entity number|number[]
----@param comp_type string
----@param tag string|nil
+---@param comp_type string?
+---@param tag string|nil?
+---@param name string|nil?
 ---@return number[] comps
-function get_all_comp( entity, comp_type, tag )
+function get_all_comp( entity, comp_type, tag, name )
 	local comps = { }
 
 	if ( type( entity ) == 'number' ) then
 		entity = { entity }
 	end
 
-	if ( type( tag ) == 'string' ) then
-		for _, e in ipairs( entity ) do
-			add_table( comps, EntityGetComponent( e, comp_type, tag ) or { } )
+	if ( is_not_nil_str( comp_type ) ) then
+		if ( is_not_nil_str( tag ) ) then
+			for i, _ in ipairs( entity ) do
+				add_table( comps, EntityGetComponent( _, comp_type, tag ) or { } )
+			end
+		else
+			for i, _ in ipairs( entity ) do
+				add_table( comps, EntityGetComponent( _, comp_type ) or { } )
+			end
 		end
 	else
-		for _, e in ipairs( entity ) do
-			add_table( comps, EntityGetComponent( e, comp_type ) or { } )
+		for i, _ in ipairs( entity ) do
+			add_table( comps, EntityGetAllComponents( _ ) )
+		end
+	end
+
+	if ( is_not_nil_str( name ) ) then
+		for o = #comps, 1, -1 do
+			if ( ComponentGetValue2( comps[ o ], 'name' ) ~= name ) then
+				table.remove( comps, o )
+			end
 		end
 	end
 
 	return comps
+end
+
+---返回 entity 实体中是否有类型为 comp_type 的组件
+---@param entity number
+---@param comp_type string
+---@param tag string|nil?
+---@param name string|nil?
+---@return boolean is_has_comp
+function is_has_comp( entity, comp_type, tag, name )
+	local comps = get_all_comp( entity, comp_type, tag, name )
+
+	return #comps > 0
+end
+
+---返回 entity 实体中首个类型为 comp_type 的组件内属性为 field_table 每个 "键" 的值; 
+---没有的场合用 field_table 对应"键"的值代替
+---@param entity number
+---@param comp_type string
+---@param tag string|nil
+---@param field_table table<string, any>[]|nil
+---@param name string|nil?
+---@return any ...
+function get_comp_info( entity, comp_type, tag, field_table, name )
+	local values, comp = { }, nil
+
+	if ( type( tag ) == 'string' ) then
+		if ( is_not_nil_str( name ) ) then
+			local comps = EntityGetComponent( entity, comp_type, tag )
+
+			for i, _ in ipairs( comps or { } ) do
+				local v = ComponentGetValue2( _, 'name' )
+
+				if ( v and v == name ) then
+					comp = _
+
+					break
+				end
+			end
+		else
+			comp = EntityGetFirstComponent( entity, comp_type, tag )
+		end
+	else
+		if ( is_not_nil_str( name ) ) then
+			local comps = EntityGetComponent( entity, comp_type )
+
+			for i, _ in ipairs( comps or { } ) do
+				local v = ComponentGetValue2( _, 'name' )
+
+				if ( v and v == name ) then
+					comp = _
+
+					break
+				end
+			end
+		else
+			comp = EntityGetFirstComponent( entity, comp_type )
+		end
+	end
+
+	if ( comp ) then
+		for _, t in ipairs( field_table or { } ) do
+			local v = ComponentGetValue2( comp, t[ 1 ] )
+
+			if ( v == nil ) then
+				v = t[ 2 ]
+			end
+
+			table.insert( values, v )
+		end
+	else
+		for _, t in ipairs( field_table or { } ) do
+			table.insert( values, t[ 2 ] )
+		end
+	end
+
+	return unpack( values )
+end
+
+---返回 entity 实体中首个类型为 comp_type 的组件内子对象的属性为 field_table 每个 "键" 的值；
+---没有的场合用 field_table 对应"键"的默认值代替
+---@param entity number
+---@param comp_type string
+---@param tag string|nil
+---@param field_table table<string, string, any>[]|nil
+---@param name string|nil?
+---@return any ...
+function get_comp_obj_info( entity, comp_type, tag, field_table, name )
+	local values, comp = { }, nil
+
+	if ( type( tag ) == 'string' ) then
+		if ( is_not_nil_str( name ) ) then
+			local comps = EntityGetComponent( entity, comp_type, tag )
+
+			for i, _ in ipairs( comps or { } ) do
+				local v = ComponentGetValue2( _, 'name' )
+
+				if ( v and v == name ) then
+					comp = _
+
+					break
+				end
+			end
+		else
+			comp = EntityGetFirstComponent( entity, comp_type, tag )
+		end
+	else
+		if ( is_not_nil_str( name ) ) then
+			local comps = EntityGetComponent( entity, comp_type )
+
+			for i, _ in ipairs( comps or { } ) do
+				local v = ComponentGetValue2( _, 'name' )
+
+				if ( v and v == name ) then
+					comp = _
+
+					break
+				end
+			end
+		else
+			comp = EntityGetFirstComponent( entity, comp_type )
+		end
+	end
+
+	if ( comp ) then
+		for _, t in ipairs( field_table or { } ) do
+			local v = ComponentObjectGetValue2( comp, t[ 1 ], t[ 2 ] )
+
+			if ( v == nil ) then
+				v = t[ 3 ]
+			end
+
+			table.insert( values, v )
+		end
+	else
+		for _, t in ipairs( field_table or { } ) do
+			table.insert( values, t[ 3 ] )
+		end
+	end
+
+	return unpack( values )
 end
 
 ---为每个 entity 实体增加类型为 comp_type 的以 comp_table 构建的组件; 
@@ -592,17 +1052,18 @@ end
 ---@param tag string|nil
 ---@param comp_table table
 ---@param prolong_table (string|{[1]:string,[2]:number})[]|nil?
+---@param name string|nil
 ---@return number comps_count
 ---@return string method
 ---@return table affect_comps
-function add_comp_prolong( entity, comp_type, tag, comp_table, prolong_table )
+function add_comp_prolong( entity, comp_type, tag, comp_table, prolong_table, name )
 	local count, method = 0, ''
 
 	if ( type( entity ) == 'number' ) then
 		entity = { entity }
 	end
 
-	local comps = get_all_comp( entity, comp_type, tag )
+	local comps = get_all_comp( entity, comp_type, tag, name )
 
 	if ( #comps == 0 ) then
 		method, comps = 'add', { }
@@ -652,17 +1113,18 @@ end
 ---@param comp_type string
 ---@param tag string|nil
 ---@param comp_table table
+---@param name string|nil?
 ---@return number comps_count
 ---@return string method
 ---@return table affect_comps
-function add_comp_remove_dupli( entity, comp_type, tag, comp_table )
+function add_comp_remove_dupli( entity, comp_type, tag, comp_table, name )
 	local count, method = 0, ''
 
 	if ( type( entity ) == 'number' ) then
 		entity = { entity }
 	end
 
-	local comps = get_all_comp( entity, comp_type, tag )
+	local comps = get_all_comp( entity, comp_type, tag, name )
 
 	if ( #comps == 0 ) then
 		method, comps = 'add', { }
@@ -700,35 +1162,197 @@ function add_comp_remove_dupli( entity, comp_type, tag, comp_table )
 	return count, method, comps
 end
 
----将每个 entity 实体所有类型为 comp_type 的组件的值按照 value_table 设置; 
----或在传入 func 时对每个类型为 comp_type 的组件执行一次 func ; 
+---将每个 entity 实体所有类型为 comp_type 的组件的值按照 v_table 设置; 
+---在传入 func 时对每个类型为 comp_type 的组件执行一次 func ; 
 ---返回影响组件的总数以及受影响的组件表
 ---@param entity number|number[]
----@param comp_type string
+---@param comp_type string|nil
 ---@param tag string|nil
----@param value_table table|nil
----@param func function|nil?
+---@param v_table table|nil
+---@param pre_func function|nil?
+---@param aft_func function|nil?
 ---@return number comps_count
 ---@return table affect_comps
-function set_comp_value( entity, comp_type, tag, value_table, func )
+function set_comp_value( entity, comp_type, tag, v_table, pre_func, aft_func )
 	if ( type( entity ) == 'number' ) then
 		entity = { entity }
 	end
 
 	local comps = get_all_comp( entity, comp_type, tag )
 
-	if ( func ) then
-		for _, comp in ipairs( comps ) do
-			func( comp )
+	if ( is_not_nil_table( v_table ) ) then
+		if ( pre_func ) then
+			if ( aft_func ) then
+				for _, comp in ipairs( comps ) do
+					pre_func( comp )
+
+					for k, v in pairs( v_table or { } ) do
+						if ( type( v ) == 'table' ) then
+							ComponentSetValue2( comp, k, unpack( v ) )
+						else
+							ComponentSetValue2( comp, k, v )
+						end
+					end
+
+					aft_func( comp )
+				end
+			else
+				for _, comp in ipairs( comps ) do
+					pre_func( comp )
+
+					for k, v in pairs( v_table or { } ) do
+						if ( type( v ) == 'table' ) then
+							ComponentSetValue2( comp, k, unpack( v ) )
+						else
+							ComponentSetValue2( comp, k, v )
+						end
+					end
+				end
+			end
+		else
+			if ( aft_func ) then
+				for _, comp in ipairs( comps ) do
+					for k, v in pairs( v_table or { } ) do
+						if ( type( v ) == 'table' ) then
+							ComponentSetValue2( comp, k, unpack( v ) )
+						else
+							ComponentSetValue2( comp, k, v )
+						end
+					end
+
+					aft_func( comp )
+				end
+			else
+				for _, comp in ipairs( comps ) do
+					for k, v in pairs( v_table or { } ) do
+						if ( type( v ) == 'table' ) then
+							ComponentSetValue2( comp, k, unpack( v ) )
+						else
+							ComponentSetValue2( comp, k, v )
+						end
+					end
+				end
+			end
 		end
 	else
-		for _, comp in ipairs( comps ) do
-			for k, v in pairs( value_table or { } ) do
-				if ( type( v ) == 'table' ) then
-					ComponentSetValue2( comp, k, unpack( v ) )
-				else
-					ComponentSetValue2( comp, k, v )
+		if ( pre_func ) then
+			if ( aft_func ) then
+				for _, comp in ipairs( comps ) do
+					pre_func( comp )
+
+					aft_func( comp )
 				end
+			else
+				for _, comp in ipairs( comps ) do
+					pre_func( comp )
+				end
+			end
+		else
+			if ( aft_func ) then
+				for _, comp in ipairs( comps ) do
+					aft_func( comp )
+				end
+			else
+				comps = { }
+			end
+		end
+	end
+
+	return #comps, comps
+end
+
+---将每个 entity 实体所有类型为 comp_type 的组件内子对象属性按照 v_table 设置; 
+---在传入 func 时对每个类型为 comp_type 的组件执行一次 func ; 
+---返回影响组件的总数以及受影响的组件表
+---@param entity number|number[]
+---@param comp_type string
+---@param tag string|nil
+---@param v_table table<string, string, any>[]|nil
+---@param pre_func function|nil?
+---@param aft_func function|nil?
+---@return number comps_count
+---@return table affect_comps
+function set_comp_obj_value( entity, comp_type, tag, v_table, pre_func, aft_func )
+	if ( type( entity ) == 'number' ) then
+		entity = { entity }
+	end
+
+	local comps = get_all_comp( entity, comp_type, tag )
+
+	if ( is_not_nil_table( v_table ) ) then
+		if ( pre_func ) then
+			if ( aft_func ) then
+				for i, comp in ipairs( comps ) do
+					pre_func( comp )
+
+					for j, _ in ipairs( v_table or { } ) do
+						if ( type( _[ 3 ] ) == 'table' ) then
+							ComponentObjectSetValue2( comp, _[ 1 ], _[ 2 ], unpack( _[ 3 ] ) )
+						else
+							ComponentObjectSetValue2( comp, _[ 1 ], _[ 2 ], _[ 3 ] )
+						end
+					end
+
+					aft_func( comp )
+				end
+			else
+				for i, comp in ipairs( comps ) do
+					pre_func( comp )
+
+					for j, _ in ipairs( v_table or { } ) do
+						if ( type( _[ 3 ] ) == 'table' ) then
+							ComponentObjectSetValue2( comp, _[ 1 ], _[ 2 ], unpack( _[ 3 ] ) )
+						else
+							ComponentObjectSetValue2( comp, _[ 1 ], _[ 2 ], _[ 3 ] )
+						end
+					end
+				end
+			end
+		else
+			if ( aft_func ) then
+				for i, comp in ipairs( comps ) do
+					for j, _ in ipairs( v_table or { } ) do
+						if ( type( _[ 3 ] ) == 'table' ) then
+							ComponentObjectSetValue2( comp, _[ 1 ], _[ 2 ], unpack( _[ 3 ] ) )
+						else
+							ComponentObjectSetValue2( comp, _[ 1 ], _[ 2 ], _[ 3 ] )
+						end
+					end
+
+					aft_func( comp )
+				end
+			else
+				for i, comp in ipairs( comps ) do
+					for j, _ in ipairs( v_table or { } ) do
+						if ( type( _[ 3 ] ) == 'table' ) then
+							ComponentObjectSetValue2( comp, _[ 1 ], _[ 2 ], unpack( _[ 3 ] ) )
+						else
+							ComponentObjectSetValue2( comp, _[ 1 ], _[ 2 ], _[ 3 ] )
+						end
+					end
+				end
+			end
+		end
+	else
+		if ( pre_func ) then
+			if ( aft_func ) then
+				for _, comp in ipairs( comps ) do
+					pre_func( comp )
+
+					aft_func( comp )
+				end
+			else
+				for _, comp in ipairs( comps ) do
+					pre_func( comp )
+				end
+			end
+		else
+			if ( aft_func ) then
+				for _, comp in ipairs( comps ) do
+					aft_func( comp )
+				end
+			else
+				comps = { }
 			end
 		end
 	end
@@ -741,13 +1365,14 @@ end
 ---@param entity number|number[]
 ---@param comp_type string
 ---@param tag string|nil?
+---@param name string|nil?
 ---@return number comps_count
-function remove_all_comp( entity, comp_type, tag )
+function remove_all_comp( entity, comp_type, tag, name )
 	if ( type( entity ) == 'number' ) then
 		entity = { entity }
 	end
 
-	local comps = get_all_comp( entity, comp_type, tag )
+	local comps = get_all_comp( entity, comp_type, tag, name )
 
 	for _, comp in ipairs( comps ) do
 		EntityRemoveComponent( EntityGetRootEntity( ComponentGetEntity( comp ) ), comp )
@@ -758,16 +1383,17 @@ end
 
 ---返回每个 entity 实体上的所有子实体
 ---@param entity number|number[]
----@param tag string|nil
+---@param tag string|nil?
+---@param name string|nil?
 ---@return number[] childs
-function get_all_child( entity, tag )
+function get_all_child( entity, tag, name )
 	local childs = { }
 
 	if ( type( entity ) == 'number' ) then
 		entity = { entity }
 	end
 
-	if ( type( tag ) == 'string' ) then
+	if ( is_not_nil_str( tag ) ) then
 		for _, e in ipairs( entity ) do
 			add_table( childs, EntityGetAllChildren( e, tag ) or { } )
 		end
@@ -777,16 +1403,24 @@ function get_all_child( entity, tag )
 		end
 	end
 
+	if ( is_not_nil_str( name ) ) then
+		for _ = #childs, 1, -1 do
+			if ( EntityGetName( childs[ _ ] ) ~= name ) then
+				table.remove( childs, _ )
+			end
+		end
+	end
+
 	return childs
 end
 
 ---移除每个 entity 实体上的所有子实体; 
 ---返回影响子实体的总数
 ---@param entity number|number[]
----@param tag string|nil
+---@param tag string|nil?
 ---@return number child_count
-function remove_all_child( entity, tag )
-	local childs = get_all_child( entity, tag )
+function remove_all_child( entity, tag, name )
+	local childs = get_all_child( entity, tag, name )
 
 	for _, child in ipairs( childs or { } ) do
 		EntityRemoveFromParent( child )
@@ -795,6 +1429,156 @@ function remove_all_child( entity, tag )
 	end
 
 	return #childs
+end
+
+---为投射物进行伤害变换
+---@param entity number
+---@param dmg_type string
+---@param multi number|nil? --伤害损耗倍率, 默认 50%
+---@param base_dmg number|nil? --基础伤害, 默认 1
+function damage_to( entity, dmg_type, multi, base_dmg )
+	if ( is_has_comp( entity, 'ProjectileComponent', nil ) ) then
+		local sum = 0
+
+		set_comp_value( entity, 'ProjectileComponent', nil, {
+			damage = 0,
+		}, function ( comp )
+			sum = sum + math.abs( ComponentGetValue2( comp, 'damage' ) or 0 )
+		end, nil )
+
+		set_comp_obj_value( entity, 'ProjectileComponent', nil, {
+			{ 'config_explosion', 'damage', 0 },
+		}, function ( comp )
+			sum = sum + math.abs( ComponentObjectGetValue2( comp, 'config_explosion', 'damage' ) or 0 )
+		end, nil )
+
+		set_comp_obj_value( entity, 'ProjectileComponent', nil, all_proj_dmg_0_dmg_by_type,
+		function ( comp )
+			for i, _ in ipairs( all_proj_dmg ) do
+				sum = sum + math.abs( ComponentObjectGetValue2( comp, 'damage_by_type', _ ) or 0 )
+			end
+		end, nil )
+
+		sum = ( base_dmg or 1 ) / get_scale( ) + sum * ( multi or 0.5 )
+
+		if ( dmg_type == 'projectile' ) then
+			set_comp_value( entity, 'ProjectileComponent', nil, {
+				damage = sum,
+			}, nil, nil )
+		elseif ( dmg_type == 'healing' ) then
+			set_comp_obj_value( entity, 'ProjectileComponent', nil, {
+				{ 'damage_by_type', dmg_type, -sum },
+			}, nil, nil )
+		else
+			set_comp_obj_value( entity, 'ProjectileComponent', nil, {
+				{ 'damage_by_type', dmg_type, sum },
+			}, nil, nil )
+		end
+	end
+end
+
+
+function remove_cards_until_fix( wand, deck_cap, always )
+	local cards = get_all_child( wand )
+
+	for _ = #cards, 1, -1 do
+		if ( not is_has_comp( cards[ _ ], 'ItemActionComponent' ) ) then
+			table.remove( cards, _ )
+		end
+	end
+
+	if ( #cards > deck_cap ) then
+		local x, y = EntityGetTransform( wand )
+		local act_cards = { }
+
+		for _ = #cards, always + 1, -1 do
+			if ( #cards - _ + 1 > deck_cap ) then
+				local card = cards[ _ ]
+
+				EntityRemoveFromParent( card )
+
+				EntitySetTransform( card, x, y )
+
+				table.insert( act_cards, card )
+			end
+		end
+
+		local comps = get_all_comp( act_cards )
+
+		set_comp_value( act_cards, nil, nil, {
+			_enabled = true,
+		}, nil, nil )
+	end
+end
+
+---发射投射物
+---@param from number|nil
+---@param xml string
+---@param x number|nil?
+---@param y number|nil?
+---@param vel_x number|nil?
+---@param vel_y number|nil?
+---@param tag string|nil?
+---@param func_pre function|nil?
+---@param func_aft function|nil?
+---@return number shoot_entity
+function shoot_proj( from, xml, x, y, vel_x, vel_y, tag, func_pre, func_aft )
+	from, x, y, vel_x, vel_y = from or 0, x or 0, y or 0, vel_x or 0, vel_y or 0
+
+	local e, shooter, herd = EntityLoad( xml, x, y ), nil, nil
+
+	if ( from ~= NULL_ENTITY ) then
+		if ( is_has_comp( from, 'ProjectileComponent', nil ) ) then
+			shooter, herd = get_comp_info( from, 'ProjectileComponent', nil, {
+				{ 'mWhoShot', 0 },
+				{ 'mShooterHerdId', 0 },
+			}, nil )
+
+			set_comp_value( from, 'ProjectileComponent', nil, {
+				mEntityThatShot = e,
+			}, nil, nil )
+
+			if ( is_has_comp( e, 'ProjectileComponent', nil ) ) then
+				set_comp_value( e, 'ProjectileComponent', nil, {
+					mWhoShot = shooter,
+					mShooterHerdId = herd,
+				}, nil, nil )
+
+				if ( EntityHasTag( from, 'friendly_fire_enabled' ) ) then
+					EntityAddTag( e, 'friendly_fire_enabled' )
+
+					set_comp_value( e, 'ProjectileComponent', nil, {
+						friendly_fire = true,
+						collide_with_shooter_frames = 6,
+					}, nil, nil )
+				end
+			end
+		end
+
+		if ( shooter == nil or shooter == 0 ) then
+			shooter = from
+		end
+	end
+
+	if ( is_not_nil_str( tag ) ) then
+		EntityAddTag( e, tag or '' )
+	end
+
+	if ( func_pre ~= nil ) then
+		func_pre( from, e, x, y, vel_x, vel_y, tag )
+	end
+
+	GameShootProjectile( shooter or 0, x, y, x + vel_x, y + vel_y, e, true, from or 0 )
+
+	set_comp_value( e, 'VelocityComponent', nil, {
+		mVelocity = { vel_x, vel_y },
+	}, nil, nil )
+
+	if ( func_aft ~= nil ) then
+		func_aft( from, e, x, y, vel_x, vel_y, tag )
+	end
+
+	return e
 end
 
 ---检查 str 是否表示 16 进制数
@@ -884,109 +1668,69 @@ function number_handler( str )
 	end
 end
 
----获取最近的玩家
----@param tar_x number
----@param tar_y number
----@param tar_id number
----@return number|nil closest
-function get_closest_player( tar_x, tar_y, tar_id )
-	local x, y = nil, nil
-
-	if ( tar_x ) and ( tar_y ) then
-		x, y = tar_x, tar_y
-	elseif ( tar_id ) then
-		x, y = EntityGetTransform( tar_id )
-	end
-
-	local closest = nil
-
-	if ( x ) and ( y ) then
-		local players = EntityGetWithTag( 'player_unit' ) or { }
-
-		add_table( players, EntityGetWithTag( 'polymorphed_player' ) or { }, false, true )
-
-		if ( #players > 1 ) then
-			local min_distance = math.huge
-
-			for _, player_id in ipairs( players ) do
-				local px, py = EntityGetTransform( player_id )
-				if ( px and py ) then
-					local distance_pow_2 = ( x - px ) ^ 2 + ( y - py ) ^ 2
-
-					if ( distance_pow_2 < min_distance ) then
-						min_distance = distance_pow_2
-						closest = player_id
-					end
-				end
-			end
-		elseif ( #players == 1 ) then
-			closest = players[ 1 ]
-		end
-	end
-
-	return closest
-end
-
 ---解析键值对字符串（智能处理值中的逗号、括号和引号）
 ---@param str string 解析字符串
 ---@param remove_quotes boolean|nil 是否去除引号包裹
 ---@return table result_table
 function parse_kv_pairs( str, remove_quotes )
-	local result = { }
-	local current_key = ''
-	local current_value = ''
-	local in_value = false
-	local paren_depth = 0
-	local in_quote = false
+	local result, cur_k, cur_v = { }, '', ''
+	local in_value, paren_depth, in_quote = false, 0, false
+
 	for i = 1, #str do
 		local char = string.sub( str, i, i )
+
 		if ( not in_value ) then
 			if ( char == '=' ) then
 				in_value = true
-				current_value = ''
+				cur_v = ''
 			elseif ( char == ',' ) then
-				current_key = ''
+				cur_k = ''
 			else
-				current_key = current_key .. char
+				cur_k = cur_k .. char
 			end
 		else
 			if ( char == '\'' and not in_quote ) then
 				in_quote = true
-				current_value = current_value .. char
+				cur_v = cur_v .. char
 			elseif ( char == '\'' and in_quote ) then
 				in_quote = false
-				current_value = current_value .. char
+				cur_v = cur_v .. char
 			elseif ( in_quote ) then
-				current_value = current_value .. char
+				cur_v = cur_v .. char
 			elseif ( char == '(' ) then
 				paren_depth = paren_depth + 1
-				current_value = current_value .. char
+				cur_v = cur_v .. char
 			elseif ( char == ')' ) then
 				paren_depth = paren_depth - 1
-				current_value = current_value .. char
+				cur_v = cur_v .. char
 			elseif ( char == ',' and paren_depth == 0 ) then
-				if ( #current_key > 0 ) then
-					local final_value = current_value
-					if ( remove_quotes and string.sub( current_value, 1, 1 ) == '\'' and string.sub( current_value, -1 ) == '\'' ) then
-						final_value = string.sub( current_value, 2, -2 )
+				if ( #cur_k > 0 ) then
+					local final_value = cur_v
+
+					if ( remove_quotes and string.sub( cur_v, 1, 1 ) == '\'' and string.sub( cur_v, -1 ) == '\'' ) then
+						final_value = string.sub( cur_v, 2, -2 )
 					end
-					result[ current_key ] = final_value
+
+					result[ cur_k ] = final_value
 				end
-				current_key = ''
-				current_value = ''
-				in_value = false
+
+				cur_k, cur_v, in_value = '', '', false
 			else
-				current_value = current_value .. char
+				cur_v = cur_v .. char
 			end
 		end
 	end
-	if ( in_value and #current_key > 0 ) then
-		local final_value = current_value
-		if ( remove_quotes and string.sub( current_value, 1, 1 ) == '\'' and string.sub( current_value, -1 ) == '\'' ) then
-			final_value = string.sub( current_value, 2, -2 )
+
+	if ( in_value and #cur_k > 0 ) then
+		local final_value = cur_v
+
+		if ( remove_quotes and string.sub( cur_v, 1, 1 ) == '\'' and string.sub( cur_v, -1 ) == '\'' ) then
+			final_value = string.sub( cur_v, 2, -2 )
 		end
-		result[ current_key ] = final_value
+
+		result[ cur_k ] = final_value
 	end
+
 	return result
 end
 
@@ -1126,7 +1870,7 @@ end
 ---@param values table 需要合并的键值对
 ---@param pattern string 边界标记
 ---@return string str_merged 合并后的字符串
-function merge_table_by_id( str, id, values, pattern )
+function merge_str_table_by_id( str, id, values, pattern )
 	if ( type( str ) ~= 'string' or type( id ) ~= 'string' or type( values ) ~= 'table' or type( pattern ) ~= 'string' ) then
 		return str
 	end
@@ -1267,7 +2011,7 @@ end
 ---@param values table
 ---@param pattern string
 ---@return string str_replaced
-function replace_table_by_id( str, id, values, pattern )
+function replace_str_table_by_id( str, id, values, pattern )
 	if type( str ) ~= 'string' or type( id ) ~= 'string' or type( values ) ~= 'table' or type( pattern ) ~= 'string' then
 		return str
 	end
@@ -1331,7 +2075,7 @@ end
 ---@param updates table
 ---@param pattern string
 ---@return string str_updated
-function update_table_by_id( str, id, updates, pattern )
+function update_str_table_by_id( str, id, updates, pattern )
 	if ( type( str ) ~= 'string' or type( id ) ~= 'string' or type( updates ) ~= 'table' or type( pattern ) ~= 'string' ) then
 		return str
 	end
@@ -1542,11 +2286,11 @@ function add_desc_by_info( c, options, args, extra_entities, pattern )
 			local str = nil
 
 			if ( options.update ) then
-				str = update_table_by_id( desc, args.id, args, pattern )
+				str = update_str_table_by_id( desc, args.id, args, pattern )
 			elseif ( options.merge ) then
-				str = merge_table_by_id( desc, args.id, args, pattern )
+				str = merge_str_table_by_id( desc, args.id, args, pattern )
 			else
-				str = replace_table_by_id( desc, args.id, args, pattern )
+				str = replace_str_table_by_id( desc, args.id, args, pattern )
 			end
 
 			c.action_description = str
@@ -1567,12 +2311,14 @@ end
 ---@return table|nil result_table
 function parse_and_evaluate_command_paras( action_id, entity_id, param_names )
 	local p_comp = EntityGetFirstComponent( entity_id, 'ProjectileComponent' )
+
 	if ( not p_comp ) then
 		return nil
 	end
 
 	local desc = ComponentObjectGetValue2( p_comp, 'config', 'action_description' )
 	local values = search_table_from_format( desc, action_id, '$' )
+
 	if ( not values ) then
 		return nil
 	end
@@ -1585,14 +2331,17 @@ function parse_and_evaluate_command_paras( action_id, entity_id, param_names )
 
 	for _, param_name in ipairs( param_names ) do
 		local raw_value = values[ param_name ]
+
 		if ( raw_value ~= nil ) then
 			if ( string.find( raw_value, '@', 1, true ) or string.find( raw_value, '~', 1, true ) or string.find( raw_value, '(', 1, true ) ) then
 				local result, is_correct = evaluate_delayed_expression( raw_value, '#', shooter, x, y )
+
 				if ( is_correct and result ~= nil ) then
 					result_table[ param_name ] = result
 				end
 			else
 				local num = tonumber( raw_value )
+
 				if ( num ~= nil ) then
 					result_table[ param_name ] = num
 				end

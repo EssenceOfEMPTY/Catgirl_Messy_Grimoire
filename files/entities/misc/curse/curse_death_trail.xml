@@ -1,18 +1,18 @@
 <Entity>
 
 	<LifetimeComponent
-		lifetime="64"
+		lifetime="181"
 	></LifetimeComponent>
 
 	<ParticleEmitterComponent
-		_tags="enabled_in_world,perk,curse"
+		_tags="enabled_in_world,perk,curse,curse_death_trail"
 		emitted_material_name="just_death"
 		create_real_particles="1"
 		emit_only_if_there_is_space="1"
 		emitter_lifetime_frames="5"
-		count_min="5"
-		count_max="5"
-		delay_frames="60"
+		count_min="10"
+		count_max="10"
+		delay_frames="180"
 	></ParticleEmitterComponent>
 
 </Entity>

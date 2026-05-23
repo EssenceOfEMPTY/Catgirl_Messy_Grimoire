@@ -28,7 +28,7 @@
 		shoot_light_flash_g="40"
 		shoot_light_flash_b="240"
 		shoot_light_flash_radius="90"
-		lifetime="500"
+		lifetime="641"
 		explosion_dont_damage_shooter="1"
 	>
 
@@ -40,7 +40,7 @@
 			explosion_sprite_lifetime="0.0"
 			create_cell_probability="0"
 			create_cell_material=""
-			ray_energy="80000"
+			ray_energy="800000"
 			hole_destroy_liquid="1"
 			explosion_sprite_emissive="1"
 			explosion_sprite_additive="1"
@@ -48,8 +48,8 @@
 			hole_image=""
 			particle_effect="0"
 			damage_mortals="0"
-			physics_explosion_power.min="1.6"
-			physics_explosion_power.max="1.6"
+			physics_explosion_power.min="4"
+			physics_explosion_power.max="4"
 			physics_throw_enabled="1"
 			shake_vegetation="1"
 			sparks_enabled="0"
@@ -180,7 +180,7 @@
 
 	<VariableStorageComponent
 		name="projectile_file"
-		value_string="mods/empty_the_blackhole_catgirl/files/entities/projectiles/deck/orb_timer_spiral.xml"
+		value_string="mods/empty_the_blackhole_catgirl/files/entities/projectiles/orb_timer_spiral_no_copy.xml"
 	></VariableStorageComponent>
 
 </Entity>

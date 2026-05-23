@@ -1,5 +1,5 @@
 
-local entity = EntityGetRootEntity( GetUpdatedEntityID( ) )
+local entity = get_root_entity( )
 
 if ( entity ~= NULL_ENTITY ) then
 	local comps = EntityGetComponent( entity, 'GameEffectComponent' )

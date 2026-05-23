@@ -1,11 +1,5 @@
 <Entity>
 
-	<LuaComponent
-		script_source_file="mods/empty_the_blackhole_catgirl/files/scripts/projectiles/lifetime_infinite.lua"
-		execute_on_added="1"
-		remove_after_executed="1"
-	></LuaComponent>
-
 	<ParticleEmitterComponent
 		_tags="enabled_in_hand,item_identified"
 		emitted_material_name="spark_blue"
@@ -29,5 +23,11 @@
 		emission_interval_max_frames="14"
 		is_emitting="1"
 	></ParticleEmitterComponent>
+
+	<LuaComponent
+		script_source_file="mods/empty_the_blackhole_catgirl/files/scripts/projectiles/lifetime_infinite.lua"
+		execute_on_added="1"
+		remove_after_executed="1"
+	></LuaComponent>
 
 </Entity>

@@ -126,10 +126,10 @@
 	<!-- item -->
 
 	<LuaComponent
+		script_source_file="data/scripts/items/powder_stash.lua"
 		execute_on_added="1"
 		remove_after_executed="1"
 		call_init_function="1"
-		script_source_file="data/scripts/items/powder_stash.lua"
 	></LuaComponent>
 
 	<SpriteComponent

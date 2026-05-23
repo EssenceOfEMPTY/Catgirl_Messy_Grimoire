@@ -4,7 +4,7 @@ dofile_once( 'mods/empty_the_blackhole_catgirl/files/scripts/empty/empty_utility
 
 --
 
----<<<<<<<<<<<<<<<<<<<<<<<< 翻译 >>>>>>>>>>>>>>>>>>>>>>>>---
+---<<<<<<<<<<<<<<<<<<<<<<<< 常规翻译 >>>>>>>>>>>>>>>>>>>>>>>>---
 
 local translation = ModTextFileGetContent( 'data/translations/common.csv' )
 local add_str = ''
@@ -15,27 +15,33 @@ else
 	add_str = '\n' .. ModTextFileGetContent( empty_path .. 'translations/empty_translation.csv' )
 end
 
----<<<<<<<<<<<<<<<<<<<<<<<< 设置: 伊芙琳娜翻译 >>>>>>>>>>>>>>>>>>>>>>>>---
+---<<<<<<<<<<<<<<<<<<<<<<<< 追加翻译: 伊芙琳娜 >>>>>>>>>>>>>>>>>>>>>>>>---
 
 if ( ModSettingGet( 'empty_the_blackhole_catgirl.SVAROG_TRANSLATION' ) ) then
-	add_str = add_str .. '\n' .. ModTextFileGetContent( empty_path .. 'translations/yifulinna_translation.csv' )
+	add_str = add_str .. '\n' .. ModTextFileGetContent( empty_path .. 'translations/svarog_translation.csv' )
 end
 
-translation = translation .. add_str
+if ( add_str ~= '' ) then
+	translation = translation .. add_str
+end
 
 ModTextFileSetContent( 'data/translations/common.csv', translation )
 
----<<<<<<<<<<<<<<<<<<<<<<<< 通用魔数 >>>>>>>>>>>>>>>>>>>>>>>>---
-
-ModMagicNumbersFileAdd( empty_path .. 'magic_numbers/default.xml' )
-
----<<<<<<<<<<<<<<<<<<<<<<<< 设置: 再无幻影 / 移除闪屏 / 视野提升 - 魔数 / 四通八达 >>>>>>>>>>>>>>>>>>>>>>>>---
+---<<<<<<<<<<<<<<<<<<<<<<<< 通用魔数设置 >>>>>>>>>>>>>>>>>>>>>>>>---
 
 local magics = {
+	--世界设置
+	'CHAOS_CONNECTED_WORLD',
+
+	--敌怪设置
 	'NO_KUMMITUS',
+
+	--视觉设置
 	'REMOVE_LOW_HP_FLASH',
 	'VISION_IMPROVE',
-	'CHAOS_CONNECTED_WORLD',
+
+	--漏洞 & 轮椅设置
+	'BUGFIX_HAND_OF_MASTER',
 }
 
 for _, magic in ipairs( magics ) do
@@ -44,20 +50,60 @@ for _, magic in ipairs( magics ) do
 	end
 end
 
----<<<<<<<<<<<<<<<<<<<<<<<< 设置: 视野提升 - 渲染范围 >>>>>>>>>>>>>>>>>>>>>>>>---
+---<<<<<<<<<<<<<<<<<<<<<<<< 通用文本文件覆写 >>>>>>>>>>>>>>>>>>>>>>>>---
 
+local overwrite = {
+	--
+}
+
+--世界设置
+if ( ModSettingGet( 'empty_the_blackhole_catgirl.EASY_NG+' )
+	or ModSettingGet( 'empty_the_blackhole_catgirl.CHAOS_CONNECTED_WORLD' ) ) then
+	table.insert( overwrite, 'scripts/newgame_plus.lua' )
+end
+
+--视觉设置
 if ( ModSettingGet( 'empty_the_blackhole_catgirl.VISION_IMPROVE' ) ) then
 	local post_final = {
 		'shaders/post_final.frag',
 		'shaders/post_final.vert',
 	}
 
-	for _, each in ipairs( post_final ) do
-		ModTextFileSetContent( 'data/' .. each, ModTextFileGetContent( empty_path .. each ) )
-	end
+	add_table( overwrite, post_final )
 end
 
----<<<<<<<<<<<<<<<<<<<<<<<< 生物群系通用追加 >>>>>>>>>>>>>>>>>>>>>>>>---
+--漏洞 & 轮椅设置
+if ( ModSettingGet( 'empty_the_blackhole_catgirl.BUGFIX_SPELL_TO_POWER' ) ) then
+	table.insert( overwrite, 'scripts/projectiles/spells_to_power.lua' )
+end
+
+if ( ModSettingGet( 'empty_the_blackhole_catgirl.BUGFIX_DUPE_MAX_HP_FROM_HEARTY' ) ) then
+	local hearty = {
+		'scripts/status_effects/hearty_start.lua',
+		'scripts/status_effects/hearty_end.lua',
+	}
+
+	add_table( overwrite, hearty )
+end
+
+if ( ModSettingGet( 'empty_the_blackhole_catgirl.BUGFIX_DUPE_DMG_MULTI_FROM_VULNERABLE' ) ) then
+	local vulnerable = {
+		'scripts/status_effects/wither_start.lua',
+		'scripts/status_effects/wither_end.lua',
+	}
+
+	add_table( overwrite, vulnerable )
+end
+
+if ( ModSettingGet( 'empty_the_blackhole_catgirl.BUGFIX_CONNOISSEUR_OF_WANDS' ) ) then
+	table.insert( overwrite, 'entities/animals/boss_pit/boss_pit_logic.lua' )
+end
+
+for _, each in ipairs( overwrite ) do
+	ModTextFileSetContent( 'data/' .. each, ModTextFileGetContent( empty_path .. each ) )
+end
+
+---<<<<<<<<<<<<<<<<<<<<<<<< 通用群系追加 >>>>>>>>>>>>>>>>>>>>>>>>---
 
 local biomes_append = {
 	'alchemist_secret',
@@ -92,7 +138,6 @@ local lua_append = {
 	'scripts/biomes/mountain/mountain_hall',
 	'scripts/biomes/mountain_tree',
 	'scripts/biomes/the_end',
-	'scripts/perks/perk',
 	'scripts/perks/perk_list',
 	'scripts/gun/gun',
 	'scripts/gun/gun_actions',
@@ -104,11 +149,25 @@ for _, each in ipairs( lua_append ) do
 	ModLuaFileAppend( 'data/' .. each .. '.lua', empty_path .. each .. '.lua' )
 end
 
----<<<<<<<<<<<<<<<<<<<<<<<< 开局诅咒 >>>>>>>>>>>>>>>>>>>>>>>>---
+---<<<<<<<<<<<<<<<<<<<<<<<< 开局更改 >>>>>>>>>>>>>>>>>>>>>>>>---
 
-dofile_once( 'data/scripts/perks/perk_utilities.lua' )
 dofile_once( 'data/scripts/perks/perk.lua' )
+dofile_once( 'data/scripts/perks/perk_utilities.lua' )
+--[[
+function OnMagicNumbersAndWorldSeedInitialized( )
+	local perks_info = ''
 
+	for i, _ in ipairs( perk_list ) do
+		perks_info = perks_info .. ( [[["%s"] = "%s",%s]]-- ) : format( _.ui_name, _.id, '\n' )
+		--[[
+	end
+
+	perks_info = 'return {\n' .. perks_info .. '}'
+	info_print( perks_info, 'perks_info' )
+
+	ModTextFileSetContent( empty_path .. '_virtual/perks_info.lua', perks_info )
+end
+]]--
 function OnPlayerSpawned( player )
 	if ( GlobalsGetValue( 'EMPTY_STARTING_CHANGE', '0' ) == '0' ) then
 		GlobalsSetValue( 'EMPTY_STARTING_CHANGE', '1' )
@@ -116,32 +175,27 @@ function OnPlayerSpawned( player )
 		set_comp_value( player, 'CharacterPlatformingComponent', nil, {
 			run_velocity = 57,
 
-			velocity_min_x = -math.huge,
-			velocity_max_x = math.huge,
-			velocity_min_y = -math.huge,
-			velocity_max_y = math.huge,
-		}, nil )
-	end
-
-	if ( GlobalsGetValue( 'EMPTY_STARTING_CURSE', '0' ) == '0' ) then
-		GlobalsSetValue( 'EMPTY_STARTING_CURSE', '1' )
-
-		local all_curses = {
-			'CURSE_MONK',
-			'CURSE_ALWAYS_SHUFFLE',
-			'CURSE_SHORT_WAND',
-			'CURSE_MALICE_WASHES_OVER',
-			'CURSE_REALITY_SHIFT',
-			'CURSE_GUARANTEED_LOSE',
-			'CURSE_GRAVITY_FREE',
-			'CURSE_DEATH_TRAIL',
-			--'CURSE_FURIOUS_COCKTAIL',
-		}
+			velocity_min_x = -int_huge,
+			velocity_max_x = int_huge,
+			velocity_min_y = -int_huge,
+			velocity_max_y = int_huge,
+		}, nil, nil )
 
 		for _, curse in ipairs( all_curses ) do
 			if ( ModSettingGet( 'empty_the_blackhole_catgirl.' .. curse ) ) then
 				perk_pickup( nil, player, 'EMPTY_' .. curse, false, false, true )
 			end
 		end
+	end
+end
+
+---<<<<<<<<<<<<<<<<<<<<<<<< 世界更新前 >>>>>>>>>>>>>>>>>>>>>>>>---
+
+function OnWorldPreUpdate( )
+	local a, b, c = time_for_vec3( )
+	SetRandomSeed( a + c, b + c )
+
+	if ( GlobalsGetValue( 'EMPTY_PERK_REMOVE_COUNT', '0' ) ~= '0' ) then
+		dofile( empty_path .. '' )
 	end
 end

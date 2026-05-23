@@ -18,11 +18,13 @@ if EntityGetIsAlive( entity ) then
 
 		if ( gold_gained > 0 ) then
 			EntityInflictDamage( entity, 2 * math.floor( gold_gained ) / ( 3 * get_scale( ) ), 'DAMAGE_CURSE', '$empty_death_msg_curse_monk', 'DISINTEGRATED', 0, 0, entity )
+
 			GamePlaySound( 'data/audio/Desktop/event_cues.bank', 'event_cue/curse_apply', x, y )
 		end
 
 		if ( gold_gained < 0 ) then
 			EntityInflictDamage( entity, math.floor( gold_gained ) / get_scale( ), 'DAMAGE_HEALING', '', 'DISINTEGRATED', 0, 0, entity )
+
 			EntityLoad( 'data/entities/particles/heal.xml', x, y )
 		end
 

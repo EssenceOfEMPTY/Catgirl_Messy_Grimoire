@@ -1,4 +1,3 @@
-dofile_once( 'data/scripts/lib/utilities.lua' )
 dofile_once( 'mods/empty_the_blackhole_catgirl/files/scripts/empty/empty_utility.lua' )
 
 -- NOTE( Petri ):
@@ -100,10 +99,10 @@ function init( entity_id )
 
 	if ( Random( 0, 100 ) <= 75 ) then
 		-- 0.05% chance of magic_liquid_
-		potion_material = random_from_array( materials_magic )
+		potion_material = get_random_from( materials_magic ) 
 		potion_material = potion_material.material
 	else
-		potion_material = random_from_array( materials_standard )
+		potion_material = get_random_from( materials_standard )
 		potion_material = potion_material.material
 	end
 

@@ -718,13 +718,13 @@ end
 
 function spawn_lab_puzzle(x, y)
 	SetRandomSeed(x, y)
-	local type_a = random_from_array({
+	local type_a = get_random_from({
 		'poly',
 		'tele',
 		'charm',
 		'berserk',
 	})
-	local type_b = random_from_array({
+	local type_b = get_random_from({
 		'protect',
 		'worm',
 		'invis',

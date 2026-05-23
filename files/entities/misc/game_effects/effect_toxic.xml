@@ -1,0 +1,13 @@
+<Entity>
+
+	<InheritTransformComponent
+		_enabled="1"
+	></InheritTransformComponent>
+
+	<GameEffectComponent
+		effect="CUSTOM"
+		custom_effect_id="EMPTY_TOXIC"
+		frames="422"
+	></GameEffectComponent>
+
+</Entity>

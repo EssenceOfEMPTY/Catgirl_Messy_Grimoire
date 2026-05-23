@@ -1,13 +1,11 @@
-dofile_once( 'data/scripts/lib/utilities.lua' )
+dofile_once( 'mods/empty_the_blackhole_catgirl/files/scripts/empty/empty_utility.lua' )
 
-local entity_id = EntityGetRootEntity( GetUpdatedEntityID( ) )
+local entity = get_root_entity( )
 
-if ( entity_id ~= NULL_ENTITY ) then
-	local projectile_components = EntityGetComponent( entity_id, 'ProjectileComponent' )
+set_comp_value( entity, 'ProjectileComponent', nil, {
+	friendly_fire = true,
+	collide_with_shooter_frames = 60,
+	lifetime = -1,
+}, nil, nil )
 
-	for _, comp in ipairs( projectile_components or { } ) do
-		ComponentSetValue2( comp, 'friendly_fire' , true )
-		ComponentSetValue2( comp, 'collide_with_shooter_frames' , 60 )
-		ComponentSetValue2( comp, 'lifetime' , -1 )
-	end
-end
+remove_all_comp( entity, 'LifetimeComponent', nil )

@@ -363,9 +363,9 @@ function physics_body_modified( is_destroyed )
 
 	on_open( entity_item )
 
-	edit_component( entity_item, 'ItemComponent', function( comp, vars )
-		EntitySetComponentIsEnabled( entity_item, comp, false )
-	end )
+	set_comp_value( entity_item, 'ItemComponent', nil, {
+		_enable = false,
+	}, nil, nil )
 
 	EntityKill( entity_item )
 end

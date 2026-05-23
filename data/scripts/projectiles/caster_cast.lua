@@ -1,20 +1,22 @@
-dofile_once( 'data/scripts/lib/utilities.lua' )
+dofile_once( 'mods/empty_the_blackhole_catgirl/files/scripts/empty/empty_utility.lua' )
 
-local entity_id	= GetUpdatedEntityID()
-local owner_id = 0
+local entity	= get_root_entity( )
+local shooter = get_comp_info( entity, 'ProjectileComponent', nil, {
+	{ 'mWhoShot', nil }
+}, nil )
 
-local comp = EntityGetFirstComponent( entity_id, 'ProjectileComponent' )
+local comp = EntityGetFirstComponent( entity, 'ProjectileComponent' )
 
 if ( comp ) then
-	owner_id = ComponentGetValue2( comp, 'mWhoShot' )
+	shooter = ComponentGetValue2( comp, 'mWhoShot' )
 end
 
-if ( owner_id and owner_id ~= NULL_ENTITY and EntityHasTag( owner_id, 'teleportable_NOT' ) ) then
+if ( shooter and shooter ~= NULL_ENTITY and EntityHasTag( shooter, 'teleportable_NOT' ) ) then
 	return
 end
 
-if ( owner_id ) and ( owner_id ~= NULL_ENTITY ) then
-	local tx, ty = EntityGetFirstHitboxCenter( owner_id )
+if ( shooter ) and ( shooter ~= NULL_ENTITY ) then
+	local tx, ty = EntityGetFirstHitboxCenter( shooter )
 
-	EntitySetTransform( entity_id, tx, ty )
+	EntitySetTransform( entity, tx, ty )
 end

@@ -1,4 +1,5 @@
 dofile_once( 'mods/empty_the_blackhole_catgirl/files/scripts/empty/empty_utility.lua' )
+
 local entity_id = GetUpdatedEntityID( )
 
 local data_comp = EntityGetFirstComponent( entity_id, 'VariableStorageComponent', 'empty_sanctuary_shield_data' )

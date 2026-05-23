@@ -17,29 +17,37 @@ local new_perks =
 
 			local children = EntityGetAllChildren( entity_who_picked )
 			local inventory = EntityGetFirstComponent( entity_who_picked, 'Inventory2Component' )
+
 			if ( inventory ) then
 				for i, child_id in ipairs( children or { } ) do
 					if ( EntityGetName( child_id ) == 'inventory_quick' ) then
 						local wands = EntityGetAllChildren( child_id )
+
 						for _, wand in ipairs( wands or { } ) do
 							local ability_comp = EntityGetFirstComponentIncludingDisabled( wand, 'AbilityComponent' )
+
 							if ( ability_comp ) then
 								local deck_capacity_all = ComponentObjectGetValue2( ability_comp, 'gun_config', 'deck_capacity' )
 								local deck_capacity_real = EntityGetWandCapacity( wand )
 
 								local always_count = math.max( 0, deck_capacity_all - deck_capacity_real )
+
 								if ( always_count > 0 ) then
 									local spells = EntityGetAllChildren( wand )
+
 									for j, spell in ipairs( spells or { } ) do
 										if ( spell ) then
 											local spell_comp = EntityGetFirstComponentIncludingDisabled( spell, 'ItemActionComponent' )
+
 											if ( spell_comp ) then
 												local action_id = ComponentGetValue2( spell_comp, 'action_id' )
 
 												EntityRemoveFromParent( spell )
 												EntitySetTransform( spell, x, y )
+
 												local spell_comps = EntityGetAllComponents( spell )
-												for k, comp in ipairs( spell_comps or {} ) do
+
+												for k, comp in ipairs( spell_comps or { } ) do
 													EntitySetComponentIsEnabled( spell, comp, true )
 												end
 
@@ -67,9 +75,12 @@ local new_perks =
 		func = function( entity_perk_empty_item, entity_who_picked, item_name )
 			local reroll_count = tonumber( GlobalsGetValue( 'TEMPLE_PERK_REROLL_COUNT', '0' ) ) or 0
 
-			reroll_count = reroll_count - 3
+			GlobalsSetValue( 'TEMPLE_PERK_REROLL_COUNT', tostring( reroll_count - 3 ) )
+		end,
+		func_remove = function ( entity_who_picked )
+			local reroll_count = tonumber( GlobalsGetValue( 'TEMPLE_PERK_REROLL_COUNT', '0' ) ) or 0
 
-			GlobalsSetValue( 'TEMPLE_PERK_REROLL_COUNT', tostring( reroll_count ) )
+			GlobalsSetValue( 'TEMPLE_PERK_REROLL_COUNT', tostring( reroll_count - 9 ) )
 		end,
 	},
 	{
@@ -81,8 +92,8 @@ local new_perks =
 		usable_by_enemies = false,
 		func = function( entity_perk_empty_item, entity_who_picked, item_name )
 			local shift_count = tonumber( GlobalsGetValue( 'fungal_shift_iteration', '0' ) ) or 0
-			shift_count = shift_count - 5
-			GlobalsSetValue( 'fungal_shift_iteration', tostring( shift_count ) )
+
+			GlobalsSetValue( 'fungal_shift_iteration', tostring( shift_count - 5 ) )
 		end,
 	},
 	{
@@ -90,30 +101,28 @@ local new_perks =
 		stackable = STACKABLE_NO,
 		usable_by_enemies = true,
 		func = function( entity_perk_empty_item, entity_who_picked, item_name )
-			local damagemodels = EntityGetComponent( entity_who_picked, 'DamageModelComponent' )
-			if ( damagemodels ) then
-				for i, damagemodel in ipairs( damagemodels ) do
-					ComponentSetValue2( damagemodel, 'blood_material', 'magic_liquid_berserk' )
-					ComponentSetValue2( damagemodel, 'blood_spray_material', 'magic_liquid_berserk' )
-					local blood_multiplier = tonumber( ComponentGetValue2( damagemodel, 'blood_multiplier' ) )
-					ComponentSetValue2( damagemodel, 'blood_multiplier', blood_multiplier * 3 )
-					ComponentSetValue2( damagemodel, 'blood_sprite_directional', empty_path .. 'particles/bloodsplatters/bloodsplatter_directional_berserk_$[1-3].xml' )
-					ComponentSetValue2( damagemodel, 'blood_sprite_large', empty_path .. 'particles/bloodsplatters/bloodsplatter_berserk_$[1-3].xml' )
-				end
-			end
+			set_comp_value( entity_who_picked, 'DamageModelComponent', nil, {
+				blood_material = 'magic_liquid_berserk',
+				blood_spray_material = 'magic_liquid_berserk',
+				blood_sprite_directional = empty_path .. 'particles/bloodsplatters/bloodsplatter_directional_berserk_$[1-3].xml',
+				blood_sprite_large = empty_path .. 'particles/bloodsplatters/bloodsplatter_berserk_$[1-3].xml',
+			}, function ( comp )
+				local blood = tonumber( ComponentGetValue2( comp, 'blood_multiplier' ) ) or 0
+
+				ComponentSetValue2( comp, 'blood_multiplier', blood * 3 )
+			end, nil )
 		end,
-		_remove = function ( entity_who_picked )
-			local damagemodels = EntityGetComponent( entity_who_picked, 'DamageModelComponent' )
-			if ( damagemodels ) then
-				for i, damagemodel in ipairs( damagemodels ) do
-					ComponentSetValue2( damagemodel, 'blood_material', 'blood' )
-					ComponentSetValue2( damagemodel, 'blood_spray_material', 'blood' )
-					local blood_multiplier = tonumber( ComponentGetValue2( damagemodel, 'blood_multiplier' ) )
-					ComponentSetValue2( damagemodel, 'blood_multiplier', blood_multiplier / 3 )
-					ComponentSetValue2( damagemodel, 'blood_sprite_directional', empty_path .. 'particles/bloodsplatters/bloodsplatter_directional_$[1-3].xml' )
-					ComponentSetValue2( damagemodel, 'blood_sprite_large', empty_path .. 'particles/bloodsplatters/bloodsplatter_$[1-3].xml' )
-				end
-			end
+		func_remove = function ( entity_who_picked )
+			set_comp_value( entity_who_picked, 'DamageModelComponent', nil, {
+				blood_material = 'blood',
+				blood_spray_material = 'blood',
+				blood_sprite_directional = empty_path .. 'particles/bloodsplatters/bloodsplatter_directional_$[1-3].xml',
+				blood_sprite_large = empty_path .. 'particles/bloodsplatters//bloodsplatter_$[1-3].xml',
+			}, function ( comp )
+				local blood = tonumber( ComponentGetValue2( comp, 'blood_multiplier' ) ) or 0
+
+				ComponentSetValue2( comp, 'blood_multiplier', blood / 3 )
+			end, nil )
 		end,
 	},
 	{
@@ -121,33 +130,32 @@ local new_perks =
 		stackable = STACKABLE_NO,
 		usable_by_enemies = true,
 		func = function( entity_perk_empty_item, entity_who_picked, item_name )
-			local damagemodels = EntityGetComponent( entity_who_picked, 'DamageModelComponent' )
-			if ( damagemodels ) then
-				for i, damagemodel in ipairs( damagemodels ) do
-					ComponentSetValue2( damagemodel, 'blood_material', 'magic_liquid_teleportation' )
-					ComponentSetValue2( damagemodel, 'blood_spray_material', 'magic_liquid_teleportation' )
-					local blood_multiplier = tonumber( ComponentGetValue2( damagemodel, 'blood_multiplier' ) )
-					ComponentSetValue2( damagemodel, 'blood_multiplier', blood_multiplier * 3 )
-					ComponentSetValue2( damagemodel, 'blood_sprite_directional', empty_path .. 'particles/bloodsplatters/bloodsplatter_directional_freeze_$[1-3].xml' )
-					ComponentSetValue2( damagemodel, 'blood_sprite_large', empty_path .. 'particles/bloodsplatters/bloodsplatter_freeze_$[1-3].xml' )
-				end
-			end
-			if ( ( tonumber( GlobalsGetValue( 'PERK_PICKED_EMPTY_PROTECTION_TELEPORT_PICKUP_COUNT', '0' ) ) or 0 ) == 0 ) then
+			set_comp_value( entity_who_picked, 'DamageModelComponent', nil, {
+				blood_material = 'magic_liquid_teleportation',
+				blood_spray_material = 'magic_liquid_teleportation',
+				blood_sprite_directional = empty_path .. 'particles/bloodsplatters/bloodsplatter_directional_freeze_$[1-3].xml',
+				blood_sprite_large = empty_path .. 'particles/bloodsplatters/bloodsplatter_freeze_$[1-3].xml',
+			}, function ( comp )
+				local blood = tonumber( ComponentGetValue2( comp, 'blood_multiplier' ) ) or 0
+
+				ComponentSetValue2( comp, 'blood_multiplier', blood * 3 )
+			end, nil )
+
+			if ( tonumber( GlobalsGetValue( 'PERK_PICKED_EMPTY_PROTECTION_TELEPORT_PICKUP_COUNT', '0' ) ) == 0 ) then
 				perk_pickup( nil, entity_who_picked, 'EMPTY_PROTECTION_TELEPORT', false, false, true )
 			end
 		end,
-		_remove = function ( entity_who_picked )
-			local damagemodels = EntityGetComponent( entity_who_picked, 'DamageModelComponent' )
-			if ( damagemodels ) then
-				for i, damagemodel in ipairs( damagemodels ) do
-					ComponentSetValue2( damagemodel, 'blood_material', 'blood' )
-					ComponentSetValue2( damagemodel, 'blood_spray_material', 'blood' )
-					local blood_multiplier = tonumber( ComponentGetValue2( damagemodel, 'blood_multiplier' ) )
-					ComponentSetValue2( damagemodel, 'blood_multiplier', blood_multiplier / 3 )
-					ComponentSetValue2( damagemodel, 'blood_sprite_directional', empty_path .. 'particles/bloodsplatters/bloodsplatter_directional_$[1-3].xml' )
-					ComponentSetValue2( damagemodel, 'blood_sprite_large', empty_path .. 'particles/bloodsplatters/bloodsplatter_$[1-3].xml' )
-				end
-			end
+		func_remove = function ( entity_who_picked )
+			set_comp_value( entity_who_picked, 'DamageModelComponent', nil, {
+				blood_material = 'blood',
+				blood_spray_material = 'blood',
+				blood_sprite_directional = empty_path .. 'particles/bloodsplatters/bloodsplatter_directional_$[1-3].xml',
+				blood_sprite_large = empty_path .. 'particles/bloodsplatters//bloodsplatter_$[1-3].xml',
+			}, function ( comp )
+				local blood = tonumber( ComponentGetValue2( comp, 'blood_multiplier' ) ) or 0
+
+				ComponentSetValue2( comp, 'blood_multiplier', blood / 3 )
+			end, nil )
 		end,
 	},
 	{
@@ -155,33 +163,32 @@ local new_perks =
 		stackable = STACKABLE_NO,
 		usable_by_enemies = true,
 		func = function( entity_perk_empty_item, entity_who_picked, item_name )
-			local damagemodels = EntityGetComponent( entity_who_picked, 'DamageModelComponent' )
-			if ( damagemodels ) then
-				for i, damagemodel in ipairs( damagemodels ) do
-					ComponentSetValue2( damagemodel, 'blood_material', 'blood_cold' )
-					ComponentSetValue2( damagemodel, 'blood_spray_material', 'blood_cold' )
-					local blood_multiplier = tonumber( ComponentGetValue2( damagemodel, 'blood_multiplier' ) )
-					ComponentSetValue2( damagemodel, 'blood_multiplier', blood_multiplier * 3 )
-					ComponentSetValue2( damagemodel, 'blood_sprite_directional', empty_path .. 'particles/bloodsplatters/bloodsplatter_directional_freeze_$[1-3].xml' )
-					ComponentSetValue2( damagemodel, 'blood_sprite_large', empty_path .. 'particles/bloodsplatters/bloodsplatter_freeze_$[1-3].xml' )
-				end
-			end
-			if ( ( tonumber( GlobalsGetValue( 'PERK_PICKED_EMPTY_PROTECTION_FREEZE_PICKUP_COUNT', '0' ) ) or 0 ) == 0 ) then
+			set_comp_value( entity_who_picked, 'DamageModelComponent', nil, {
+				blood_material = 'blood_cold',
+				blood_spray_material = 'blood_cold',
+				blood_sprite_directional = empty_path .. 'particles/bloodsplatters/bloodsplatter_directional_freeze_$[1-3].xml',
+				blood_sprite_large = empty_path .. 'particles/bloodsplatters/bloodsplatter_freeze_$[1-3].xml',
+			}, function ( comp )
+				local blood = tonumber( ComponentGetValue2( comp, 'blood_multiplier' ) ) or 0
+
+				ComponentSetValue2( comp, 'blood_multiplier', blood * 3 )
+			end, nil )
+
+			if ( tonumber( GlobalsGetValue( 'PERK_PICKED_EMPTY_PROTECTION_FREEZE_PICKUP_COUNT', '0' ) ) == 0 ) then
 				perk_pickup( nil, entity_who_picked, 'EMPTY_PROTECTION_FREEZE', false, false, true )
 			end
 		end,
-		_remove = function ( entity_who_picked )
-			local damagemodels = EntityGetComponent( entity_who_picked, 'DamageModelComponent' )
-			if ( damagemodels ) then
-				for i, damagemodel in ipairs( damagemodels ) do
-					ComponentSetValue2( damagemodel, 'blood_material', 'blood' )
-					ComponentSetValue2( damagemodel, 'blood_spray_material', 'blood' )
-					local blood_multiplier = tonumber( ComponentGetValue2( damagemodel, 'blood_multiplier' ) )
-					ComponentSetValue2( damagemodel, 'blood_multiplier', blood_multiplier / 3 )
-					ComponentSetValue2( damagemodel, 'blood_sprite_directional', empty_path .. 'particles/bloodsplatters/bloodsplatter_directional_$[1-3].xml' )
-					ComponentSetValue2( damagemodel, 'blood_sprite_large', empty_path .. 'particles/bloodsplatters/bloodsplatter_$[1-3].xml' )
-				end
-			end
+		func_remove = function ( entity_who_picked )
+			set_comp_value( entity_who_picked, 'DamageModelComponent', nil, {
+				blood_material = 'blood',
+				blood_spray_material = 'blood',
+				blood_sprite_directional = empty_path .. 'particles/bloodsplatters/bloodsplatter_directional_$[1-3].xml',
+				blood_sprite_large = empty_path .. 'particles/bloodsplatters//bloodsplatter_$[1-3].xml',
+			}, function ( comp )
+				local blood = tonumber( ComponentGetValue2( comp, 'blood_multiplier' ) ) or 0
+
+				ComponentSetValue2( comp, 'blood_multiplier', blood / 3 )
+			end, nil )
 		end,
 	},
 	{
@@ -189,33 +196,32 @@ local new_perks =
 		stackable = STACKABLE_NO,
 		usable_by_enemies = true,
 		func = function( entity_perk_empty_item, entity_who_picked, item_name )
-			local damagemodels = EntityGetComponent( entity_who_picked, 'DamageModelComponent' )
-			if ( damagemodels ) then
-				for i, damagemodel in ipairs( damagemodels ) do
-					ComponentSetValue2( damagemodel, 'blood_material', 'lava' )
-					ComponentSetValue2( damagemodel, 'blood_spray_material', 'lava' )
-					local blood_multiplier = tonumber( ComponentGetValue2( damagemodel, 'blood_multiplier' ) )
-					ComponentSetValue2( damagemodel, 'blood_multiplier', blood_multiplier * 3 )
-					ComponentSetValue2( damagemodel, 'blood_sprite_directional', empty_path .. 'particles/bloodsplatters/bloodsplatter_directional_lava_$[1-3].xml' )
-					ComponentSetValue2( damagemodel, 'blood_sprite_large', empty_path .. 'particles/bloodsplatters/bloodsplatter_lava_$[1-3].xml' )
-				end
-			end
-			if ( ( tonumber( GlobalsGetValue( 'PERK_PICKED_EMPTY_PROTECTION_LAVA_PICKUP_COUNT', '0' ) ) or 0 ) == 0 ) then
+			set_comp_value( entity_who_picked, 'DamageModelComponent', nil, {
+				blood_material = 'lava',
+				blood_spray_material = 'lava',
+				blood_sprite_directional = empty_path .. 'particles/bloodsplatters/bloodsplatter_directional_lava_$[1-3].xml',
+				blood_sprite_large = empty_path .. 'particles/bloodsplatters/bloodsplatter_lava_$[1-3].xml',
+			}, function ( comp )
+				local blood = tonumber( ComponentGetValue2( comp, 'blood_multiplier' ) ) or 0
+
+				ComponentSetValue2( comp, 'blood_multiplier', blood * 3 )
+			end, nil )
+
+			if ( tonumber( GlobalsGetValue( 'PERK_PICKED_EMPTY_PROTECTION_LAVA_PICKUP_COUNT', '0' ) ) == 0 ) then
 				perk_pickup( nil, entity_who_picked, 'EMPTY_PROTECTION_LAVA', false, false, true )
 			end
 		end,
-		_remove = function ( entity_who_picked )
-			local damagemodels = EntityGetComponent( entity_who_picked, 'DamageModelComponent' )
-			if ( damagemodels ) then
-				for i, damagemodel in ipairs( damagemodels ) do
-					ComponentSetValue2( damagemodel, 'blood_material', 'blood' )
-					ComponentSetValue2( damagemodel, 'blood_spray_material', 'blood' )
-					local blood_multiplier = tonumber( ComponentGetValue2( damagemodel, 'blood_multiplier' ) )
-					ComponentSetValue2( damagemodel, 'blood_multiplier', blood_multiplier / 3 )
-					ComponentSetValue2( damagemodel, 'blood_sprite_directional', empty_path .. 'particles/bloodsplatters/bloodsplatter_directional_$[1-3].xml' )
-					ComponentSetValue2( damagemodel, 'blood_sprite_large', empty_path .. 'particles/bloodsplatters/bloodsplatter_$[1-3].xml' )
-				end
-			end
+		func_remove = function ( entity_who_picked )
+			set_comp_value( entity_who_picked, 'DamageModelComponent', nil, {
+				blood_material = 'blood',
+				blood_spray_material = 'blood',
+				blood_sprite_directional = empty_path .. 'particles/bloodsplatters/bloodsplatter_directional_$[1-3].xml',
+				blood_sprite_large = empty_path .. 'particles/bloodsplatters//bloodsplatter_$[1-3].xml',
+			}, function ( comp )
+				local blood = tonumber( ComponentGetValue2( comp, 'blood_multiplier' ) ) or 0
+
+				ComponentSetValue2( comp, 'blood_multiplier', blood / 3 )
+			end, nil )
 		end,
 	},
 	{
@@ -223,33 +229,32 @@ local new_perks =
 		stackable = STACKABLE_NO,
 		usable_by_enemies = true,
 		func = function( entity_perk_empty_item, entity_who_picked, item_name )
-			local damagemodels = EntityGetComponent( entity_who_picked, 'DamageModelComponent' )
-			if ( damagemodels ) then
-				for i, damagemodel in ipairs( damagemodels ) do
-					ComponentSetValue2( damagemodel, 'blood_material', 'acid' )
-					ComponentSetValue2( damagemodel, 'blood_spray_material', 'acid' )
-					local blood_multiplier = tonumber( ComponentGetValue2( damagemodel, 'blood_multiplier' ) )
-					ComponentSetValue2( damagemodel, 'blood_multiplier', blood_multiplier * 3 )
-					ComponentSetValue2( damagemodel, 'blood_sprite_directional', empty_path .. 'particles/bloodsplatters/bloodsplatter_directional_acid_$[1-3].xml' )
-					ComponentSetValue2( damagemodel, 'blood_sprite_large', empty_path .. 'particles/bloodsplatters/bloodsplatter_acid_$[1-3].xml' )
-				end
-			end
-			if ( ( tonumber( GlobalsGetValue( 'PERK_PICKED_EMPTY_PROTECTION_ACID_PICKUP_COUNT', '0' ) ) or 0 ) == 0 ) then
+			set_comp_value( entity_who_picked, 'DamageModelComponent', nil, {
+				blood_material = 'acid',
+				blood_spray_material = 'acid',
+				blood_sprite_directional = empty_path .. 'particles/bloodsplatters/bloodsplatter_directional_acid_$[1-3].xml',
+				blood_sprite_large = empty_path .. 'particles/bloodsplatters/bloodsplatter_acid_$[1-3].xml',
+			}, function ( comp )
+				local blood = tonumber( ComponentGetValue2( comp, 'blood_multiplier' ) ) or 0
+
+				ComponentSetValue2( comp, 'blood_multiplier', blood * 3 )
+			end, nil )
+
+			if ( tonumber( GlobalsGetValue( 'PERK_PICKED_EMPTY_PROTECTION_ACID_PICKUP_COUNT', '0' ) ) == 0 ) then
 				perk_pickup( nil, entity_who_picked, 'EMPTY_PROTECTION_ACID', false, false, true )
 			end
 		end,
-		_remove = function ( entity_who_picked )
-			local damagemodels = EntityGetComponent( entity_who_picked, 'DamageModelComponent' )
-			if ( damagemodels ) then
-				for i, damagemodel in ipairs( damagemodels ) do
-					ComponentSetValue2( damagemodel, 'blood_material', 'blood' )
-					ComponentSetValue2( damagemodel, 'blood_spray_material', 'blood' )
-					local blood_multiplier = tonumber( ComponentGetValue2( damagemodel, 'blood_multiplier' ) )
-					ComponentSetValue2( damagemodel, 'blood_multiplier', blood_multiplier / 3 )
-					ComponentSetValue2( damagemodel, 'blood_sprite_directional', empty_path .. 'particles/bloodsplatters/bloodsplatter_directional_$[1-3].xml' )
-					ComponentSetValue2( damagemodel, 'blood_sprite_large', empty_path .. 'particles/bloodsplatters/bloodsplatter_$[1-3].xml' )
-				end
-			end
+		func_remove = function ( entity_who_picked )
+			set_comp_value( entity_who_picked, 'DamageModelComponent', nil, {
+				blood_material = 'blood',
+				blood_spray_material = 'blood',
+				blood_sprite_directional = empty_path .. 'particles/bloodsplatters/bloodsplatter_directional_$[1-3].xml',
+				blood_sprite_large = empty_path .. 'particles/bloodsplatters//bloodsplatter_$[1-3].xml',
+			}, function ( comp )
+				local blood = tonumber( ComponentGetValue2( comp, 'blood_multiplier' ) ) or 0
+
+				ComponentSetValue2( comp, 'blood_multiplier', blood / 3 )
+			end, nil )
 		end,
 	},
 	{
@@ -257,33 +262,32 @@ local new_perks =
 		stackable = STACKABLE_NO,
 		usable_by_enemies = true,
 		func = function( entity_perk_empty_item, entity_who_picked, item_name )
-			local damagemodels = EntityGetComponent( entity_who_picked, 'DamageModelComponent' )
-			if ( damagemodels ) then
-				for i, damagemodel in ipairs( damagemodels ) do
-					ComponentSetValue2( damagemodel, 'blood_material', 'magic_liquid_polymorph' )
-					ComponentSetValue2( damagemodel, 'blood_spray_material', 'magic_liquid_polymorph' )
-					local blood_multiplier = tonumber( ComponentGetValue2( damagemodel, 'blood_multiplier' ) )
-					ComponentSetValue2( damagemodel, 'blood_multiplier', blood_multiplier * 3 )
-					ComponentSetValue2( damagemodel, 'blood_sprite_directional', empty_path .. 'particles/bloodsplatters/bloodsplatter_directional_polymorph_$[1-3].xml' )
-					ComponentSetValue2( damagemodel, 'blood_sprite_large', empty_path .. 'particles/bloodsplatters/bloodsplatter_polymorph_$[1-3].xml' )
-				end
-			end
-			if ( ( tonumber( GlobalsGetValue( 'PERK_PICKED_EMPTY_PROTECTION_POLYMORPH_PICKUP_COUNT', '0' ) ) or 0 ) == 0 ) then
+			set_comp_value( entity_who_picked, 'DamageModelComponent', nil, {
+				blood_material = 'magic_liquid_polymorph',
+				blood_spray_material = 'magic_liquid_polymorph',
+				blood_sprite_directional = empty_path .. 'particles/bloodsplatters/bloodsplatter_directional_polymorph_$[1-3].xml',
+				blood_sprite_large = empty_path .. 'particles/bloodsplatters/bloodsplatter_polymorph_$[1-3].xml',
+			}, function ( comp )
+				local blood = tonumber( ComponentGetValue2( comp, 'blood_multiplier' ) ) or 0
+
+				ComponentSetValue2( comp, 'blood_multiplier', blood * 3 )
+			end, nil )
+
+			if ( tonumber( GlobalsGetValue( 'PERK_PICKED_EMPTY_PROTECTION_POLYMORPH_PICKUP_COUNT', '0' ) ) == 0 ) then
 				perk_pickup( nil, entity_who_picked, 'EMPTY_PROTECTION_POLYMORPH', false, false, true )
 			end
 		end,
-		_remove = function ( entity_who_picked )
-			local damagemodels = EntityGetComponent( entity_who_picked, 'DamageModelComponent' )
-			if ( damagemodels ) then
-				for i, damagemodel in ipairs( damagemodels ) do
-					ComponentSetValue2( damagemodel, 'blood_material', 'blood' )
-					ComponentSetValue2( damagemodel, 'blood_spray_material', 'blood' )
-					local blood_multiplier = tonumber( ComponentGetValue2( damagemodel, 'blood_multiplier' ) )
-					ComponentSetValue2( damagemodel, 'blood_multiplier', blood_multiplier / 3 )
-					ComponentSetValue2( damagemodel, 'blood_sprite_directional', empty_path .. 'particles/bloodsplatters/bloodsplatter_directional_$[1-3].xml' )
-					ComponentSetValue2( damagemodel, 'blood_sprite_large', empty_path .. 'particles/bloodsplatters/bloodsplatter_$[1-3].xml' )
-				end
-			end
+		func_remove = function ( entity_who_picked )
+			set_comp_value( entity_who_picked, 'DamageModelComponent', nil, {
+				blood_material = 'blood',
+				blood_spray_material = 'blood',
+				blood_sprite_directional = empty_path .. 'particles/bloodsplatters/bloodsplatter_directional_$[1-3].xml',
+				blood_sprite_large = empty_path .. 'particles/bloodsplatters//bloodsplatter_$[1-3].xml',
+			}, function ( comp )
+				local blood = tonumber( ComponentGetValue2( comp, 'blood_multiplier' ) ) or 0
+
+				ComponentSetValue2( comp, 'blood_multiplier', blood / 3 )
+			end, nil )
 		end,
 	},
 	{
@@ -303,10 +307,12 @@ local new_perks =
 		usable_by_enemies = true,
 		func = function( entity_perk_empty_item, entity_who_picked, item_name )
 			local damagemodels = EntityGetComponent( entity_who_picked, 'DamageModelComponent' )
+
 			if ( damagemodels ) then
 				local targetDamageMultipliers = { 'physics_objects_damage', 'physics_hit' }
+
 				for multiplierCount = 1, #targetDamageMultipliers do
-					for i, damagemodel in ipairs( damagemodels ) do
+					for _, damagemodel in ipairs( damagemodels ) do
 						ComponentObjectSetValue2( damagemodel, 'damage_multipliers', targetDamageMultipliers[ multiplierCount ], 0 )
 					end
 				end
@@ -314,10 +320,12 @@ local new_perks =
 		end,
 		func_remove = function( entity_who_picked )
 			local damagemodels = EntityGetComponent( entity_who_picked, 'DamageModelComponent' )
+
 			if ( damagemodels ) then
 				local targetDamageMultipliers = { 'physics_objects_damage', 'physics_hit' }
+
 				for multiplierCount = 1, #targetDamageMultipliers do
-					for i, damagemodel in ipairs( damagemodels ) do
+					for _, damagemodel in ipairs( damagemodels ) do
 						ComponentObjectSetValue2( damagemodel, 'damage_multipliers', targetDamageMultipliers[ multiplierCount ], 1 )
 					end
 				end
@@ -331,6 +339,7 @@ local new_perks =
 		usable_by_enemies = true,
 		func = function( entity_perk_empty_item, entity_who_picked, item_name )
 			local targetMaterials = { 'blood_cold', 'blood_cold_vapour' }
+
 			for materialCount = 1, #targetMaterials do
 				EntitySetDamageFromMaterial( entity_who_picked, targetMaterials[ materialCount ], 0 )
 			end
@@ -338,6 +347,7 @@ local new_perks =
 		func_remove = function( entity_who_picked )
 			local targetMaterials = { 'blood_cold', 'blood_cold_vapour' }
 			local defaultDamage = { 0.0009, 0.0006 }
+
 			for materialCount = 1, #targetMaterials do
 				EntitySetDamageFromMaterial( entity_who_picked, targetMaterials[ materialCount ], defaultDamage[ materialCount ] )
 			end
@@ -384,6 +394,7 @@ local new_perks =
 		usable_by_enemies = true,
 		func = function( entity_perk_empty_item, entity_who_picked, item_name )
 			local targetMaterials = { 'lava' }
+
 			for materialCount = 1, #targetMaterials do
 				EntitySetDamageFromMaterial( entity_who_picked, targetMaterials[ materialCount ], 0 )
 			end
@@ -391,6 +402,7 @@ local new_perks =
 		func_remove = function( entity_who_picked )
 			local targetMaterials = { 'lava' }
 			local defaultDamage = { 0.003 }
+
 			for materialCount = 1, #targetMaterials do
 				EntitySetDamageFromMaterial( entity_who_picked, targetMaterials[ materialCount ], defaultDamage[ materialCount ] )
 			end
@@ -402,6 +414,7 @@ local new_perks =
 		usable_by_enemies = true,
 		func = function( entity_perk_empty_item, entity_who_picked, item_name )
 			local targetMaterials = { 'acid', 'ice_acid_static', 'ice_acid_glass' }
+
 			for materialCount = 1, #targetMaterials do
 				EntitySetDamageFromMaterial( entity_who_picked, targetMaterials[ materialCount ], 0 )
 			end
@@ -409,6 +422,7 @@ local new_perks =
 		func_remove = function( entity_who_picked )
 			local targetMaterials = { 'acid', 'ice_acid_static', 'ice_acid_glass' }
 			local defaultDamage = { 0.005, 0.001, 0.001 }
+
 			for materialCount = 1, #targetMaterials do
 				EntitySetDamageFromMaterial( entity_who_picked, targetMaterials[ materialCount ], defaultDamage[ materialCount ] )
 			end
@@ -424,14 +438,13 @@ local new_perks =
 			EntityAddTag( entity_who_picked, 'no_swap' )
 
 			add_comp_remove_dupli( entity_who_picked, 'LuaComponent', 'empty_protection_teleport', {
-				_tags = 'empty_protection_teleport',
+				_tags = 'protection_teleport',
 				script_shot = empty_path .. 'scripts/perks/protection_teleport.lua',
 			} )
 
-			add_comp_remove_dupli( entity_who_picked, 'LuaComponent', 'empty_remove_teleport_effect', {
-				_tags = 'empty_remove_teleport_effect',
-				script_source_file = empty_path .. 'scripts/perks/remove_teleport_effect.lua',
-				execute_every_n_frame = 0,
+			add_comp_remove_dupli( entity_who_picked, 'GameEffectComponent', 'protection_teleport', {
+				effect = 'PROTECTION_DURING_TELEPORT',
+				frames = -1,
 			} )
 		end,
 		func_remove = function( entity_who_picked )
@@ -440,7 +453,7 @@ local new_perks =
 			EntityRemoveTag( entity_who_picked, 'no_swap' )
 
 			remove_all_comp( entity_who_picked, 'LuaComponent', 'empty_protection_teleport' )
-			remove_all_comp( entity_who_picked, 'LuaComponent', 'empty_remove_teleport_effect' )
+			remove_all_comp( entity_who_picked, 'LuaComponent', 'empty_protection_teleport' )
 		end,
 	},
 	{
@@ -448,27 +461,26 @@ local new_perks =
 		stackable = STACKABLE_NO,
 		usable_by_enemies = true,
 		func = function( entity_perk_empty_item, entity_who_picked, item_name )
-			EntityAddComponent2( entity_who_picked, 'LuaComponent', {
-				_tags = 'empty_slice_immunity',
-				script_shot = empty_path .. 'scripts/perks/protection_slice.lua'
+			add_comp_remove_dupli( entity_who_picked, 'LuaComponent', 'empty_protection_slice', {
+				_tags = 'protection_slice',
+				script_shot = empty_path .. 'scripts/perks/protection_slice.lua',
 			} )
 
 			local damagemodels = EntityGetComponent( entity_who_picked, 'DamageModelComponent' )
+
 			if ( damagemodels ) then
-				for i, damagemodel in ipairs( damagemodels ) do
+				for _, damagemodel in ipairs( damagemodels ) do
 					ComponentObjectSetValue2( damagemodel, 'damage_multipliers', 'slice', 0 )
 				end
 			end
 		end,
 		func_remove = function( entity_who_picked )
-			local comps = EntityGetComponent( entity_who_picked, 'LuaComponent', 'empty_slice_immunity' )
-			for _, comp in ipairs( comps or { } ) do
-				EntityRemoveComponent( entity_who_picked, comp )
-			end
+			remove_all_comp( entity_who_picked, 'LuaComponent', 'empty_protection_slice' )
 
 			local damagemodels = EntityGetComponent( entity_who_picked, 'DamageModelComponent' )
+
 			if ( damagemodels ) then
-				for i, damagemodel in ipairs( damagemodels ) do
+				for _, damagemodel in ipairs( damagemodels ) do
 					ComponentObjectSetValue2( damagemodel, 'damage_multipliers', 'slice', 1 )
 				end
 			end
@@ -480,12 +492,15 @@ local new_perks =
 		usable_by_enemies = true,
 		func = function( entity_perk_empty_item, entity_who_picked, item_name )
 			local targetMaterials = { 'poison', 'rock_static_poison' }
+
 			for materialCount = 1, #targetMaterials do
 				EntitySetDamageFromMaterial( entity_who_picked, targetMaterials[ materialCount ], 0 )
 			end
+
 			local damagemodels = EntityGetComponent( entity_who_picked, 'DamageModelComponent' )
+
 			if ( damagemodels ) then
-				for i, damagemodel in ipairs( damagemodels ) do
+				for _, damagemodel in ipairs( damagemodels ) do
 					ComponentObjectSetValue2( damagemodel, 'damage_multipliers', 'poison', 0 )
 				end
 			end
@@ -493,12 +508,15 @@ local new_perks =
 		func_remove = function( entity_who_picked )
 			local targetMaterials = {'poison', 'rock_static_poison'}
 			local defaultDamage = { 0.001, 0.001 }
+
 			for materialCount = 1, #targetMaterials do
 				EntitySetDamageFromMaterial( entity_who_picked, targetMaterials[ materialCount ], defaultDamage[ materialCount ] )
 			end
+
 			local damagemodels = EntityGetComponent( entity_who_picked, 'DamageModelComponent' )
+
 			if ( damagemodels ) then
-				for i, damagemodel in ipairs( damagemodels ) do
+				for _, damagemodel in ipairs( damagemodels ) do
 					ComponentObjectSetValue2( damagemodel, 'damage_multipliers', 'poison', 1 )
 				end
 			end
@@ -515,7 +533,7 @@ local new_perks =
 			end
 			local damagemodels = EntityGetComponent( entity_who_picked, 'DamageModelComponent' )
 			if ( damagemodels ) then
-				for i, damagemodel in ipairs( damagemodels ) do
+				for _, damagemodel in ipairs( damagemodels ) do
 					ComponentObjectSetValue2( damagemodel, 'damage_multipliers', 'curse', 0 )
 				end
 			end
@@ -528,7 +546,7 @@ local new_perks =
 			end
 			local damagemodels = EntityGetComponent( entity_who_picked, 'DamageModelComponent' )
 			if ( damagemodels ) then
-				for i, damagemodel in ipairs( damagemodels ) do
+				for _, damagemodel in ipairs( damagemodels ) do
 					ComponentObjectSetValue2( damagemodel, 'damage_multipliers', 'curse', 1 )
 				end
 			end
@@ -557,6 +575,54 @@ local new_perks =
 		end,
 	},
 	{
+		info = 'return',
+		stackable = STACKABLE_YES,
+		usable_by_enemies = true,
+		func = function ( entity_perk_empty_item, entity_who_picked, item_name )
+			local d_comps = EntityGetComponent( entity_who_picked, 'DamageModelComponent' )
+
+			for _, d_comp in ipairs( d_comps or { } ) do
+				for i, _ in ipairs( all_d_muls ) do
+					ComponentObjectSetValue2( d_comp, 'damage_multipliers', _, 1 )
+				end
+			end
+		end,
+		func_remove = function ( entity_who_picked )
+			local d_comps = EntityGetComponent( entity_who_picked, 'DamageModelComponent' )
+
+			for _, d_comp in ipairs( d_comps or { } ) do
+				for i, _ in ipairs( all_d_muls ) do
+					ComponentObjectSetValue2( d_comp, 'damage_multipliers', _, 1 )
+				end
+			end
+		end,
+	},
+	{
+		info = 'borrowed_vulnerability',
+		stackable = STACKABLE_YES,
+		usable_by_enemies = true,
+		func = function ( entity_perk_empty_item, entity_who_picked, item_name )
+			local d_comps = EntityGetComponent( entity_who_picked, 'DamageModelComponent' )
+
+			for _, d_comp in ipairs( d_comps or { } ) do
+				for i, _ in ipairs( all_d_muls ) do
+					local mul = tonumber( ComponentObjectGetValue2( d_comp, 'damage_multipliers', _ ) ) or 1.0
+					ComponentObjectSetValue2( d_comp, 'damage_multipliers', _, mul * 1.25 )
+				end
+			end
+		end,
+		func_remove = function ( entity_who_picked )
+			local d_comps = EntityGetComponent( entity_who_picked, 'DamageModelComponent' )
+
+			for _, d_comp in ipairs( d_comps or { } ) do
+				for i, _ in ipairs( all_d_muls ) do
+					local mul = tonumber( ComponentObjectGetValue2( d_comp, 'damage_multipliers', _ ) ) or 1.0
+					ComponentObjectSetValue2( d_comp, 'damage_multipliers', _, mul / 3.25 )
+				end
+			end
+		end,
+	},
+	{
 		info = 'stone_skin',
 		stackable = STACKABLE_NO,
 		usable_by_enemies = true,
@@ -565,19 +631,19 @@ local new_perks =
 
 			local damagemodels = EntityGetComponent( entity_who_picked, 'DamageModelComponent' )
 			local damageMultipliers = {
-				[ 'melee' ] = 0.5,
-				[ 'projectile' ] = 0.5,
-				[ 'explosion' ] = 0.5,
-				[ 'electricity' ] = 0.25,
-				[ 'fire' ] = 0.25,
-				[ 'drill' ] = 3.25,
-				[ 'slice' ] = 0.5,
-				[ 'ice' ] = 3.25,
-				[ 'physics_hit' ] = 0.5,
-				[ 'radioactive' ] = 0.5,
-				[ 'poison' ] = 0.5,
-				[ 'curse' ] = 3.25,
-				[ 'holy' ] = 3.25,
+				melee = 0.5,
+				projectile = 0.5,
+				explosion = 0.5,
+				electricity = 0.25,
+				fire = 0.25,
+				drill = 3.25,
+				slice = 0.5,
+				ice = 3.25,
+				physics_hit = 0.5,
+				radioactive = 0.5,
+				poison = 0.5,
+				curse = 3.25,
+				holy = 3.25,
 			}
 
 			for _, damagemodel in ipairs( damagemodels or { } ) do
@@ -592,19 +658,19 @@ local new_perks =
 
 			local damagemodels = EntityGetComponent( entity_who_picked, 'DamageModelComponent' )
 			local damageMultipliers = {
-				[ 'melee' ] = 0.5,
-				[ 'projectile' ] = 0.5,
-				[ 'explosion' ] = 0.5,
-				[ 'electricity' ] = 0.25,
-				[ 'fire' ] = 0.25,
-				[ 'drill' ] = 3.25,
-				[ 'slice' ] = 0.5,
-				[ 'ice' ] = 3.25,
-				[ 'physics_hit' ] = 0.5,
-				[ 'radioactive' ] = 0.5,
-				[ 'poison' ] = 0.5,
-				[ 'curse' ] = 3.25,
-				[ 'holy' ] = 3.25,
+				melee = 0.5,
+				projectile = 0.5,
+				explosion = 0.5,
+				electricity = 0.25,
+				fire = 0.25,
+				drill = 3.25,
+				slice = 0.5,
+				ice = 3.25,
+				physics_hit = 0.5,
+				radioactive = 0.5,
+				poison = 0.5,
+				curse = 3.25,
+				holy = 3.25,
 			}
 
 			for _, damagemodel in ipairs( damagemodels or { } ) do
@@ -622,33 +688,22 @@ local new_perks =
 		func = function( entity_perk_empty_item, entity_who_picked, item_name )
 			local x, y = EntityGetTransform( entity_who_picked )
 
-			EntityAddComponent( entity_who_picked, 'LuaComponent',
-			{
-				_tags='empty_radiance,perk_component',
-				execute_every_n_frame='60',
-				script_source_file=empty_path .. 'scripts/perks/radiance.lua',
+			EntityAddComponent( entity_who_picked, 'LuaComponent', {
+				_tags = 'empty_radiance,perk_component',
+				script_source_file = empty_path .. 'scripts/perks/radiance.lua',
+				execute_every_n_frame = 60,
 			} )
 
 			local child_id = EntityLoad( empty_path .. 'entities/misc/perks/radiance.xml', x, y )
+
 			EntityAddTag( child_id, 'perk_empty_radiance' )
 			EntityAddChild( entity_who_picked, child_id )
 		end,
 		func_remove = function( entity_who_picked )
-			local comps_need_remove = {
-				'empty_radiance',
-			}
+			local remove = 'empty_radiance'
 
-			for i, tag in ipairs( comps_need_remove ) do
-				local comp = EntityGetComponent( entity_who_picked, 'LuaComponent', tag )
-				for _, each in ipairs( comp or {} ) do
-					EntityRemoveComponent( entity_who_picked, each )
-				end
-			end
-
-			local perk_empty_radiance = EntityGetAllChildren( entity_who_picked, 'perk_empty_radiance' )
-			for _, each in ipairs( perk_empty_radiance or {} ) do
-				EntityKill( each )
-			end
+			remove_all_comp( entity_who_picked, 'LuaComponent', remove )
+			remove_all_child( entity_who_picked, remove )
 		end,
 	},
 	{
@@ -657,6 +712,7 @@ local new_perks =
 		usable_by_enemies = false,
 		func = function( entity_perk_empty_item, entity_who_picked, item_name )
 			local inv_comp = EntityGetComponent( entity_who_picked, 'Inventory2Component' )
+
 			for _, comp in ipairs( inv_comp or { } ) do
 				local inv_size = ComponentGetValue2( comp, 'full_inventory_slots_y' )
 
@@ -669,6 +725,7 @@ local new_perks =
 		end,
 		func_remove = function( entity_who_picked )
 			local inv_comp = EntityGetComponent( entity_who_picked, 'Inventory2Component' )
+
 			for _, comp in ipairs( inv_comp or { } ) do
 				local inv_size = ComponentGetValue2( comp, 'full_inventory_slots_y' )
 
@@ -689,23 +746,14 @@ local new_perks =
 		stackable = STACKABLE_NO,
 		usable_by_enemies = false,
 		func = function( entity_perk_empty_item, entity_who_picked, item_name )
-			EntityAddComponent( entity_who_picked, 'LuaComponent', {
+			add_comp_remove_dupli( entity_who_picked, 'LuaComponent', 'empty_percentage_off', {
 				_tags='empty_percentage_off,perk_component',
-				execute_every_n_frame='120',
+				execute_every_n_frame='60',
 				script_source_file=empty_path .. 'scripts/perks/percentage_off.lua',
 			} )
  		end,
 		func_remove = function( entity_who_picked )
-			local tags_to_remove = {
-				'empty_percentage_off',
-			}
-
-			for i, tag in ipairs( tags_to_remove ) do
-				local comp = EntityGetComponent( entity_who_picked, 'LuaComponent', tag )
-				for _, each in ipairs( comp or { } ) do
-					EntityRemoveComponent( entity_who_picked, each )
-				end
-			end
+			remove_all_comp( entity_who_picked, 'LuaComponent', 'empty_percentage_off' )
 		end,
 	},
 	{
@@ -734,31 +782,18 @@ local new_perks =
 		end,
 		func_remove = function( entity_who_picked )
 			local data_comp = EntityGetFirstComponent( entity_who_picked, 'VariableStorageComponent', 'empty_sanctuary_shield_data' )
-			if data_comp then
-				local shield_entity_id = ComponentGetValue2( data_comp, 'value_string' )
-				shield_entity_id = tonumber( shield_entity_id ) or 0
-				if shield_entity_id ~= 0 and EntityGetIsAlive( shield_entity_id ) then
-					EntityKill( shield_entity_id )
+
+			if ( data_comp ) then
+				local shield_entity = tonumber( ComponentGetValue2( data_comp, 'value_string' ) ) or 0
+
+				if ( is_alive( shield_entity ) ) then
+					EntityKill( shield_entity )
 				end
 			end
 
-			local comps_to_remove = {
-				'empty_sanctuary_shield_tracker',
-				'empty_sanctuary_shield_data',
-				'empty_sanctuary_shield_position',
-			}
-
-			for i, tag in ipairs( comps_to_remove ) do
-				local comp = EntityGetComponentIncludingDisabled( entity_who_picked, 'LuaComponent', tag )
-				for _, each in ipairs( comp or {} ) do
-					EntityRemoveComponent( entity_who_picked, each )
-				end
-
-				comp = EntityGetComponentIncludingDisabled( entity_who_picked, 'VariableStorageComponent', tag )
-				for _, each in ipairs( comp or {} ) do
-					EntityRemoveComponent( entity_who_picked, each )
-				end
-			end
+			remove_all_comp( entity_who_picked, 'LuaComponent', 'empty_sanctuary_shield_tracker' )
+			remove_all_comp( entity_who_picked, 'VariableStorageComponent', 'empty_sanctuary_shield_data' )
+			remove_all_comp( entity_who_picked, 'VariableStorageComponent', 'empty_sanctuary_shield_position' )
 		end,
 	},
 	{
@@ -777,23 +812,16 @@ local new_perks =
 		stackable = STACKABLE_NO,
 		usable_by_enemies = true,
 		func = function( entity_perk_empty_item, entity_who_picked, item_name )
-			EntityAddComponent( entity_who_picked, 'LuaComponent', {
-				_tags = 'empty_health_regeneration,perk_component',
+			local tag = 'empty_health_regeneration'
+
+			add_comp_remove_dupli( entity_who_picked, 'LuaComponent', tag, {
+				_tags = tag,
 				execute_every_n_frame = 1800,
 				script_source_file = empty_path .. 'scripts/perks/health_regeneration.lua',
 			} )
 		end,
 		func_remove = function( entity_who_picked )
-			local comps_to_remove = {
-				'empty_health_regeneration',
-			}
-
-			for i, tag in ipairs( comps_to_remove ) do
-				local comp = EntityGetComponentIncludingDisabled( entity_who_picked, 'LuaComponent', tag )
-				for _, each in ipairs( comp or { } ) do
-					EntityRemoveComponent( entity_who_picked, each )
-				end
-			end
+			remove_all_comp( entity_who_picked, 'LuaComponent', 'empty_health_regeneration' )
 		end,
 	},--[[
 	{
@@ -872,7 +900,7 @@ local new_perks =
 		usable_by_enemies = true,
 		not_in_default_perk_pool = true,
 		func = function( entity_perk_empty_item, entity_who_picked, item_name )
-			local damageMultipliers = {
+			local d_muls = {
 				melee = 0.5,
 				projectile = 0.5,
 				explosion = 0.5,
@@ -889,49 +917,42 @@ local new_perks =
 				healing = 2.0,
 			}
 
-			if ( GlobalsGetValue( 'EMPTY_CURSE_GUARANTEED_LOSE', '0' ) == '1' ) then
-				damageMultipliers.curse = 0.5 * damageMultipliers.curse
-			end
-
 			if ( is_player( entity_who_picked ) ) then
 				GlobalsSetValue( 'EMPTY_CURSE_MONK', '1' )
 
-				local comp = {
+				if ( GlobalsGetValue( 'EMPTY_CURSE_GUARANTEED_LOSE', '0' ) == '1' ) then
+					d_muls.curse = 0.5 * d_muls.curse
+				end
+
+				add_comp_remove_dupli( entity_who_picked, 'LuaComponent', 'empty_curse_monk', {
 					_tags = 'empty_curse_monk,perk_component',
 					execute_every_n_frame = 60,
 					script_source_file = empty_path .. 'scripts/perks/curse_monk.lua',
-				}
+				} )
 
-				local players = EntityGetWithTag( 'player_unit' ) or { }
-				local poly_players = EntityGetWithTag( 'polymorphed_player' ) or { }
-
-				add_table( players, poly_players, false, true )
-
-				for _, player in ipairs( players ) do
-					EntityAddComponent2( player, 'LuaComponent', comp )
-
-					local damagemodels = EntityGetComponent( player, 'DamageModelComponent' )
-
-					for _, damagemodel in ipairs( damagemodels or { } ) do
-						for damageType, multiplier in pairs( damageMultipliers ) do
-							local currentMultiplier = tonumber( ComponentObjectGetValue2( damagemodel, 'damage_multipliers', damageType ) ) or 1.0
-							ComponentObjectSetValue2( damagemodel, 'damage_multipliers', damageType, currentMultiplier * multiplier )
-						end
+				set_comp_obj_value( entity_who_picked, 'DamageModelComponent', nil, nil, function ( comp )
+					for d_type, mul in pairs( d_muls ) do
+						local cur = ComponentObjectGetValue2( comp, 'damage_multipliers', d_type ) or 1
+						ComponentObjectSetValue2( comp, 'damage_multipliers', d_type, cur * mul )
 					end
+				end, nil )
 
-					perk_pickup( nil, player, 'GOLD_IS_FOREVER', false, false, true )
+				if ( tonumber( GlobalsGetValue( 'PERK_PICKED_GOLD_IS_FOREVER_PICKUP_COUNT', '0' ) ) == 0 ) then
+					perk_pickup( nil, entity_who_picked, 'GOLD_IS_FOREVER', false, false, true )
+				end
 
-					for _ = 1, 5 do
-						perk_pickup( nil, player, 'ATTRACT_ITEMS', false, false, true )
-					end
+				for _ = 1, 5 do
+					perk_pickup( nil, entity_who_picked, 'ATTRACT_ITEMS', false, false, true )
+				end
 
-					perk_pickup( nil, player, 'EMPTY_PERCENTAGE_OFF', false, false, true )
+				if ( tonumber( GlobalsGetValue( 'PERK_PICKED_EMPTY_PERCENTAGE_OFF_PICKUP_COUNT', '0' ) ) == 0 ) then
+					perk_pickup( nil, entity_who_picked, 'EMPTY_PERCENTAGE_OFF', false, false, true )
 				end
 			else
 				local damagemodels = EntityGetComponent( entity_who_picked, 'DamageModelComponent' )
 
 				for _, damagemodel in ipairs( damagemodels or { } ) do
-					for damageType, multiplier in pairs( damageMultipliers ) do
+					for damageType, multiplier in pairs( d_muls ) do
 						local currentMultiplier = tonumber( ComponentObjectGetValue2( damagemodel, 'damage_multipliers', damageType ) ) or 1.0
 						ComponentObjectSetValue2( damagemodel, 'damage_multipliers', damageType, currentMultiplier * multiplier )
 					end
@@ -939,7 +960,7 @@ local new_perks =
 			end
 		end,
 		func_remove = function( entity_who_picked )
-			local damageMultipliers = {
+			local d_muls = {
 				melee = 0.5,
 				projectile = 0.5,
 				explosion = 0.5,
@@ -956,53 +977,29 @@ local new_perks =
 				healing = 2.0,
 			}
 
-			if ( GlobalsGetValue( 'EMPTY_CURSE_GUARANTEED_LOSE', '0' ) == '1' ) then
-				damageMultipliers.curse = 0.5 * damageMultipliers.curse
-			end
-
 			if ( is_player( entity_who_picked ) ) then
 				GlobalsSetValue( 'EMPTY_CURSE_MONK', '0' )
 
-				local tags_to_remove = {
-					'empty_curse_monk',
-				}
-
-				local players = EntityGetWithTag( 'player_unit' ) or { }
-				local poly_players = EntityGetWithTag( 'polymorphed_player' ) or { }
-
-				add_table( players, poly_players, false, true )
-
-				for _, player in ipairs( players ) do
-					for i, tag in ipairs( tags_to_remove ) do
-						local comp = EntityGetComponentIncludingDisabled( player, 'LuaComponent', tag )
-						for _, each in ipairs( comp or { } ) do
-							EntityRemoveComponent( player, each )
-						end
-
-						comp = EntityGetComponentIncludingDisabled( player, 'VariableStorageComponent', tag )
-						for _, each in ipairs( comp or { } ) do
-							EntityRemoveComponent( player, each )
-						end
-					end
-
-					local damagemodels = EntityGetComponent( player, 'DamageModelComponent' )
-
-					for _, damagemodel in ipairs( damagemodels or { } ) do
-						for damageType, multiplier in pairs( damageMultipliers ) do
-							local currentMultiplier = tonumber( ComponentObjectGetValue2( damagemodel, 'damage_multipliers', damageType ) ) or 1.0
-							ComponentObjectSetValue2( damagemodel, 'damage_multipliers', damageType, currentMultiplier / multiplier )
-						end
-					end
+				if ( GlobalsGetValue( 'EMPTY_CURSE_GUARANTEED_LOSE', '0' ) == '1' ) then
+					d_muls.curse = 0.5 * d_muls.curse
 				end
+
+				remove_all_comp( entity_who_picked, 'LuaComponent', 'empty_curse_monk' )
+				remove_all_comp( entity_who_picked, 'VariableStorageComponent', 'empty_curse_monk' )
+
+				set_comp_obj_value( entity_who_picked, 'DamageModelComponent', nil, nil, function ( comp )
+					for d_type, mul in pairs( d_muls ) do
+						local cur = ComponentObjectGetValue2( comp, 'damage_multipliers', d_type ) or 1
+						ComponentObjectSetValue2( comp, 'damage_multipliers', d_type, cur / mul )
+					end
+				end, nil )
 			else
-				local damagemodels = EntityGetComponent( entity_who_picked, 'DamageModelComponent' )
-
-				for _, damagemodel in ipairs( damagemodels or { } ) do
-					for damageType, multiplier in pairs( damageMultipliers ) do
-						local currentMultiplier = tonumber( ComponentObjectGetValue2( damagemodel, 'damage_multipliers', damageType ) ) or 1.0
-						ComponentObjectSetValue2( damagemodel, 'damage_multipliers', damageType, currentMultiplier / multiplier )
+				set_comp_obj_value( entity_who_picked, 'DamageModelComponent', nil, nil, function ( comp )
+					for d_type, mul in pairs( d_muls ) do
+						local cur = ComponentObjectGetValue2( comp, 'damage_multipliers', d_type ) or 1
+						ComponentObjectSetValue2( comp, 'damage_multipliers', d_type, cur / mul )
 					end
-				end
+				end, nil )
 			end
 		end,
 	},
@@ -1015,25 +1012,29 @@ local new_perks =
 			GlobalsSetValue( 'EMPTY_CURSE_ALWAYS_SHUFFLE', '1' )
 
 			local wands = EntityGetWithTag( 'wand' )
-			for i, wand in ipairs( wands ) do
-				local ability_comp = EntityGetFirstComponentIncludingDisabled( wand, 'AbilityComponent' )
-				if ( ability_comp ) then
-					ComponentObjectSetValue2( ability_comp, 'gun_config', 'shuffle_deck_when_empty', true )
 
-					local operate1 = { 'fire_rate_wait', 'reload_time' }
-					local operate2 = { 'gunaction_config', 'gun_config' }
-					for _ = 1, #operate1 do
-						local temp = ComponentObjectGetValue2( ability_comp, operate2[ _ ], operate1[ _ ] )
+			for _, wand in ipairs( wands ) do
+				local fire_rate, relaod = get_comp_obj_info( wand, 'AbilityComponent', nil, {
+					{ 'gunaction_config', 'fire_rate_wait', 0 },
+					{ 'gun_config', 'reload_time', 0 },
+				} )
 
-						if ( temp > 0 ) then
-							temp = temp / 2
-						else
-							temp = temp * 2
-						end
-
-						ComponentObjectSetValue2( ability_comp, operate2[ _ ], operate1[ _ ], temp )
-					end
+				if ( fire_rate > 0 ) then
+					fire_rate = fire_rate / 2
+				else
+					fire_rate = fire_rate * 2
 				end
+				if ( relaod > 0 ) then
+					relaod = relaod / 2
+				else
+					relaod = relaod * 2
+				end
+
+				set_comp_obj_value( wand, 'AbilityComponent', nil, {
+					{ 'gun_config', 'shuffle_deck_when_empty', true },
+					{ 'gunaction_config', 'fire_rate_wait', fire_rate },
+					{ 'gun_config', 'reload_time', relaod },
+				}, nil, nil )
 			end
 		end,
 		func_remove = function( entity_who_picked )
@@ -1049,48 +1050,40 @@ local new_perks =
 			GlobalsSetValue( 'EMPTY_CURSE_SHORT_WAND', '1' )
 
 			local wands = EntityGetWithTag( 'wand' )
-			for i, wand in ipairs( wands ) do
-				local ability_comp = EntityGetFirstComponentIncludingDisabled( wand, 'AbilityComponent' )
-				if ( ability_comp ) then
-					local deck_capacity_all = ComponentObjectGetValue2( ability_comp, 'gun_config', 'deck_capacity' )
-					local deck_capacity_real = EntityGetWandCapacity( wand )
-					local always_cast_count = math.max( 0, deck_capacity_all - deck_capacity_real )
-					if ( deck_capacity_real > 1 ) then
-						if ( deck_capacity_real < 15 ) then
-							deck_capacity_real = deck_capacity_real / 2
-						else
-							deck_capacity_real = deck_capacity_real / 4
-						end
-					end
 
-					deck_capacity_all = deck_capacity_real + always_cast_count
-					ComponentObjectSetValue2( ability_comp, 'gun_config', 'deck_capacity', deck_capacity_all )
+			for _, wand in ipairs( wands ) do
+				local mana_charge, mana_max = get_comp_info( wand, 'AbilityComponent', nil, {
+					{ 'mana_charge_speed', 0 },
+					{ 'mana_max', 0 },
+				}, nil )
 
-					local operate = { 'mana_max', 'mana_charge_speed' }
-					for _, each in ipairs( operate ) do
-						local temp = ComponentGetValue2( ability_comp, each )
-						temp = temp * 1.2
-						ComponentSetValue2( ability_comp, each, temp )
-					end
+				set_comp_value( wand, 'AbilityComponent', nil, {
+					mana_charge_speed = 1.2 * mana_charge,
+					mana_max = 1.2 * mana_max,
+				}, nil, nil )
 
-					local cards = EntityGetAllChildren( wand )
-					if ( cards and #cards > deck_capacity_all ) then
-						for _ = always_cast_count + 1, #cards do
-							local card = cards[ _ ]
-							local card_comp = EntityGetFirstComponentIncludingDisabled( card, 'ItemActionComponent' )
-							if ( card_comp and _ > deck_capacity_all ) then
-								EntityRemoveFromParent( card )
-								local x, y = EntityGetTransform( wand )
-								EntitySetTransform( card, x, y )
+				local deck_cap = get_comp_obj_info( wand, 'AbilityComponent', nil, {
+					{ 'gun_config', 'deck_capacity', 0 },
+				}, nil )
 
-								local card_all_comp = EntityGetAllComponents( card )
-								for j, each_comp in ipairs( card_all_comp ) do
-									EntitySetComponentIsEnabled( card, each_comp, true )
-								end
-							end
-						end
+				local deck_cap_real = EntityGetWandCapacity( wand )
+				local always_count = deck_cap - deck_cap_real
+
+				if ( deck_cap_real > 0 ) then
+					if ( deck_cap_real < 15 ) then
+						deck_cap_real = deck_cap_real / 2
+					elseif ( deck_cap_real < 29 ) then
+						deck_cap_real = deck_cap_real / 4
+					else
+						deck_cap_real = 1
 					end
 				end
+
+				set_comp_obj_value( wand, 'AbilityComponent', nil, {
+					{ 'gun_config', 'deck_capacity', math.floor( deck_cap_real ) + always_count },
+				}, nil, nil )
+
+				remove_cards_until_fix( wand, deck_cap, always_count )
 			end
 		end,
 		func_remove = function( entity_who_picked )
@@ -1106,10 +1099,7 @@ local new_perks =
 			local curse = 'CURSE_MALICE_WASHES_OVER'
 
 			if ( is_player( entity_who_picked ) ) then
-				local players = EntityGetWithTag( 'player_unit' ) or { }
-				local poly_players = EntityGetWithTag( 'polymorphed_player' ) or { }
-
-				add_table( players, poly_players, false, true )
+				local players = get_all_players( )
 
 				for _, player in ipairs( players ) do
 					if ( EntityGetIsAlive( player ) ) then
@@ -1124,7 +1114,7 @@ local new_perks =
 						add_comp_remove_dupli( player, 'LuaComponent', curse, {
 							_tags = curse,
 							script_source_file = empty_path .. 'scripts/perks/curse_malice_washes_over_delay.lua',
-							execute_every_n_frame = 180,
+							execute_every_n_frame = 300,
 							remove_after_executed = true,
 						} )
 					end
@@ -1166,14 +1156,14 @@ local new_perks =
 
 			fungal_shift( entity_who_picked, x + a + c, y + b + c, true )
 			fungal_shift( entity_who_picked, x + a + c, y + b - c, true )
+			fungal_shift( entity_who_picked, x + a - c, y + b - c, true )
 			fungal_shift( entity_who_picked, x + a + c, y - b - c, true )
 			fungal_shift( entity_who_picked, x + a - c, y - b - c, true )
 			fungal_shift( entity_who_picked, x - a - c, y - b - c, true )
 			fungal_shift( entity_who_picked, x - a - c, y - b + c, true )
 			fungal_shift( entity_who_picked, x - a - c, y + b + c, true )
-			fungal_shift( entity_who_picked, x - a + c, y + b + c, true )
-			fungal_shift( entity_who_picked, x + a - c, y + b - c, true )
 			fungal_shift( entity_who_picked, x - a + c, y - b + c, true )
+			fungal_shift( entity_who_picked, x - a + c, y + b + c, true )
 
 			for _ = 1, 2 do
 				perk_pickup( nil, entity_who_picked, 'EMPTY_FUNGAL_SHIFT_ADD_CAPACITY', false, false, true )
@@ -1186,7 +1176,7 @@ local new_perks =
 		usable_by_enemies = true,
 		not_in_default_perk_pool = true,
 		func = function( entity_perk_empty_item, entity_who_picked, item_name )
-			local damageMultipliers = {
+			local d_muls = {
 				melee = 4.0,
 				projectile = 4.0,
 				explosion = 4.0,
@@ -1202,52 +1192,50 @@ local new_perks =
 				holy = 2.0,
 				healing = 4.0,
 			}
-
-			if ( GlobalsGetValue( 'EMPTY_CURSE_MONK', '0' ) == '1' ) then
-				damageMultipliers.curse = 0.5 * damageMultipliers.curse
-			end
 
 			if ( is_player( entity_who_picked ) ) then
 				GlobalsSetValue( 'EMPTY_CURSE_GUARANTEED_LOSE', '1' )
 
-				local players = EntityGetWithTag( 'player_unit' ) or { }
-				local poly_players = EntityGetWithTag( 'polymorphed_player' ) or { }
+				if ( GlobalsGetValue( 'EMPTY_CURSE_MONK', '0' ) == '1' ) then
+					d_muls.curse = 0.5 * d_muls.curse
+				end
 
-				add_table( players, poly_players, false, true )
+				set_comp_obj_value( entity_who_picked, 'DamageModelComponent', nil, nil, function ( comp )
+					for d_type, d_mul in pairs( d_muls ) do
+						local cur_mul = ComponentObjectGetValue2( comp, 'damage_multipliers', d_type )
 
-				for _, player in ipairs( players ) do
-					local damagemodels = EntityGetComponent( player, 'DamageModelComponent' )
-
-					for _, damagemodel in ipairs( damagemodels or { } ) do
-						for damageType, multiplier in pairs( damageMultipliers ) do
-							local currentMultiplier = tonumber( ComponentObjectGetValue2( damagemodel, 'damage_multipliers', damageType ) ) or 1.0
-							ComponentObjectSetValue2( damagemodel, 'damage_multipliers', damageType, currentMultiplier * multiplier )
-						end
+						ComponentObjectSetValue2( comp, 'damage_multipliers', d_type, cur_mul * d_mul )
 					end
+				end, nil )
+
+				local hp_max = get_comp_info( entity_who_picked, 'DamageModelComponent', nil, {
+					{ 'max_hp', -1 },
+				}, nil )
+
+				if ( hp_max > 1 / get_scale( ) ) then
+					set_comp_value( entity_who_picked, 'DamageModelComponent', nil, {
+						hp = 2 * hp_max,
+						max_hp = 2 * hp_max,
+					}, nil, nil )
 				end
 
 				local x, y = EntityGetTransform( entity_who_picked )
+
 				for _ = 1, 4, 1 do
-					EntityLoad( empty_path .. 'entities/items/potions/potion_healthium_many_hp.xml', x, y )
+					EntityLoad( empty_path .. 'entities/items/potions/potion_healthium_many_hp.xml', x + loc_center_fix( 4, 4, _ ), y )
 				end
 			else
-				local damagemodels = EntityGetComponent( entity_who_picked, 'DamageModelComponent' )
+				set_comp_obj_value( entity_who_picked, 'DamageModelComponent', nil, nil, function ( comp )
+					for d_type, d_mul in pairs( d_muls ) do
+						local cur_mul = ComponentObjectGetValue2( comp, 'damage_multipliers', d_type )
 
-				for _, damagemodel in ipairs( damagemodels or { } ) do
-					for damageType, multiplier in pairs( damageMultipliers ) do
-						local currentMultiplier = tonumber( ComponentObjectGetValue2( damagemodel, 'damage_multipliers', damageType ) ) or 1.0
-						ComponentObjectSetValue2( damagemodel, 'damage_multipliers', damageType, currentMultiplier * multiplier )
+						ComponentObjectSetValue2( comp, 'damage_multipliers', d_type, cur_mul * d_mul )
 					end
-				end
+				end, nil )
 			end
 		end,
 		func_remove = function( entity_who_picked )
-			if ( is_player( entity_who_picked ) ) then
-				GlobalsSetValue( 'EMPTY_CURSE_GUARANTEED_LOSE', '0' )
-			end
-
-			local damagemodels = EntityGetComponent( entity_who_picked, 'DamageModelComponent' )
-			local damageMultipliers = {
+			local d_muls = {
 				melee = 4.0,
 				projectile = 4.0,
 				explosion = 4.0,
@@ -1264,16 +1252,21 @@ local new_perks =
 				healing = 4.0,
 			}
 
-			if ( GlobalsGetValue( 'EMPTY_CURSE_MONK', '0' ) == '1' ) then
-				damageMultipliers.curse = 0.5 * damageMultipliers.curse
-			end
+			if ( is_player( entity_who_picked ) ) then
+				GlobalsSetValue( 'EMPTY_CURSE_GUARANTEED_LOSE', '0' )
 
-			for _, damagemodel in ipairs( damagemodels or { } ) do
-				for damageType, multiplier in pairs( damageMultipliers ) do
-					local currentMultiplier = tonumber( ComponentObjectGetValue2( damagemodel, 'damage_multipliers', damageType ) ) or 1.0
-					ComponentObjectSetValue2( damagemodel, 'damage_multipliers', damageType, currentMultiplier / multiplier )
+				if ( GlobalsGetValue( 'EMPTY_CURSE_MONK', '0' ) == '1' ) then
+					d_muls.curse = 0.5 * d_muls.curse
 				end
 			end
+
+			set_comp_obj_value( entity_who_picked, 'DamageModelComponent', nil, nil, function ( comp )
+				for d_type, d_mul in pairs( d_muls ) do
+					local cur_mul = ComponentObjectGetValue2( comp, 'damage_multipliers', d_type )
+
+					ComponentObjectSetValue2( comp, 'damage_multipliers', d_type, cur_mul / d_mul )
+				end
+			end, nil )
 		end,
 	},
 	{
@@ -1282,6 +1275,10 @@ local new_perks =
 		usable_by_enemies = true,
 		not_in_default_perk_pool = true,
 		func = function ( entity_perk_empty_item, entity_who_picked, item_name )
+			if ( is_player( entity_who_picked ) ) then
+				GlobalsSetValue( 'EMPTY_CURSE_GRAVITY_FREE', '1' )
+			end
+
 			set_comp_value( entity_who_picked, 'CharacterPlatformingComponent', nil, {
 				pixel_gravity = 0,
 				run_velocity = 0,
@@ -1289,7 +1286,7 @@ local new_perks =
 				fly_speed_max_up = 0,
 				fly_speed_max_down = 0,
 				fly_velocity_x = 0,
-			}, nil )
+			}, nil, nil )
 
 			if ( is_player( entity_who_picked ) ) then
 				local x, y = EntityGetTransform( entity_who_picked )
@@ -1298,12 +1295,16 @@ local new_perks =
 
 				local e = EntityLoad( 'data/entities/buildings/workshop_tree_holiday.xml', x, y )
 
-				set_comp_value( e, 'LifetimeComponent', nil, {
+				add_comp_remove_dupli( e, 'LifetimeComponent', nil, {
 					lifetime = 3600,
-				}, nil )
+				} )
 			end
 		end,
 		func_remove = function ( entity_who_picked )
+			if ( is_player( entity_who_picked ) ) then
+				GlobalsSetValue( 'EMPTY_CURSE_GRAVITY_FREE', '0' )
+			end
+
 			set_comp_value( entity_who_picked, 'CharacterPlatformingComponent', nil, {
 				pixel_gravity = 350,
 				run_velocity = 57,
@@ -1311,7 +1312,7 @@ local new_perks =
 				fly_speed_max_up = 95,
 				fly_speed_max_down = 85,
 				fly_velocity_x = 52,
-			}, nil )
+			}, nil, nil )
 		end,
 	},
 	{
@@ -1320,10 +1321,19 @@ local new_perks =
 		usable_by_enemies = true,
 		not_in_default_perk_pool = true,
 		func = function ( entity_perk_empty_item, entity_who_picked, item_name )
-			add_comp_remove_dupli( entity_who_picked, 'LuaComponent', 'CURSE_DEATH_TRAIL', {
-				_tags = 'CURSE_DEATH_TRAIL',
+			local curse = 'CURSE_DEATH_TRAIL'
+
+			add_comp_remove_dupli( entity_who_picked, 'LuaComponent', curse, {
+				_tags = curse,
 				script_source_file = empty_path .. 'scripts/perks/curse_death_trail.lua',
-				execute_every_n_frame = 1,
+				execute_every_n_frame = 0,
+				remove_after_executed = true,
+			} )
+
+			add_comp_remove_dupli( entity_who_picked, 'LuaComponent', curse, {
+				_tags = curse,
+				script_source_file = empty_path .. 'scripts/perks/curse_death_trail.lua',
+				execute_every_n_frame = 2,
 			} )
 
 			local c_comp = EntityGetFirstComponent( entity_who_picked, 'CharacterPlatformingComponent' )
@@ -1339,11 +1349,14 @@ local new_perks =
 					pixel_gravity = values.pixel_gravity / 1.2,
 					run_velocity = values.run_velocity * 1.2,
 					fly_velocity_x = values.fly_velocity_x * 1.2,
-				}, nil )
+				}, nil, nil )
 			end
 		end,
 		func_remove = function ( entity_who_picked )
-			remove_all_comp( entity_who_picked, 'LuaComponent', 'CURSE_DEATH_TRAIL' )
+			local curse = 'CURSE_DEATH_TRAIL'
+
+			remove_all_comp( entity_who_picked, 'LuaComponent', curse )
+			remove_all_comp( entity_who_picked, 'VariableStorageComponent', curse )
 
 			local c_comp = EntityGetFirstComponent( entity_who_picked, 'CharacterPlatformingComponent' )
 
@@ -1358,10 +1371,10 @@ local new_perks =
 					pixel_gravity = values.pixel_gravity * 1.2,
 					run_velocity = values.run_velocity / 1.2,
 					fly_velocity_x = values.fly_velocity_x / 1.2,
-				}, nil )
+				}, nil, nil )
 			end
 		end,
-	},
+	},--[[
 	{
 		info = 'curse_furious_cocktail',
 		stackable = STACKABLE_NO,
@@ -1377,7 +1390,7 @@ local new_perks =
 		func_remove = function ( entity_who_picked )
 			remove_all_comp( entity_who_picked, 'LuaComponent', 'CURSE_FURIOUS_COCKTAIL' )
 		end,
-	},
+	},]]--
 }
 
 local changed_perks = {
@@ -1387,10 +1400,23 @@ local changed_perks = {
 			add_halo_level( entity_who_picked, -1 )
 		end,
 	},
+	{
+		id = 'PROTECTION_RADIOACTIVITY',
+		func = function( entity_perk_item, entity_who_picked, item_name )
+			set_comp_value( entity_who_picked, 'DamageModelComponent', nil, {
+				radioactive = 0,
+			}, nil, nil )
+		end,
+		func_remove = function( entity_perk_item, entity_who_picked, item_name )
+			set_comp_value( entity_who_picked, 'DamageModelComponent', nil, {
+				radioactive = 1,
+			}, nil, nil )
+		end,
+	},
 }
 
 for i, _ in ipairs( new_perks ) do
-	if ( _.info and _.info ~= '' ) then
+	if ( is_not_nil_str( _.info ) ) then
 		local info = string.lower( _.info )
 		local e_info = 'empty_' .. info
 
@@ -1403,5 +1429,29 @@ for i, _ in ipairs( new_perks ) do
 	end
 end
 
-replace_table( perk_list, changed_perks, true )
+update_table_by_id( perk_list, changed_perks, true )
 add_table( perk_list, new_perks, false, false )
+--[[
+function get_perk_act_count( entity, perk_name )
+	local count = 0
+
+	for i, child in ipairs( get_all_child( entity ) ) do
+		if ( is_has_comp( child, 'UIIconComponent', nil, perk_name ) ) then
+			count = count + 1
+		end
+	end
+
+	return count
+end
+
+function undo_perk_pickup( style )
+	local flag = string.upper( style ) .. '_PERK_TOTAL_COUNT'
+	local count = tonumber( GlobalsGetValue( flag, '0' ) )
+
+	GlobalsSetValue( flag, tostring( count - 1 ) )
+end
+
+function apply_last_bleed( entity, perk_entity )
+	local act_perks = get_act_perks( )
+end
+]]--

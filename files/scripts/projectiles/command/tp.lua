@@ -1,7 +1,7 @@
 dofile_once( 'data/scripts/lib/utilities.lua' )
 dofile_once( 'mods/empty_the_blackhole_catgirl/files/scripts/empty/empty_command_utility.lua' )
 
-local entity = EntityGetRootEntity( GetUpdatedEntityID( ) )
+local entity = get_root_entity( )
 
 if ( entity ~= NULL_ENTITY ) then
 	local paras = parse_and_evaluate_command_paras( 'empty_tp', entity, { 'tp_entities', 'tar', 'x', 'y' } )

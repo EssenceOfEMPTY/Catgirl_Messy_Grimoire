@@ -16,15 +16,17 @@ function give_perk_to_enemy( perk_data, entity_who_picked, entity_item )
 		end
 	end
 
-	if perk_data.func ~= nil and entity_item ~= nil then
+	if ( perk_data.func ~= nil ) then
 		perk_data.func( entity_item, entity_who_picked )
 	end
 
 	-- add ui icon etc
 	local entity_icon = EntityLoad( "data/entities/misc/perks/enemy_icon.xml", pos_x, pos_y )
-	edit_component( entity_icon, "SpriteComponent", function(comp,vars)
-		ComponentSetValue( comp, "image_file", perk_data.ui_icon )
-	end)
+
+	set_comp_value( entity_icon, 'SpriteComponent', nil, {
+		image_file = perk_data.ui_icon,
+	}, nil, nil )
+
 	EntityAddChild( entity_who_picked, entity_icon )
 end
 

@@ -1,7 +1,7 @@
 dofile_once( 'data/scripts/lib/utilities.lua' )
 dofile_once( 'mods/empty_the_blackhole_catgirl/files/scripts/empty/empty_command_utility.lua' )
 
-local e_id = EntityGetRootEntity( GetUpdatedEntityID( ) )
+local e_id = get_root_entity( )
 
 if ( e_id ~= NULL_ENTITY ) then
 	local p_comp = EntityGetFirstComponent( e_id, 'ProjectileComponent' )
@@ -13,7 +13,7 @@ if ( e_id ~= NULL_ENTITY ) then
 			local count = paras[ 'count' ]
 
 			local dmg = ComponentObjectGetValue2( p_comp, 'damage_by_type', 'slice' ) or 0
-			local delta = count ^ ( 1 + get_ng_num( ) )
+			local delta = count ^ ( 1 + get_ng_count( ) )
 
 			dmg = dmg + delta
 

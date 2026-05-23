@@ -67,13 +67,13 @@ g_cartlike =
 
 local old_spawn_crate = spawn_crate
 function spawn_crate( x, y )
-	EntityLoad( 'data/entities/buildings/workshop_tree_holiday.xml', x, y )
+	if ( ModSettingGet( 'empty_the_blackhole_catgirl.STARTING_EDIT' ) ) then
+		EntityLoad( 'data/entities/buildings/workshop_tree_holiday.xml', x, y )
+	end
 
-	local e = EntityLoad( empty_path .. 'entities/buildings/teleport_pyramid.xml', x - 512, y - 128 )
-
-	set_comp_value( e, 'LifetimeComponent', nil, {
-		lifetime = 18000,
-	}, nil )
+	if ( ModSettingGet( 'empty_the_blackhole_catgirl.TELEPORT_TO_PYRAMID' ) ) then
+		EntityLoad( empty_path .. 'entities/buildings/teleport_pyramid.xml', x - 495, y - 128 )
+	end
 
 	old_spawn_crate( x, y )
 end

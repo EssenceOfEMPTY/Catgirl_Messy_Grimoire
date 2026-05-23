@@ -1,21 +1,18 @@
-dofile_once( 'data/scripts/lib/utilities.lua' )
-dofile_once( 'data/scripts/gun/procedural/gun_action_utils.lua' )
 dofile_once( 'mods/empty_the_blackhole_catgirl/files/scripts/empty/empty_utility.lua' )
 
-local entity = GetUpdatedEntityID( )
-local projectile_comp = EntityGetFirstComponent( entity, 'ProjectileComponent' )
-local shooter
+local entity = get_root_entity( )
 
-if ( projectile_comp ) then
-	shooter = ComponentGetValue2( projectile_comp, 'mWhoShot' )
-end
+local shooter = get_comp_info( entity, 'ProjectileComponent', nil, {
+	{ 'mWhoShot', 0 }
+}, nil )
 
-if ( shooter and shooter ~= NULL_ENTITY ) then
-	local controls = EntityGetFirstComponentIncludingDisabled( shooter, 'ControlsComponent' )
-	if ( controls ) then
-		local cursor_x, cursor_y = ComponentGetValue2( controls, 'mMousePosition' )
-		if ( cursor_x and cursor_y ) then
-			EntitySetTransform( entity, cursor_x, cursor_y )
-		end
+if ( is_alive( shooter ) ) then
+	local c_comp = EntityGetFirstComponentIncludingDisabled( shooter, 'ControlsComponent' )
+
+	if ( c_comp ) then
+		local cursor_x, cursor_y = ComponentGetValue2( c_comp, 'mMousePosition' )
+		local x, y = EntityGetTransform( entity )
+
+		EntitySetTransform( entity, cursor_x or x, cursor_y or y )
 	end
 end
