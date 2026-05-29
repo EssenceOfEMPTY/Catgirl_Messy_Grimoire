@@ -6,6 +6,8 @@ math_2p = 2 * math.pi
 math_e = math.exp( 1 )
 epsilon = 0.0003
 
+chunk_len = 512
+
 all_curses = {
 	'CURSE_MONK',
 	'CURSE_ALWAYS_SHUFFLE',
@@ -114,6 +116,8 @@ orbit_loc_fix = {
 	{ x = -12, y = -12 },
 }
 
+max_adjust = 180
+
 ---打印一切信息, 此函数仅用于调试; 
 ---正式版本中不应该看见任何地方调用这个函数
 ---@param info any
@@ -201,7 +205,7 @@ end
 ---@param entity number|nil
 ---@return number|nil x
 ---@return number|nil y
-function r_seed_set( entity )
+function set_r_seed( entity )
 	local a, b, c = time_for_vec3( )
 
 	if ( entity and entity ~= NULL_ENTITY ) then
@@ -215,6 +219,25 @@ function r_seed_set( entity )
 
 		return nil, nil
 	end
+end
+
+---返回平行世界位置
+---@param x number
+---@param y number
+---@return table<number, number, number, number> pw_info
+function get_para_pos( x, y )
+	local p_info = { }
+
+	p_info.pw_lr, p_info.pw_ud = GetParallelWorldPosition( x, y )
+
+	local m_width, m_high = BiomeMapGetSize( )
+
+	local x_half, y_half = chunk_len * m_width / 2, chunk_len * m_high / 2
+
+	p_info.p_x = ( ( x + x_half ) % m_width ) - x_half
+	p_info.p_y = ( ( y + y_half ) % m_high ) - y_half
+
+	return p_info
 end
 
 ---返回任意数据的全大写数据类型
@@ -865,21 +888,20 @@ function get_entity( is_group )
 	if ( is_group ) then
 		local root = EntityGetRootEntity( update )
 
-		if ( update == root ) then
-			return { update }
-		else
-			return { root, update }
-		end
+		return {
+			root = root,
+			update = update,
+		}
 	else
 		return update
 	end
 end
 
----获取 comp 组件所在的根实体
+---获取 comp 组件所在的实体
 ---@param comp any
 ---@return number
 function comp_get_entity( comp )
-	return EntityGetRootEntity( ComponentGetEntity( comp ) )
+	return ComponentGetEntity( comp )
 end
 
 ---获取所有玩家, 包括变形中的
@@ -2431,8 +2453,9 @@ end
 ---@param action_id string
 ---@param entity_id number
 ---@param param_names string[]
+---@param pattern string|nil?
 ---@return table|nil result_table
-function parse_and_evaluate_command_paras( action_id, entity_id, param_names )
+function parse_and_evaluate_command_paras( action_id, entity_id, param_names, pattern )
 	local p_comp = EntityGetFirstComponent( entity_id, 'ProjectileComponent' )
 
 	if ( not p_comp ) then
@@ -2440,7 +2463,7 @@ function parse_and_evaluate_command_paras( action_id, entity_id, param_names )
 	end
 
 	local desc = ComponentObjectGetValue2( p_comp, 'config', 'action_description' )
-	local values = search_table_from_format( desc, action_id, '$' )
+	local values = search_table_from_format( desc, action_id, pattern or '$' )
 
 	if ( not values ) then
 		return nil

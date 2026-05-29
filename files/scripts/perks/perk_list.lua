@@ -774,50 +774,49 @@ local new_perks =
 		stackable_maximum = 3,
 		usable_by_enemies = true,
 		func = function( entity_perk_empty_item, entity_who_picked, item_name )
-			local tag = 'empty_adjust'
+			local tag = 'adjust'
 
-			if ( is_player( entity_who_picked ) ) then
-				local count = tonumber( GlobalsGetValue( 'EMPTY_ADJUST_COUNT', '0' ) ) + 1
-
-				GlobalsSetValue( 'EMPTY_ADJUST_COUNT', tostring( count ) )
-			end
-
-			if ( not is_has_comp( entity_who_picked, 'VariableStorageComponent', tag, nil ) ) then
-				add_comp_remove_dupli( entity_who_picked, 'VariableStorageComponent', tag, {
+			if ( not EntityHasTag( entity_who_picked, tag ) ) then
+				add_comp( entity_who_picked, 'VariableStorageComponent', {
 					_tags = tag,
 					value_int = 0,
-				}, nil )
-			end
+					value_float = 1,
+				} )
 
-			if ( not is_has_comp( entity_who_picked, 'LuaComponent', tag, nil ) ) then
-				add_comp_remove_dupli( entity_who_picked, 'LuaComponent', tag, {
+				add_comp( entity_who_picked, 'LuaComponent', {
 					_tags = tag,
 					script_source_file = empty_path .. 'scripts/perks/adjust_add_frame.lua',
 					execute_every_n_frame = 0,
-				}, nil )
-			end
+				} )
 
-			if ( not is_has_comp( entity_who_picked, 'ShotEffectComponent', tag, nil ) ) then
-				add_comp_remove_dupli( entity_who_picked, 'ShotEffectComponent', tag, {
+				add_comp( entity_who_picked, 'ShotEffectComponent', {
 					_tags = tag,
-					extra_modifier = 'empty_adjust',
+					extra_modifier = 'adjust',
+				} )
+
+				local x, y = EntityGetTransform( entity_who_picked )
+
+				local c1 = EntityLoad( empty_path .. 'entities/misc/perks/adjust_aim_1.xml', x, y )
+				local c2 = EntityLoad( empty_path .. 'entities/misc/perks/adjust_aim_2.xml', x, y )
+
+				EntityAddChild( entity_who_picked, c1 )
+				EntityAddChild( entity_who_picked, c2 )
+
+				EntityAddTag( entity_who_picked, tag )
+			else
+				local count, delta = get_comp_info( entity_who_picked, 'VariableStorageComponent', tag, {
+					{ 'value_int', 0 },
+					{ 'value_float', 1 },
 				}, nil )
+
+				set_comp_value( entity_who_picked, 'VariableStorageComponent', tag, {
+					value_int = count,
+					value_float = delta + 1,
+				}, nil, nil )
 			end
 		end,
 		func_remove = function( entity_who_picked )
-			local count, tag = 0, 'empty_adjust'
-
-			if ( is_player( entity_who_picked ) ) then
-				count = tonumber( GlobalsGetValue( 'EMPTY_ADJUST_COUNT', '0' ) ) - 1
-
-				GlobalsSetValue( 'EMPTY_ADJUST_COUNT', tostring( math.max( count, 0 ) ) )
-			end
-
-			if ( count < 1 ) then
-				remove_all_comp( entity_who_picked, 'VariableStorageComponent', tag, nil )
-				remove_all_comp( entity_who_picked, 'LuaComponent', tag, nil )
-				remove_all_comp( entity_who_picked, 'ShotEffectComponent', tag, nil )
-			end
+			-- TODO
 		end,
 	},
 	{
@@ -1419,6 +1418,73 @@ local new_perks =
 
 local changed_perks = {
 	{
+		id = 'BREATH_UNDERWATER',
+		func = function( entity_perk_item, entity_who_picked, item_name )
+			local swim = { }
+
+			swim.swim_idle, swim.swim_up, swim.swim_down, swim.swim_drag, swim.swim_drag_extra =
+			get_comp_info( entity_who_picked, 'CharacterPlatformingComponent', nil, {
+				{ 'swim_idle_buoyancy_coeff', 1.2 },
+				{ 'swim_up_buoyancy_coeff', 0.9 },
+				{ 'swim_down_buoyancy_coeff', 0.7 },
+				{ 'swim_drag', 0.95 },
+				{ 'swim_extra_horizontal_drag', 0.9 },
+			}, nil )
+
+			swim.swim_idle = swim.swim_idle * 0.6
+			swim.swim_up = swim.swim_up * 0.2
+			swim.swim_down = swim.swim_down * 0.2
+			swim.swim_drag = swim.swim_drag * 1.2
+			swim.swim_drag_extra = swim.swim_drag_extra * 1.2
+
+			set_comp_value( entity_who_picked, 'CharacterPlatformingComponent', nil, swim, nil, nil )
+		end,
+		func_remove = function( entity_who_picked )
+			local swim = { }
+
+			swim.swim_idle, swim.swim_up, swim.swim_down, swim.swim_drag, swim.swim_drag_extra =
+			get_comp_info( entity_who_picked, 'CharacterPlatformingComponent', nil, {
+				{ 'swim_idle_buoyancy_coeff', 1.2 },
+				{ 'swim_up_buoyancy_coeff', 0.9 },
+				{ 'swim_down_buoyancy_coeff', 0.7 },
+				{ 'swim_drag', 0.95 },
+				{ 'swim_extra_horizontal_drag', 0.9 },
+			}, nil )
+
+			swim.swim_idle = swim.swim_idle / 0.6
+			swim.swim_up = swim.swim_up / 0.2
+			swim.swim_down = swim.swim_down / 0.2
+			swim.swim_drag = swim.swim_drag / 1.2
+			swim.swim_drag_extra = swim.swim_drag_extra / 1.2
+
+			set_comp_value( entity_who_picked, 'CharacterPlatformingComponent', nil, swim, nil, nil )
+		end,
+	},
+	{
+		id = 'GOLD_IS_FOREVER',
+		func = function( entity_perk_item, entity_who_picked, item_name )
+			local world = GameGetWorldStateEntity( )
+
+			set_comp_value( world, 'WorldStateComponent', nil, {
+				perk_gold_is_forever = true,
+			}, nil, nil )
+		end,
+		func_remove = function( entity_who_picked )
+			local world = GameGetWorldStateEntity( )
+
+			set_comp_value( world, 'WorldStateComponent', nil, {
+				perk_gold_is_forever = false,
+			}, nil, nil )
+		end,
+	},--[[
+	{
+		id = '',
+		func = function( entity_perk_item, entity_who_picked, item_name )
+		end,
+		func_remove = function( entity_who_picked )
+		end,
+	},]]--
+	{
 		id = 'VAMPIRISM',
 		func = function( entity_perk_item, entity_who_picked, item_name )
 			add_halo_level( entity_who_picked, -1 )
@@ -1455,7 +1521,7 @@ end
 
 update_table_by_id( perk_list, changed_perks, true )
 add_table( perk_list, new_perks, false, false )
---[[
+
 function get_perk_act_count( entity, perk_name )
 	local count = 0
 
@@ -1478,4 +1544,4 @@ end
 function apply_last_bleed( entity, perk_entity )
 	local act_perks = get_act_perks( )
 end
-]]--
+--[[]]--

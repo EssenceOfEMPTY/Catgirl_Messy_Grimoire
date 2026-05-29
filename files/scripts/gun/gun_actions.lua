@@ -815,7 +815,7 @@ local new_actions =
 		spawn_probability				= "0.2,0.4,0.6,0.8,1", -- EMPTY_ORBIT_PROPANE_TANKS
 		price = 320,
 		mana = 320,
-		max_uses = 6,
+		max_uses = 13,
 		action = function( )
 			c.fire_rate_wait	= c.fire_rate_wait + 120
 			current_reload_time = current_reload_time + 120
@@ -3833,77 +3833,36 @@ info_print( data.uses_remaining, 'spell_clear - uses_remaining' )
 		spawn_probability				= '0.2,0.4,0.5', -- EMPTY_ZETA-
 		price = 100,
 		mana = 5,
-		action = function ( recursion_level, iteration, copy_series, copy_specific )
+		action = function ( rec, iter, series, specific )
 			if ( not reflecting ) then
-				local entity_id = GetUpdatedEntityID( )
-				local x, y = EntityGetTransform( entity_id )
-				local wand_index = nil
-				local options = { }
+				local all = { }
 
-				local children = EntityGetAllChildren( entity_id )
-				local inventory = EntityGetFirstComponent( entity_id, 'Inventory2Component' )
+				add_table( all, deck, false, false )
+				add_table( all, hand, false, false )
+				add_table( all, discarded, false, false )
 
-				if ( inventory ) then
-					local active_wand = ComponentGetValue2( inventory, 'mActiveItem' )
+				if ( #all < 1 ) then
+					return
+				end
 
-					for i, child_id in ipairs( children or {} ) do
-						if ( EntityGetName( child_id ) == 'inventory_quick' ) then
-							local wands = EntityGetAllChildren( child_id )
-							for _, wand in ipairs( wands or {} ) do
-								if ( wand == active_wand ) then
-									local spells = EntityGetAllChildren( wand )
-									local temp_spell = { }
-									for j, spell in ipairs( spells or {} ) do
+				for _ = #all, 1, -1 do
+					local data = all[ _ ]
 
-										local comp = EntityGetFirstComponentIncludingDisabled( spell, 'ItemActionComponent' )
-										if ( comp ) then
-											local action_id = ComponentGetValue2( comp, 'action_id' )
-
-											if ( action_id ~= 'EMPTY_ZETA-' and action_id ~= 'EMPTY_ZETA+' and action_id ~= 'RESET' ) then
-												table.insert( temp_spell, action_id )
-											end
-										end
-									end
-
-									if ( #temp_spell > 0 ) then
-										if ( _ == 1 ) or ( _ == wand_index + 1 ) then
-											add_table( options, temp_spell ,true, true )
-										end
-									end
-								end
-							end
-						end
+					if ( data.id == 'EMPTY_ZETA+' or data.id == 'EMPTY_ZETA-' or data.id == 'RESET' ) then
+						table.remove( all, _ )
 					end
 				end
 
-				if ( #options > 0 ) then
-					local a, b, c = time_for_vec3( )
-					SetRandomSeed( x + a - c, y + b - c )
+				if ( #all > 0 ) then
+					local data = get_random_from( all )
+					local rec_new = check_recursion( data, rec )
 
-					local rnd = Random( 1, #options )
-					local action_id = options [ rnd ]
-
-					for _, data in ipairs( actions ) do
-						if ( data.id == action_id ) then
-							local rec = check_recursion( data, recursion_level )
-							if ( rec > -1 ) then
-								local already_ban_draw = dont_draw_actions
-								if not ( already_ban_draw ) then
-									dont_draw_actions = true
-								end
-
-								data.action( rec, nil, {
-									greek_letter = true,
-									[ '-' ] = true,
-									[ 'greek_letter-' ] = true,
-								}, 'zeta' )
-
-								if not ( already_ban_draw ) then
-									dont_draw_actions = false
-								end
-							end
-							break
-						end
+					if ( rec > -1 ) then
+						data.action( rec_new, nil, {
+							greek_letter = true,
+							[ '-' ] = true,
+							[ 'greek_letter-' ] = true,
+						}, 'zeta' )
 					end
 				end
 			end
@@ -3925,7 +3884,7 @@ info_print( data.uses_remaining, 'spell_clear - uses_remaining' )
 		spawn_probability				= '0.1,0.3,0.5,0.4', -- EMPTY_BETA-
 		price = 160,
 		mana = 40,
-		action = function ( recursion_level, iteration, copy_series, copy_specific )
+		action = function ( rec, iter, series, specific )
 			c.fire_rate_wait = c.fire_rate_wait + 15
 
 			local copy_list = { }
@@ -3947,9 +3906,9 @@ info_print( data.uses_remaining, 'spell_clear - uses_remaining' )
 			end
 
 			for _, data in ipairs( copy_list ) do
-				local rec = check_recursion( data, recursion_level )
-				if ( data ) and ( rec > -1 ) and ( data.id ~= 'EMPTY_BETA+' and data.id ~= 'EMPTY_BETA-' and data.id ~= 'RESET' ) then
-					data.action( rec, nil, {
+				local rec_new = check_recursion( data, rec )
+				if ( data ) and ( rec_new > -1 ) and ( data.id ~= 'EMPTY_BETA+' and data.id ~= 'EMPTY_BETA-' and data.id ~= 'RESET' ) then
+					data.action( rec_new, nil, {
 						greek_letter = true,
 						[ '-' ] = true,
 						[ 'greek_letter-' ] = true,
@@ -7921,11 +7880,11 @@ if ( ModSettingGet( 'empty_the_blackhole_catgirl.EFFECT_CHANGE_BOMB' ) ) then
 			max_uses = 24,
 		},
 		{
-			id			= 'STICKY_BOMB',
+			id			= 'EMPTY_STICKY_BOMB',
 			max_uses = 24,
 		},
 		{
-			id			= 'BOUNCY_BOMB',
+			id			= 'EMPTY_BOUNCY_BOMB',
 			max_uses = 24,
 		},
 	}

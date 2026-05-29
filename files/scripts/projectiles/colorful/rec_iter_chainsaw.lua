@@ -1,23 +1,20 @@
 dofile_once( 'data/scripts/lib/utilities.lua' )
 dofile_once( 'mods/empty_the_blackhole_catgirl/files/scripts/empty/empty_command_utility.lua' )
 
-local e_id = get_root_entity( )
+local proj = get_root_entity( )
 
-if ( e_id ~= NULL_ENTITY ) then
-	local p_comp = EntityGetFirstComponent( e_id, 'ProjectileComponent' )
+if ( is_not_0_num( proj ) ) then
+	local paras = parse_and_evaluate_command_paras( 'colorful_rec_iter_projectile_chainsaw', proj, { 'count' } )
 
-	if ( p_comp ) then
-		local paras = parse_and_evaluate_command_paras( 'colorful_rec_iter_projectile_chainsaw', e_id, { 'count' }, 0 )
+	if ( paras and paras.count ) then
+		local count = paras.count
 
-		if ( paras ) then
-			local count = paras[ 'count' ]
+		local dmg = get_comp_obj_info( proj, 'ProjectileComponent', nil, {
+			{ 'damage_by_type', 'slice', 1 / get_scale( ) },
+		}, nil )
 
-			local dmg = ComponentObjectGetValue2( p_comp, 'damage_by_type', 'slice' ) or 0
-			local delta = count ^ ( 1 + get_ng_count( ) )
-
-			dmg = dmg + delta
-
-			ComponentObjectSetValue2( p_comp, 'damage_by_type', 'slice', dmg )
-		end
+		set_comp_obj_value( proj, 'ProjectileComponent', nil, {
+			{ 'damage_by_type', 'slice', dmg + count ^ ( 1 + get_ng_count( ) ) }
+		}, nil, nil )
 	end
 end

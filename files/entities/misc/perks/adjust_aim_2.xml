@@ -1,0 +1,19 @@
+<Entity tags="adjust,adjust_aim_2">
+
+	<LaserEmitterComponent>
+
+		<laser
+			damage_to_entities="0"
+			damage_to_cells="0"
+			max_length="512"
+			beam_radius="0.5"
+			max_cell_durability_to_destroy="0"
+			audio_enabled="0"
+			hit_particle_chance="0"
+			beam_particle_chance="100"
+			beam_particle_type="spark_teal"
+		></laser>
+
+	</LaserEmitterComponent>
+
+</Entity>

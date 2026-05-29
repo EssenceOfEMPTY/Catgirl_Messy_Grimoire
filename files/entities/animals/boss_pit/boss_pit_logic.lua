@@ -1,20 +1,21 @@
 dofile_once( 'mods/empty_the_blackhole_catgirl/files/scripts/empty/empty_utility.lua' )
 
-local entity_id	= GetUpdatedEntityID()
-local x, y = EntityGetTransform( GetUpdatedEntityID() )
+local entity = get_root_entity( )
+local x, y = EntityGetTransform( entity )
 
-set_comp_value( entity_id, 'HitboxComponent', nil, nil, function ( comp )
+set_comp_value( entity, 'HitboxComponent', nil, nil, function ( comp )
 	local dm = ComponentGetValue2( comp, 'damage_multiplier' ) or 1.0
 
 	ComponentSetValue2( comp, 'damage_multiplier', math.min( 1.0, dm + 0.15 ) )
 end, nil )
 
-EntitySetComponentsWithTagEnabled( entity_id, 'invincible', false )
+EntitySetComponentsWithTagEnabled( entity, 'invincible', false )
 
 local state = 0
 local p = ''
 local pathfinding_frames_stuck = 0
-local comps = EntityGetComponent( entity_id, 'VariableStorageComponent' )
+local comps = EntityGetComponent( entity, 'VariableStorageComponent' )
+
 for i, v in ipairs( comps or { } ) do
 	local n = ComponentGetValue2( v, 'name' )
 	if ( n == 'state' ) then
@@ -43,9 +44,9 @@ if ( state == 1 ) then
 
 		local spells = { 'rocket', 'rocket_tier_2', 'rocket_tier_3', 'grenade', 'grenade_tier_2', 'grenade_tier_3', 'rubber_ball' }
 		local rnd = Random( 1, #spells )
-		local path = 'data/entities/projectiles/deck/' .. spells[rnd] .. '.xml'
+		local path = 'data/entities/projectiles/deck/' .. spells[ rnd ] .. '.xml'
 
-		local wid = shoot_projectile( entity_id, 'data/entities/animals/boss_pit/wand.xml', x, y, vel_x, vel_y )
+		local wid = shoot_proj( entity, 'data/entities/animals/boss_pit/wand.xml', x, y, vel_x, vel_y, nil, nil, nil )
 
 		set_comp_value( wid, 'VariableStorageComponent', nil, {
 			value_string = path,
@@ -79,8 +80,7 @@ elseif ( state == 7 ) then
 	-- if we're stuck shoot blackholes towards player
 	if ( pathfinding_frames_stuck > 180 ) then
 		-- we're stuck, lets hunt for that connoisseur of cheese
-		local path = empty_path .. 'entities/projectiles/circle_empty_remove.xml'
-		local wid = shoot_projectile( entity_id, path, x, y, 0, 0 )
+		shoot_proj( entity, empty_path .. 'entities/projectiles/circle_empty_remove.xml', x, y, 0, 0, nil, nil, nil )
 	end
 
 	-- standard logic
@@ -94,6 +94,7 @@ elseif ( state == 7 ) then
 	for _ = 0, 7 do
 		local vel_x = math.cos( arc * _ + offset ) * 300
 		local vel_y = 0 - math.sin( arc * _ + offset ) * 300
-		shoot_projectile( entity_id, path, x, y, vel_x, vel_y )
+
+		shoot_proj( entity, path, x, y, vel_x, vel_y, nil, nil, nil )
 	end
 end

@@ -1,10 +1,8 @@
 dofile_once( 'mods/empty_the_blackhole_catgirl/files/scripts/empty/empty_utility.lua' )
 
-local chunk_length = 512
-
-local DELY_EXPR_PREFIX = '::__DELAY_EXP__::'
-local FUNC_CALL_PREFIX = '__FUNC_CALL__::'
-local ARGS_SEPA_PREFIX = '::__ARGS_SEPA__::'
+DELY_EXPR_PREFIX = '::__DELAY_EXP__::'
+FUNC_CALL_PREFIX = '__FUNC_CALL__::'
+ARGS_SEPA_PREFIX = '::__ARGS_SEPA__::'
 
 e_cmd_funcs = {
 	random_get = {
@@ -34,7 +32,7 @@ e_cmd_funcs = {
 				end
 
 				if ( #extract > 0 ) then
-					local value = random_gets( extract, 1 )[ 1 ]
+					local value = get_random_from( extract )
 
 					command_print( command .. '(', '$empty_command_random_get_success', tostring( value ) )
 					return value
@@ -2430,7 +2428,7 @@ local function command_at_handler( token, token_type, shooter, tar_x, tar_y )
 		group = command_at_handler( '@entities', token_type, shooter, tar_x, tar_y ) or { }
 
 		if ( type( group ) == 'table' ) then
-			group = random_gets( group, 1 )[ 1 ]
+			group = get_random_from( group )
 		end
 	elseif ( token == '@self' ) then
 		return shooter
@@ -2441,10 +2439,10 @@ local function command_at_handler( token, token_type, shooter, tar_x, tar_y )
 			command_print( token, '$empty_command_at_error_no_such_entity' )
 		end
 	elseif ( token == '@chunk_len' ) then
-		group = chunk_length
+		group = chunk_len
 	elseif ( token == '@world_len' ) then
 		local w, h = BiomeMapGetSize( )
-		group = w * chunk_length
+		group = w * chunk_len
 	elseif ( token == '~' ) then
 		if ( token_type == 'table' ) then
 			group = { 0 }

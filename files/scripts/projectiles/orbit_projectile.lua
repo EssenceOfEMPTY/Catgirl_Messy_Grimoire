@@ -12,7 +12,7 @@ local projfile = get_comp_info( entity, 'VariableStorageComponent', 'orbit_proje
 }, nil )
 
 if ( is_not_nil_str( projfile ) ) then
-	local speed = random_gets( { 1, -1 }, 1 )[ 1 ]
+	local speed = get_random_from( { 1, -1 } )
 
 	set_comp_value( entity, 'VariableStorageComponent', 'orbit_projectile', {
 		value_int = speed,

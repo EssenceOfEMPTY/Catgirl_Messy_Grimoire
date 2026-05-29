@@ -319,7 +319,7 @@ end
 ---@param title string?
 ---@param path string|nil?
 function add_effect_random( entity, prolong, duration, title, path )
-	r_seed_set( entity )
+	set_r_seed( entity )
 
 	local eff = all_effs[ Random( 1, #all_effs ) ]
 
